@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <iostream>
-
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_primitives.h>
@@ -363,7 +362,7 @@ int main(int argc, char **argv)
                         player[1]->MoveIA(players,Ball,scale);
                     }
                     
-                    //COMPROBAMOS QUE LA BOLA ESTÁ FUERA
+                    //COMPROBAMOS QUE LA BOLA ESTÃ FUERA
                     if(Ball->GetX()>scale*(320+15)||Ball->GetX()<scale*(-15)){
                         if (Ball->GetX()<-15){
                             player[1]->score++;
@@ -385,7 +384,7 @@ int main(int argc, char **argv)
                         PlayAudio();
                         IniciarPunto(players,0,Ball,player,scale);
                     }
-                    //[END] COMPROBAMOS QUE LA BOLA ESTÁ FUERA
+                    //[END] COMPROBAMOS QUE LA BOLA ESTÃ FUERA
                     
                     if((player[0]->score==11||player[1]->score==11)&&players!=0){
                         gScreen=OVER;
