@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+//salobreña puntual
 #include <allegro5/allegro.h>
 //plotictar monal
 #include <allegro5/allegro_native_dialog.h>
