@@ -6,20 +6,130 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D80F65661A81408A00C3CBB3 /* liballegro_monolith.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D80F65651A81408A00C3CBB3 /* liballegro_monolith.dylib */; };
+		D88952891A8A06F300348AA3 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D88952881A8A06F300348AA3 /* info.plist */; };
+		D8DD47441A82E78800B8A507 /* ioclient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8DD47421A82E78800B8A507 /* ioclient.cpp */; };
+		D8DDA0C31A8167B300221203 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8DDA0C11A8167B300221203 /* libboost_system.a */; };
+		D8DDA0C41A8167B300221203 /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D8DDA0C21A8167B300221203 /* libboost_thread.a */; };
+		D8F3C60517B17DA400E54158 /* arial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D8F3C5FB17B17DA400E54158 /* arial.ttf */; };
+		D8F3C60617B17DA400E54158 /* ball.bmp in Resources */ = {isa = PBXBuildFile; fileRef = D8F3C5FC17B17DA400E54158 /* ball.bmp */; };
+		D8F3C60717B17DA400E54158 /* classes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8F3C5FD17B17DA400E54158 /* classes.cpp */; };
+		D8F3C60817B17DA400E54158 /* funciones.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8F3C5FF17B17DA400E54158 /* funciones.cpp */; };
+		D8F3C60917B17DA400E54158 /* long.bmp in Resources */ = {isa = PBXBuildFile; fileRef = D8F3C60117B17DA400E54158 /* long.bmp */; };
+		D8F3C60A17B17DA400E54158 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8F3C60217B17DA400E54158 /* main.cpp */; };
+		D8F3C60B17B17DA400E54158 /* pong.bmp in Resources */ = {isa = PBXBuildFile; fileRef = D8F3C60317B17DA400E54158 /* pong.bmp */; };
+		D8F76B2B1B10F283006FFCE2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D8F76B2A1B10F283006FFCE2 /* Images.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		D80F65651A81408A00C3CBB3 /* liballegro_monolith.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_monolith.dylib; path = ../../../usr/local/lib/liballegro_monolith.dylib; sourceTree = "<group>"; };
+		D88952881A8A06F300348AA3 /* info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		D8DD47421A82E78800B8A507 /* ioclient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ioclient.cpp; sourceTree = SOURCE_ROOT; };
+		D8DD47431A82E78800B8A507 /* ioclient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ioclient.h; sourceTree = SOURCE_ROOT; };
+		D8DDA0C11A8167B300221203 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../../usr/local/lib/libboost_system.a; sourceTree = "<group>"; };
+		D8DDA0C21A8167B300221203 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = ../../../usr/local/lib/libboost_thread.a; sourceTree = "<group>"; };
+		D8F3C5C617B17CA000E54158 /* PONG4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PONG4.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8F3C5FB17B17DA400E54158 /* arial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = arial.ttf; sourceTree = SOURCE_ROOT; };
+		D8F3C5FC17B17DA400E54158 /* ball.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = ball.bmp; sourceTree = SOURCE_ROOT; };
+		D8F3C5FD17B17DA400E54158 /* classes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = classes.cpp; sourceTree = SOURCE_ROOT; };
+		D8F3C5FE17B17DA400E54158 /* classes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = classes.h; sourceTree = SOURCE_ROOT; };
+		D8F3C5FF17B17DA400E54158 /* funciones.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = funciones.cpp; sourceTree = SOURCE_ROOT; };
+		D8F3C60017B17DA400E54158 /* funciones.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = funciones.h; sourceTree = SOURCE_ROOT; };
+		D8F3C60117B17DA400E54158 /* long.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = long.bmp; sourceTree = SOURCE_ROOT; };
+		D8F3C60217B17DA400E54158 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = SOURCE_ROOT; };
+		D8F3C60317B17DA400E54158 /* pong.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = pong.bmp; sourceTree = SOURCE_ROOT; };
+		D8F76B2A1B10F283006FFCE2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D8F3C5C317B17CA000E54158 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D80F65661A81408A00C3CBB3 /* liballegro_monolith.dylib in Frameworks */,
+				D8DDA0C31A8167B300221203 /* libboost_system.a in Frameworks */,
+				D8DDA0C41A8167B300221203 /* libboost_thread.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
+		D8328C871A82E2A2002D658D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D8F3C5FB17B17DA400E54158 /* arial.ttf */,
+				D8F3C5FC17B17DA400E54158 /* ball.bmp */,
+				D8F3C60117B17DA400E54158 /* long.bmp */,
+				D8F3C60317B17DA400E54158 /* pong.bmp */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		D8F3C5B917B17C7B00E54158 = {
 			isa = PBXGroup;
 			children = (
+				D8DDA0C11A8167B300221203 /* libboost_system.a */,
+				D8DDA0C21A8167B300221203 /* libboost_thread.a */,
+				D80F65651A81408A00C3CBB3 /* liballegro_monolith.dylib */,
+				D8F3C5D017B17CA000E54158 /* PONG4 */,
+				D8F3C5C717B17CA000E54158 /* Products */,
+				D88952881A8A06F300348AA3 /* info.plist */,
 			);
 			sourceTree = "<group>";
 		};
+		D8F3C5C717B17CA000E54158 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D8F3C5C617B17CA000E54158 /* PONG4.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D8F3C5D017B17CA000E54158 /* PONG4 */ = {
+			isa = PBXGroup;
+			children = (
+				D8328C871A82E2A2002D658D /* Resources */,
+				D8DD47421A82E78800B8A507 /* ioclient.cpp */,
+				D8DD47431A82E78800B8A507 /* ioclient.h */,
+				D8F3C5FD17B17DA400E54158 /* classes.cpp */,
+				D8F3C5FE17B17DA400E54158 /* classes.h */,
+				D8F3C5FF17B17DA400E54158 /* funciones.cpp */,
+				D8F3C60017B17DA400E54158 /* funciones.h */,
+				D8F3C60217B17DA400E54158 /* main.cpp */,
+				D8F76B2A1B10F283006FFCE2 /* Images.xcassets */,
+			);
+			path = PONG4;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D8F3C5C517B17CA000E54158 /* PONG4 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D8F3C5E217B17CA100E54158 /* Build configuration list for PBXNativeTarget "PONG4" */;
+			buildPhases = (
+				D8F3C5C217B17CA000E54158 /* Sources */,
+				D8F3C5C317B17CA000E54158 /* Frameworks */,
+				D8F3C5C417B17CA000E54158 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PONG4;
+			productName = PONG4;
+			productReference = D8F3C5C617B17CA000E54158 /* PONG4.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		D8F3C5BB17B17C7B00E54158 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = D8F3C5BE17B17C7B00E54158 /* Build configuration list for PBXProject "PONG4" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -29,23 +139,123 @@
 				en,
 			);
 			mainGroup = D8F3C5B917B17C7B00E54158;
+			productRefGroup = D8F3C5C717B17CA000E54158 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				D8F3C5C517B17CA000E54158 /* PONG4 */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D8F3C5C417B17CA000E54158 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D88952891A8A06F300348AA3 /* info.plist in Resources */,
+				D8F3C60517B17DA400E54158 /* arial.ttf in Resources */,
+				D8F3C60617B17DA400E54158 /* ball.bmp in Resources */,
+				D8F76B2B1B10F283006FFCE2 /* Images.xcassets in Resources */,
+				D8F3C60917B17DA400E54158 /* long.bmp in Resources */,
+				D8F3C60B17B17DA400E54158 /* pong.bmp in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D8F3C5C217B17CA000E54158 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8F3C60717B17DA400E54158 /* classes.cpp in Sources */,
+				D8F3C60817B17DA400E54158 /* funciones.cpp in Sources */,
+				D8F3C60A17B17DA400E54158 /* main.cpp in Sources */,
+				D8DD47441A82E78800B8A507 /* ioclient.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		D8F3C5C017B17C7B00E54158 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
 		};
 		D8F3C5C117B17C7B00E54158 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+			};
+			name = Release;
+		};
+		D8F3C5E317B17CA100E54158 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				INFOPLIST_FILE = "$(SRCROOT)/info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		D8F3C5E417B17CA100E54158 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				INFOPLIST_FILE = "$(SRCROOT)/info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
 		};
@@ -57,6 +267,15 @@
 			buildConfigurations = (
 				D8F3C5C017B17C7B00E54158 /* Debug */,
 				D8F3C5C117B17C7B00E54158 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D8F3C5E217B17CA100E54158 /* Build configuration list for PBXNativeTarget "PONG4" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8F3C5E317B17CA100E54158 /* Debug */,
+				D8F3C5E417B17CA100E54158 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
