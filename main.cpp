@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_primitives.h>
@@ -160,7 +161,7 @@ int main(int argc, char **argv)
     bool finish=false;//, draw= true;
     float fps=0;
     float frames_done=0;
-    double old_time =0;// al_get_time(); 
+    double old_time =0;// al_get_time();
     int resX=DEF_W,resY=DEF_H;
     
     if(!al_init()) {
