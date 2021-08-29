@@ -16,6 +16,7 @@
 using namespace std;
 
 class ioClient{
+
     int timeout;
     boost::thread *io_th, *send_th;
     boost::asio::streambuf buff;
@@ -29,14 +30,19 @@ class ioClient{
     void check_deadline();
     void io_task();
     void send_task();
+
 public:
+
     bool stopped,connected;
     
-    ioClient():deadline(io_service),socket(io_service){connected=stopped=0;}
-    void Reset(){connected=stopped=0;io_service.stop();io_service.reset();socket.close();}
+    ioClient():deadline(io_service), socket(io_service){
+		connected = stopped = 0;
+	}
+    void Reset();
     void Connect(string ip, string port);
     const char* FetchPacket();
     int SendPacket(string pkg);
+
 };
 
 #endif
