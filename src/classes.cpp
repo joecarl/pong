@@ -3,7 +3,7 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_image.h>
 #include "classes.h"
-#include "funciones.h"
+#include "utils.h"
 #include <math.h>
 
 element::element(bool iscircle, int bonus, const char *filename){
@@ -24,7 +24,7 @@ element::element(bool iscircle, int bonus, const char *filename){
 
 }
 
-void element::Process(int scale,int plyrNum,playerP* players[]){
+void element::Process(int scale, int plyrNum, playerP* players[]){
 
 	if(stat){
 		x = x00 + vX * t;

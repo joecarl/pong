@@ -14,7 +14,7 @@ mkdir $BUILD_DIR/obj > /dev/null 2>&1
 
 scripts=()
 scripts+=(classes)
-scripts+=(funciones)
+scripts+=(utils)
 scripts+=(ioclient)
 scripts+=(main)
 
