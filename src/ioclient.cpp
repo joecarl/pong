@@ -40,7 +40,7 @@ const char* ioClient::FetchPacket(){
 	if (pkgin_queue.size() > 0){
 
         string out = pkgin_queue[0];
-        for (int i = 0; i < pkgin_queue.size() - 1; i++){
+        for (unsigned int i = 0; i < pkgin_queue.size() - 1; i++){
             pkgin_queue[i] = pkgin_queue[i + 1];
         }
         pkgin_queue.pop_back();
@@ -64,7 +64,7 @@ void ioClient::send_task(){
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
         if(pkgout_queue.size() > 0 && connected){
             boost::asio::write(socket, boost::asio::buffer(pkgout_queue[0].c_str(), pkgout_queue[0].length()), error);
-            for (int i = 0; i < pkgout_queue.size() - 1; i++)
+            for (unsigned int i = 0; i < pkgout_queue.size() - 1; i++)
                 pkgout_queue[i] = pkgout_queue[i + 1];
             pkgout_queue.pop_back();
         }

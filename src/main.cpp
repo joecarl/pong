@@ -13,7 +13,7 @@
 #include <string>
 #include <math.h>
 #include "classes.h"
-#include "funciones.h"
+#include "utils.h"
 #include "ioclient.h"
 #define ESC	27
 
@@ -44,7 +44,7 @@ void keyb_task(){
 	while (1){
 
 		al_get_keyboard_state(&keyState);
-		for (int i = 0; i<ALLEGRO_KEY_MAX; i++) {
+		for (int i = 0; i < ALLEGRO_KEY_MAX; i++) {
 			keys[i] = al_key_down(&keyState, i);
 		}
 		//usleep(1000*20);
@@ -60,7 +60,7 @@ void timer_task(int *ms){
 	}
 }
 
-void MostrarMenu(int sc,ALLEGRO_BITMAP* logo){
+void MostrarMenu(int sc, ALLEGRO_BITMAP* logo){
 
 	al_draw_bitmap(logo, (sc-1)*DEF_W/2, (sc-1)*50, 0);
 	al_draw_text( font, al_map_rgb( 255, 255, 255), sc*DEF_W/2, sc*110,ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR" );
@@ -140,7 +140,7 @@ string GetData(string pkg,string field){
 int main(int argc, char **argv){
 	
 	bool paused = 0, start_connection = 0;
-	for (int i = 0; i < sizeof(keys); i++) keys[i] = 0;
+	for (unsigned int i = 0; i < sizeof(keys); i++) keys[i] = 0;
 	int gScreen, players;
 	float scale = 1.0;
 	int bonus_time[2] = {-1, -1};
@@ -259,8 +259,7 @@ int main(int argc, char **argv){
 				
 				if (events.keyboard.keycode != ALLEGRO_KEY_ENTER) {
 					input.ProcessKey(events.keyboard.unichar, events.keyboard.keycode);
-				}
-				else{
+				} else {
 					input.Finish();
 					start_connection = true;
 				}
