@@ -10,4 +10,4 @@ Allego5 based.
 1. Desde MSYS2-MSYS actualizar los paquetes con `pacman -Syuu` hasta que no se pueda más (mirar el tutorial de instalación por si acaso).
 1. Desde MSYS2-MSYS navegar al directorio del proyecto y ejecutar `bash installdeps.sh`.
 1. Ejecutar `bash win-build.sh` (esto se puede hacer desde Git Bash).
-1. Por ahora, para ejecutar el archivo compilado es necesario incluir en el PATH la carpeta `bin` de mingw64.
+1. Para lanzar la aplicación utilizar `bash win-run.sh`. Este comando incluye en el PATH la carpeta `bin` de mingw64. Por ahora para distribuir la aplicación sería necesario copiar una gran cantidad de DLLs de dicha carpeta. 
