@@ -36,11 +36,25 @@ for SCRIPT in ${scripts[@]}; do
 	fi
 done
 
+ADDL_LINK_OPTS=""
+
+if [ $1 == "win" ]; then
+	echo "Compiling Windows resources ..."
+	for RCFILE in $SRC_DIR/windres/*.rc; do 
+		bname=$(basename $RCFILE);
+		echo "$RCFILE ---> $bname.res";
+		windres $RCFILE -O coff -o $BUILD_DIR/$bname.res;
+	done
+	ADDL_LINK_OPTS=$BUILD_DIR/*.res
+fi
+
+
 echo "Linking ..."
 
 g++ -o $BUILD_DIR/PONG.exe $BUILD_DIR/obj/* -static-libstdc++ -static-libgcc \
 -lallegro -lallegro_image -lallegro_main -lallegro_ttf -lallegro_primitives -lallegro_audio -lallegro_font \
--lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lws2_32
+-lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lws2_32 \
+$ADDL_LINK_OPTS
 
 if [ $? -ne 0 ]; then
 	echo "Linking ERROR! Exiting...";
