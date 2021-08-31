@@ -78,7 +78,7 @@ class element{
     public:
 
     element(bool iscircle, int bonus, const char *filename);
-    void SetParameters(float px, float py, float vx, float vy,int st=1); //Configures to start a new movement
+    void SetParameters(float px, float py, float vx, float vy,int st = 1); //Configures to start a new movement
     void ProcessColliding(int scale, int plyrNum, playerP* players[]);
     void Process(int scale, int plyrNum, playerP* players[]);//Moves, tests collinding and draws the element
     int GetStat(){ return stat; }

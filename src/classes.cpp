@@ -1,14 +1,18 @@
+#include "classes.h"
+#include "utils.h"
+
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_image.h>
-#include "classes.h"
-#include "utils.h"
 #include <math.h>
-
+#include <stdexcept>
+#include <iostream>
 
 #define INIX 160
 #define INIY 100
+
+using namespace std;
 
 PongGame::PongGame(float sc, ALLEGRO_FONT* font){
 
@@ -121,14 +125,16 @@ void PongGame::processTick(bool* keys){
 	ball->Process(scale, this->numPlayers, players);
 
 	for(int i = 0; i < 2; i++){
-		if(bonus[i]->GetStat() == 0 && bonus_time[i] > 1000 && !(rand() % 100)){
-			bonus[i]->SetParameters(100 + rand() % 140, 70 + rand() % 60, random_ex(2, 1.5), random_ex(2, 1.5));
+
+		if( bonus[i]->GetStat() == 0 && bonus_time[i] > 1000 && random_ex(0, 10000) < 1.0 ){
+			bonus[i]->SetParameters(random_ex(100, 240), random_ex(70, 130), random_ex(1.5, 2.0, true), random_ex(1.5, 2.0, true));
 			bonus_time[i] =- 1;
 		}
+
 		bonus[i]->Process(scale, this->numPlayers, players);
 		if(bonus[i]->GetStat() == 0 && bonus_time[i] == -1)
 			bonus_time[i] = 1;
-		if(bonus_time>0)
+		if(bonus_time > 0)
 			bonus_time[i]++;
 	}
 
@@ -148,10 +154,12 @@ element::element(bool iscircle, int bonus, const char *filename){
 	x = y = x00 = y00 = -100;
 
 	if(!iscircle){
-		printf("cargando bitmap...\n");
+		cout << "Loading bitmap: " << filename << endl;
 		sprite = al_load_bitmap(filename);
 		al_convert_mask_to_alpha(sprite, ALPHA_COLOR);
-		if(!sprite) printf("error al cargar bitmap\n");
+		if(!sprite){
+			throw std::runtime_error("error loading bitmap");
+		}
 	}
 
 	isCircle = iscircle;
@@ -205,7 +213,7 @@ void element::Draw(int scale){
 
 }
 
-void element::SetParameters(float px, float py, float vx, float vy,int st){
+void element::SetParameters(float px, float py, float vx, float vy, int st){
 
 	x = x00 = px;
 	y = y00 = py;
