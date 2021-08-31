@@ -13,15 +13,15 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-using namespace std;
+
 
 class ioClient{
 
     int timeout;
     boost::thread *io_th, *send_th;
     boost::asio::streambuf buff;
-    vector<string> pkgout_queue;
-    vector<string> pkgin_queue;
+    std::vector<std::string> pkgout_queue;
+    std::vector<std::string> pkgin_queue;
     boost::asio::io_service io_service;
     boost::asio::deadline_timer deadline;
     boost::asio::ip::tcp::socket socket;
@@ -39,9 +39,9 @@ public:
 		connected = stopped = 0;
 	}
     void Reset();
-    void Connect(string ip, string port);
+    void Connect(std::string ip, std::string port);
     const char* FetchPacket();
-    int SendPacket(string pkg);
+    int SendPacket(std::string pkg);
 
 };
 

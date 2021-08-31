@@ -9,6 +9,7 @@
 #include "ioclient.h"
 #include <boost/asio/deadline_timer.hpp>
 using boost::asio::ip::tcp;
+using namespace std;
 
 void ioClient::Connect(string ip, string port){
     try{
