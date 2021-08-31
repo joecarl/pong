@@ -13,6 +13,8 @@ mkdir $BUILD_DIR > /dev/null 2>&1
 mkdir $BUILD_DIR/obj > /dev/null 2>&1
 
 scripts=()
+scripts+=(hengine)
+scripts+=(stages)
 scripts+=(classes)
 scripts+=(utils)
 scripts+=(ioclient)
@@ -30,7 +32,8 @@ for SCRIPT in ${scripts[@]}; do
 		g++ $GLOBAL_PARAMS -c $source_file -o $target_file
 
 		if [ $? -ne 0 ]; then
-			echo "Compiling ERROR! Exiting...";
+			echo "Compiling ERROR! Press any key to exit...";
+			read -n 1
 			exit 1
 		fi
 	fi
@@ -53,7 +56,7 @@ echo "Linking ..."
 
 g++ -o $BUILD_DIR/PONG.exe $BUILD_DIR/obj/* -static-libstdc++ -static-libgcc \
 -lallegro -lallegro_image -lallegro_main -lallegro_ttf -lallegro_primitives -lallegro_audio -lallegro_font \
--lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lws2_32 \
+-lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lboost_json-mt -lws2_32 \
 $ADDL_LINK_OPTS
 
 if [ $? -ne 0 ]; then
