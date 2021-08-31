@@ -21,6 +21,10 @@ void Stage::draw(){
 
 }
 
+void Stage::onTick(){
+
+}
+
 void Stage::onEnterStage(){
 
 }
@@ -64,7 +68,7 @@ void HGameEngine::setStage(unsigned int stageID){
 	this->activeStageID = stageID;
 	this->mustRunOnEnterStage = true;
 
-	std::cout << "setStage: " << this->activeStageID << std::endl;
+	std::cout << " > setStage: " << this->activeStageID << std::endl;
 
 }
 
@@ -78,6 +82,8 @@ void HGameEngine::runTick(){
 		activeStage->onEnterStage();
 		this->mustRunOnEnterStage = false;
 	}
+
+	activeStage->onTick();
 
 	//std::cout << "done!" << std::endl;
 

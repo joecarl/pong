@@ -24,6 +24,8 @@ public:
 
 	virtual void onEvent(ALLEGRO_EVENT event);
 
+	virtual void onTick();
+
 	virtual void draw();
 
 	virtual void onEnterStage();
