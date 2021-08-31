@@ -300,7 +300,7 @@ void GameOverStage::onEnterStage(){
 
 void GameOverStage::onEvent(ALLEGRO_EVENT event){
 
-        if(event.type == ALLEGRO_EVENT_KEY_DOWN){
+    if(event.type == ALLEGRO_EVENT_KEY_DOWN){
 
         int keycode = event.keyboard.keycode;
 
@@ -311,7 +311,7 @@ void GameOverStage::onEvent(ALLEGRO_EVENT event){
             this->engine->setStage(MENU);
         }
 
-        }
+    }
 
 }
 
@@ -336,15 +336,13 @@ void GameOverStage::draw(){
 
 ConnStage::ConnStage(HGameEngine* _engine):Stage(_engine){
 
-    addr[0] = '\0';
-
     this->input = new JC_TEXTINPUT(this->engine->font);
 
 }
 
 void ConnStage::onEnterStage(){
 
-    input->Start(addr);
+    input->start();
     //al_flush_event_queue(event_queue);
     connection.Reset();
     
@@ -357,9 +355,10 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
         if(input->active){
             
             if (event.keyboard.keycode != ALLEGRO_KEY_ENTER) {
-                input->ProcessKey(event.keyboard.unichar, event.keyboard.keycode);
+                input->processKey(event.keyboard.unichar, event.keyboard.keycode);
             } else {
-                input->Finish();
+                input->finish();
+                server = input->getValue();
                 start_connection = true;
             }
         }
@@ -392,9 +391,10 @@ void ConnStage::draw(){
         if(!connection.stopped){
             al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
             if (start_connection) {
-                server = addr;
-                if (server == "")
+                
+                if (server == ""){
                     server = "copinstar.com";
+                }
                 connection.Connect(server, "25000");//addr
                 start_connection = false;
                 
@@ -423,7 +423,7 @@ void ConnStage::draw(){
         }
     }
 
-    if(input->active)
-        input->Draw(30, 60);
-
+    if(input->active){
+        input->draw(30, 60);
+    }
 }

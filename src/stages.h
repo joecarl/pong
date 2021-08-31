@@ -63,8 +63,6 @@ class ConnStage: public Stage{
 
 	JC_TEXTINPUT* input;
 
-	char addr[20];
-
 	string server;
 
 	bool start_connection = 0;
