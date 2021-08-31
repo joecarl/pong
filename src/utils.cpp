@@ -1,19 +1,23 @@
 #include "utils.h"
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <math.h>
 #include <string>
-#include <stdio.h>
+#include <cstdlib>
 
 using namespace std;
 
-float random_ex(int max, float min){
+float random_ex(float min, float max, bool rand_sign){
 
-	float num = 0.0;
-	while(num < 0.1 + min * 10 && num > -(0.1 + min * 10))
-		num = rand() % (20 * max) - 10 * max;
-	return num / 10;
+	float rnd_factor = rand() / RAND_MAX;
+	float num =  min + rnd_factor * (max - min);
+	
+	if(rand_sign && rand() > RAND_MAX / 2){
+		num = -num;
+	}
 
+	return num;
 }
 
 #define FREC_MUESTREO 48000
@@ -41,14 +45,16 @@ void PlaySound(int nota, float time, int octava) {
 string GetWaitString(){
 
 	static string pts;
-	static int resize_timer, pts_len = 0;
+	static int resize_timer = 0, pts_len = 0;
 	
-	resize_timer = ++resize_timer % 30;
+	resize_timer++;
+	resize_timer = resize_timer % 30;
 	
 	if(resize_timer == 19){
 		pts = "...";
 		pts.resize(++pts_len % 4);
 	}
+	
 	return pts;
 }
 
@@ -124,11 +130,11 @@ void ShowKeyBoardMatrix(){
 JC_TEXTINPUT::JC_TEXTINPUT(ALLEGRO_FONT* fuente){
 	
 	font = fuente;//al_load_ttf_font("font.ttf", 2*9, 0);
-	Reset();
+	reset();
 
 }
 
-void JC_TEXTINPUT::Reset(){
+void JC_TEXTINPUT::reset(){
 
 	edittext = "";
 	iter = edittext.begin();
@@ -136,13 +142,13 @@ void JC_TEXTINPUT::Reset(){
 	caret_time = 0;
 	insert = true;
 	active = false;
-	destino = NULL;
 
 }
 
-void  JC_TEXTINPUT::ProcessKey(wchar_t ASCII, int control_key) {
+void  JC_TEXTINPUT::processKey(wchar_t ASCII, int control_key) {
+
 	if(ASCII >= 32 && ASCII <= 126) {
-		//printf("ascii code pressed\n");
+		
 		// add the new char, inserting or replacing as need be
 		if(insert || iter == edittext.end())
 			iter = edittext.insert(iter, ASCII);
@@ -152,7 +158,9 @@ void  JC_TEXTINPUT::ProcessKey(wchar_t ASCII, int control_key) {
 		// increment both the caret and the iterator
 		caret++;
 		iter++;
+
 	}
+
 	// some other, "special" key was pressed; handle it here
 	else switch(control_key){
 
@@ -187,7 +195,7 @@ void  JC_TEXTINPUT::ProcessKey(wchar_t ASCII, int control_key) {
 
 }
 
-void  JC_TEXTINPUT::Draw(int x, int y){
+void  JC_TEXTINPUT::draw(int x, int y){
 
 	al_draw_text(font, WHITE, x, y, ALLEGRO_ALIGN_LEFT, edittext.c_str());
 
@@ -215,25 +223,23 @@ void  JC_TEXTINPUT::Draw(int x, int y){
 
 }
 
-void JC_TEXTINPUT::Start(char* dest){
-	Reset();
-	destino = dest;
+void JC_TEXTINPUT::start(){
+
+	reset();
 	active = true;
+
 }
 
-void  JC_TEXTINPUT::Finish(){
+void  JC_TEXTINPUT::finish(){
 
-	if (destino != NULL) {
-		strcpy(destino, edittext.c_str());
-		destino = NULL;
-		active = false;
-	} else {
-		throw 1;
-	}
+	active = false;
+
 }
 
-const char* JC_TEXTINPUT::GetValue(){
-	return edittext.c_str();
+std::string JC_TEXTINPUT::getValue(){
+
+	return edittext;
+
 }
 
 
