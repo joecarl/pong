@@ -1,6 +1,11 @@
 #ifndef CLASSESH
 #define CLASSESH
 
+#include <allegro5/allegro_native_dialog.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+
 #define GROSOR  3
 #define MEDLEN  9
 #define RADIUS  6
@@ -30,6 +35,37 @@
 class playerP;
 class element;
 
+class PongGame{
+
+public:
+
+    int bonus_time[2] = {-1, -1};
+
+    float scale = 1.0;
+
+    unsigned int numPlayers;
+
+    bool paused = false, finished = false;
+
+    playerP* players[2];
+
+	element *ball, *bonus[2];
+
+    
+    PongGame(float sc, ALLEGRO_FONT* font);
+
+    void restart();
+
+    void togglePause();
+
+    void iniciarPunto(int first);
+
+    void giveScore(playerP* pl, int score);
+
+    void processTick(bool* keys);
+
+};
+
 class element{
 	
 	ALLEGRO_BITMAP* sprite;
@@ -44,7 +80,7 @@ class element{
     element(bool iscircle, int bonus, const char *filename);
     void SetParameters(float px, float py, float vx, float vy,int st=1); //Configures to start a new movement
     void ProcessColliding(int scale, int plyrNum, playerP* players[]);
-    void Process(int scale,int plyrNum,playerP* players[]);//Moves, tests collinding and draws the element
+    void Process(int scale, int plyrNum, playerP* players[]);//Moves, tests collinding and draws the element
     int GetStat(){ return stat; }
     void SetStat(int st){ stat = st; }
     int GetX(){ return x; }
@@ -63,7 +99,7 @@ class playerP{
 
     public:
 
-    int score, medlen, bonus_ball;
+    int score, medlen, bonus_ball, racha;
 
     playerP(int px, int py, ALLEGRO_FONT* _font);
     void GiveBonus(int bonus_type);

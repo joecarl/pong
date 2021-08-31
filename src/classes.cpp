@@ -6,10 +6,146 @@
 #include "utils.h"
 #include <math.h>
 
+
+#define INIX 160
+#define INIY 100
+
+PongGame::PongGame(float sc, ALLEGRO_FONT* font){
+
+	ball = new element(true, 0, "");
+	players[0] = new playerP(scale * 1, 50, font);
+	players[1] = new playerP(scale * (DEF_W-GROSOR/2), 50, font);
+	bonus[0] = new element(false, BONUS_LONG, LONG_DIR);
+	bonus[1] = new element(false, BONUS_BALL, BALL_DIR);
+	this->numPlayers = 0;
+	this->scale = sc;
+
+}
+
+void PongGame::restart(){
+	
+	this->players[0]->score = 0;
+	this->players[1]->score = 0;
+	this->finished = false;
+
+}
+
+void PongGame::togglePause(){
+
+	paused = !paused;
+
+}
+
+void PongGame::iniciarPunto(int first){
+
+	int tvx = 0;
+	if(first == 1){
+		players[0]->score = 0; 
+		players[1]->score = 0;
+		while(tvx == 0)
+			tvx = scale * 2 * (rand() % 3 - 1);
+	}
+	else tvx = (int)ball->GetvX();
+	players[0]->medlen = MEDLEN; 
+	players[1]->medlen = MEDLEN;
+	players[0]->bonus_ball = 0; players[1]->bonus_ball = 0;
+	ball->SetParameters(scale * INIX, scale * INIY, tvx, scale * 0.5 * (rand() % 3 - 1));
+	players[0]->SetY(scale * 40);
+	players[1]->SetY(scale * 160);
+
+	//printf("iniciado nuevo punto\n");
+	
+}
+
+void PongGame::giveScore(playerP* pl, int score){
+
+	for(unsigned int i = 0; i < this->numPlayers; i++){
+		playerP* iterPl = this->players[i];
+		if(iterPl != pl){
+			iterPl->racha = 0;
+		}
+	}
+	
+	pl->score+= score;
+	pl->racha++;
+
+	if(pl->racha > 3){
+		pl->GiveBonus(BONUS_IMPA);
+	}
+
+}
+
+
+void PongGame::processTick(bool* keys){
+
+	if(this->paused || this->finished){
+		return;
+	}
+
+	if(keys[ALLEGRO_KEY_G]) players[0]->medlen += 1;//DEBUG
+
+	if(this->numPlayers == 2){
+		players[1]->ControlMove(scale, keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN], keys[ALLEGRO_KEY_I], keys[ALLEGRO_KEY_K]);
+		players[0]->ControlMove(scale, keys[ALLEGRO_KEY_W], keys[ALLEGRO_KEY_S]);
+	} else {
+		players[0]->ControlMove(scale, keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN]);
+		players[1]->MoveIA(this->numPlayers, ball, scale);
+	}
+	
+	//COMPROBAMOS QUE LA BOLA ESTÁ FUERA
+	if(ball->GetX() > scale * (320 + 15) || ball->GetX() < scale * (-15) ){
+
+		if(ball->GetX() < -15){
+			this->giveScore(players[1], 1);
+		} else {
+			this->giveScore(players[0], 1);
+		}
+
+		//this->triggerEvent("scored");
+
+		PlaySound(Re, 130);
+		PlaySound(Do, 250);
+		PlayAudio();
+
+		this->iniciarPunto(0);
+
+	}
+	
+	if((players[0]->score == 11 || players[1]->score == 11) && this->numPlayers != 0){
+
+		this->finished = true;
+		return;
+
+	}
+
+	ball->Process(scale, this->numPlayers, players);
+
+	for(int i = 0; i < 2; i++){
+		if(bonus[i]->GetStat() == 0 && bonus_time[i] > 1000 && !(rand() % 100)){
+			bonus[i]->SetParameters(100 + rand() % 140, 70 + rand() % 60, random_ex(2, 1.5), random_ex(2, 1.5));
+			bonus_time[i] =- 1;
+		}
+		bonus[i]->Process(scale, this->numPlayers, players);
+		if(bonus[i]->GetStat() == 0 && bonus_time[i] == -1)
+			bonus_time[i] = 1;
+		if(bonus_time>0)
+			bonus_time[i]++;
+	}
+
+}
+
+
+
+
+
+
+
+
+
 element::element(bool iscircle, int bonus, const char *filename){
 
 	vX = vY = t = 0;
-	x = y = -100;
+	x = y = x00 = y00 = -100;
 
 	if(!iscircle){
 		printf("cargando bitmap...\n");
@@ -27,8 +163,9 @@ element::element(bool iscircle, int bonus, const char *filename){
 void element::Process(int scale, int plyrNum, playerP* players[]){
 
 	if(stat){
+
 		x = x00 + vX * t;
-		y= y00 + vY * t;
+		y = y00 + vY * t;
 		t++;
 
 		if(isCircle){
@@ -39,24 +176,33 @@ void element::Process(int scale, int plyrNum, playerP* players[]){
 			else
 				radius= RADIUS;
 		}
-		ProcessColliding(scale,plyrNum,players);
-		//al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255,255,255));
-		if(isCircle)
-			al_draw_filled_circle( x, y, radius*scale, al_map_rgb( 255,255, 255));
-		else
-			al_draw_bitmap( sprite,x-10,y-10,0);// x-sprite->w/2, y-sprite->h/2);
-		if(x < -scale*80 || x > scale * DEF_W + 50)
-			stat=0;
 
-	//ProcessColliding(scale,plyrNum,players);
+		ProcessColliding(scale, plyrNum, players);
+		
+		if(x < -scale * 80 || x > scale * DEF_W + 50){
+			stat = 0;
+		}
+
 	}
+
 }
 
 void element::Draw(int scale){
-	if(isCircle)
+
+	if(!this->stat){
+		return;
+	}
+
+	if(isCircle){
+
 		al_draw_filled_circle(x, y, radius*scale, al_map_rgb( 255,255, 255));
-	else
+
+	} else {
+
 		al_draw_bitmap(sprite, x - 10, y - 10, 0);// x-sprite->w/2, y-sprite->h/2);
+
+	}
+
 }
 
 void element::SetParameters(float px, float py, float vx, float vy,int st){
@@ -70,27 +216,27 @@ void element::SetParameters(float px, float py, float vx, float vy,int st){
 
 }
 
-void element::ProcessColliding(int scale,int plyrNum,playerP* players[]){
+void element::ProcessColliding(int scale, int plyrNum, playerP* players[]){
 
 	//CHOQUE CON LA PARTE DE ARRIBA
-	if(y <= scale*(radius+LIMIT))
+	if(y <= scale * (radius + LIMIT))
 		SetParameters(this->x, scale*(radius+LIMIT+1), this->vX, -this->vY, stat);
 
 	//CHOQUE CON LA PARTE DE ABAJO
-	if(y >= scale*(MAX_Y-radius-LIMIT))
-		SetParameters(this->x, scale*(MAX_Y-radius-LIMIT-1), this->vX, -this->vY, stat);
+	if(y >= scale * (MAX_Y - radius - LIMIT))
+		SetParameters(this->x, scale * (MAX_Y - radius - LIMIT - 1), this->vX, -this->vY, stat);
 
 	//CHOQUE CON LA PALA IZDA
 	if(x <= scale * (radius + GROSOR)){
 		if(fabs(y-players[0]->GetY()) < scale * (players[0]->medlen+radius) && x > scale * (GROSOR)){
 			if(isCircle){
-				if(y-players[0]->GetY()>scale*2) vY += 1;
-				else if (y-players[0]->GetY()>scale*1) vY += 0.5;
-				if(y-players[0]->GetY()<-scale*2) vY -= 1;
-				if (y-players[0]->GetY()<-scale*1) vY -= 0.5;
-					PlaySound(Mi,40,4);
+				if(y - players[0]->GetY() > scale*2) vY += 1;
+				else if (y - players[0]->GetY() > scale*1) vY += 0.5;
+				if(y - players[0]->GetY() < -scale*2) vY -= 1;
+				if (y - players[0]->GetY() < -scale*1) vY -= 0.5;
+					PlaySound(Mi, 40, 4);
 					PlayAudio();
-				SetParameters(scale*(radius+GROSOR+1),y,-vX,vY,stat);
+				SetParameters(scale * (radius + GROSOR + 1), y, -vX, vY, stat);
 			} else {
 				stat = 0;
 				players[0]->GiveBonus(bonus_type);
@@ -100,32 +246,41 @@ void element::ProcessColliding(int scale,int plyrNum,playerP* players[]){
 
 	//CHOQUE CON LA PALA DCHA
 	int grosorB;
-	if(plyrNum!=0) grosorB = GROSOR;
+	if(plyrNum != 0) grosorB = GROSOR;
 	else grosorB = 0;
 
-	if(x >= scale*(320-radius-grosorB)){
-		if(fabs(y-players[1]->GetY()) < scale * (players[1]->medlen+radius) && x < scale * (320-grosorB)){
+	if(x >= scale * (320 - radius - grosorB)){
+
+		if(fabs(y - players[1]->GetY()) < scale * (players[1]->medlen + radius) && x < scale * (320 - grosorB)){
+
 			if(isCircle){
-				if(plyrNum!=0){
-					if(y-players[1]->GetY()>scale*2)vY+=1;
-					else if (y-players[1]->GetY()>scale*1)vY+=0.5;
-					if(y-players[1]->GetY()<-scale*2)vY-=1;
-					if (y-players[1]->GetY()<-scale*1)vY-=0.5;
-					PlaySound(Mi,40,4);
+
+				if(plyrNum != 0){
+					if(y - players[1]->GetY() > scale * 2) vY += 1;
+					else if (y - players[1]->GetY() > scale * 1) vY += 0.5;
+					if(y - players[1]->GetY() < -scale * 2) vY -= 1;
+					if (y - players[1]->GetY() < -scale * 1) vY -= 0.5;
+					PlaySound(Mi, 40, 4);
 					PlayAudio();
 				}
-				SetParameters(scale*(320-radius-grosorB-1),y,-vX,vY,stat);
+				SetParameters(scale*(320 - radius - grosorB - 1), y, -vX, vY, stat);
+
 			} else {
-				stat=0;
+
+				stat = 0;
 				players[1]->GiveBonus(bonus_type);
 			}
+
 		}
+
 	}
+
 }
 
 //------------------------------------------------------------------------------
 
 playerP::playerP(int px, int py, ALLEGRO_FONT* _font){
+
 	font = _font;
 	x = px;
 	y = py;
@@ -134,6 +289,7 @@ playerP::playerP(int px, int py, ALLEGRO_FONT* _font){
 	score = 0;
 	comTxtY = -40;//DESACTIVADA
 	bonus_ball = 0;
+
 }
 
 void playerP::LockLimit(int scale){
@@ -212,17 +368,17 @@ void playerP::GiveBonus(int bonus_type){
 
 	if(bonus_type == BONUS_LONG){
 		medlen += 7;
-		strcpy(comTxt,"LONGERRR");
+		strcpy(comTxt, "LONGERRR");
 		comTxtY = 150;
 	}
 
 	if(bonus_type == BONUS_IMPA){
-		strcpy(comTxt,"UNSTOPABLE");
+		strcpy(comTxt, "UNSTOPABLE");
 		comTxtY = 150;
 	}
 
 	if(bonus_type == BONUS_BALL){
-		strcpy(comTxt,"SPECIAL BALL");
+		strcpy(comTxt, "SPECIAL BALL");
 		comTxtY = 150;
 		bonus_ball = 80;
 	}
