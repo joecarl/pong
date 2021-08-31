@@ -7,6 +7,19 @@
 #include "utils.h"
 
 
+#ifdef __APPLE__
+#define LONG_DIR "../Resources/long.bmp"
+#define BALL_DIR "../Resources/ball.bmp"
+#define LOGO_DIR "../Resources/pong.bmp"
+#define FONT_DIR "../Resources/font.ttf"
+
+#elif defined _WIN32 || defined _WIN64
+#define LONG_DIR "resources/long.bmp"
+#define BALL_DIR "resources/ball.bmp"
+#define LOGO_DIR "resources/pong.bmp"
+#define FONT_DIR "resources/font.ttf"
+#endif
+
 class MainMenuStage: public Stage{
 
 	int easteregg = 0;
@@ -25,17 +38,45 @@ public:
 
 };
 
+
+//-----------------------------------------------------------------------------
+
+class Tracer{
+
+	HGameEngine* engine;
+
+    ALLEGRO_BITMAP *bonus_ball_spr, *bonus_long_spr;
+
+public:
+
+	Tracer(HGameEngine* _engine);
+
+	ALLEGRO_BITMAP* getSpriteForBonusType(int bonus_type);
+
+	void drawBall(Ball *b, float scale);
+
+	void drawBonus(Bonus * b, float scale);
+
+	void drawPlayer(PlayerP *pl, int scale);
+
+};
+
+
+//-----------------------------------------------------------------------------
+
 class GameStage: public Stage{
 
 	void drawCourt();
 
 	void drawScores();
 
+	Tracer *tracer;
+
 public:
 
-	using Stage::Stage;
-
 	int delayer;
+
+	GameStage(HGameEngine* _engine);
 
 	void onEnterStage();
 
@@ -44,6 +85,9 @@ public:
 	void draw();
 
 };
+
+
+//-----------------------------------------------------------------------------
 
 class GameOverStage: public Stage{
 
@@ -59,11 +103,14 @@ public:
 
 };
 
+
+//-----------------------------------------------------------------------------
+
 class ConnStage: public Stage{
 
 	JC_TEXTINPUT* input;
 
-	string server;
+	std::string server;
 
 	bool start_connection = 0;
 

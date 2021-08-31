@@ -15,6 +15,11 @@
 #include "hengine.h"
 #include "stages.h"
 
+#define ALPHA_COLOR al_map_rgb(255,0,255)
+
+
+using namespace std;
+
 
 string GetData(string pkg, string field){
 
@@ -107,6 +112,13 @@ void MainMenuStage::draw(){
 
 //-----------------------------------------------------------------------------
 //------------------------------- [ GameStage ] -------------------------------
+
+
+GameStage::GameStage(HGameEngine* _engine):Stage(_engine){
+   
+    this->tracer = new Tracer(_engine);
+
+}
 
 void GameStage::drawCourt(){
 
@@ -260,17 +272,20 @@ void GameStage::draw(){
                 
             this->drawCourt();
 
-            pongGame->ball->Draw(scale);
-            pongGame->bonus[0]->Draw(scale);
-            pongGame->bonus[1]->Draw(scale);
+            Tracer *tr = this->tracer;
+
+            tr->drawBall(pongGame->ball, scale);
+            tr->drawBonus(pongGame->bonus[0], scale);
+            tr->drawBonus(pongGame->bonus[1], scale);
 
             this->drawScores();
 
             al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int)(this->engine->fps));
 
-            pongGame->players[0]->Draw(scale);
-            if(pongGame->numPlayers != 0)
-                pongGame->players[1]->Draw(scale);
+            tr->drawPlayer(pongGame->players[0], scale);
+            if(pongGame->numPlayers != 0){
+                tr->drawPlayer(pongGame->players[1], scale);
+            }
 
         }
 
@@ -286,6 +301,125 @@ void GameStage::draw(){
         }
 
     }
+
+}
+
+
+ALLEGRO_BITMAP* load_bitmap(string filename){
+
+	cout << "Loading bitmap: " << filename << endl;
+
+	ALLEGRO_BITMAP* sprite = al_load_bitmap(filename.c_str());
+	al_convert_mask_to_alpha(sprite, ALPHA_COLOR);
+
+	if(!sprite){
+		throw std::runtime_error("error loading bitmap");
+	}
+
+    return sprite;
+
+}
+
+Tracer::Tracer(HGameEngine* _engine){
+
+    this->engine = _engine;
+
+    this->bonus_ball_spr = load_bitmap(BALL_DIR);
+
+    this->bonus_long_spr = load_bitmap(LONG_DIR);
+
+}
+
+ALLEGRO_BITMAP* Tracer::getSpriteForBonusType(int bonus_type){
+
+    if(bonus_type == BONUS_BALL) {
+
+        return this->bonus_ball_spr;
+
+    } else if(bonus_type == BONUS_LONG) {
+
+        return this->bonus_long_spr;
+
+    } else {
+
+        cerr << "Unknown bonus type: " << bonus_type << endl;
+
+        return nullptr;
+
+    }
+
+}
+
+void Tracer::drawBall(Ball *b, float scale){
+        
+    if(!b->stat){
+        return;
+    }
+
+    al_draw_filled_circle(b->x, b->y, b->radius * scale, al_map_rgb( 255,255, 255));
+
+}
+
+void Tracer::drawBonus(Bonus * b, float scale){
+    
+    if(!b->stat){
+        return;
+    }
+
+    ALLEGRO_BITMAP *spr = this->getSpriteForBonusType(b->bonus_type);
+    if(spr != nullptr){
+        al_draw_bitmap(spr, b->x - 10, b->y - 10, 0);
+        // x-sprite->w/2, y-sprite->h/2);
+    }
+
+}
+
+
+void Tracer::drawPlayer(PlayerP *pl, int scale){
+
+	int medln = pl->medlen;
+	
+	al_draw_filled_rectangle(
+		pl->x - 2, 
+		pl->y - scale * medln, 
+		pl->x + 2, 
+		pl->y + scale * medln, 
+		WHITE
+	);
+
+	al_draw_filled_rectangle(
+		pl->x - 1,
+		pl->y - scale * medln - 1, 
+		pl->x + 1, 
+		pl->y + scale * medln + 1, 
+		WHITE
+	);
+	
+	if(pl->bonus_ball){
+
+		if(pl->x < 100)	al_draw_filled_rectangle(0, 16, 158.0 * pl->bonus_ball / 80.0, 20, al_map_rgb(0, 200, 50));
+		else		    al_draw_filled_rectangle(DEF_W, 16, DEF_W - 158.0 * pl->bonus_ball / 80.0, 20, al_map_rgb(0, 200, 50));
+	
+	}
+
+	if(pl->comTxtY >- 40){
+
+		int txtX;
+
+		if(pl->x < 100) txtX = scale * 60;
+		else txtX = scale * 220;
+
+		al_draw_text(
+            this->engine->font, 
+            al_map_rgb(  150 - pl->comTxtY, 150 - pl->comTxtY * 4, 255), 
+            txtX, 
+            pl->comTxtY, 
+            ALLEGRO_ALIGN_CENTER, 
+            pl->comTxt
+        );
+
+		pl->comTxtY -= 2;
+	}
 
 }
 
