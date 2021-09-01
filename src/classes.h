@@ -2,6 +2,7 @@
 #define CLASSESH
 
 #include <random>
+#include <queue>
 
 #define GROSOR  3
 #define MEDLEN  9
@@ -18,7 +19,12 @@ class PlayerP;
 class Element;
 class Ball;
 class Bonus;
-
+/*
+struct EvtListener{
+	std::string eventName;
+	std::function<void(void)> fn;
+};
+*/
 class PongGame{
 
 public:
@@ -37,6 +43,8 @@ public:
 
 	Bonus *bonus[2];
 
+	//std::vector<EvtListener> eventListeners;
+	std::queue<std::string> messages;
 	
 	PongGame();
 
@@ -49,6 +57,10 @@ public:
 	void giveScore(PlayerP* pl, int score);
 
 	void processTick(bool* keys);
+
+	//void addEventListener(std::string &evtName, std::function<void>& fn);
+	void addMessage(std::string evtMsg);
+	
 
 	/**
 	 * Generates a decimal pseudo random number between min and max

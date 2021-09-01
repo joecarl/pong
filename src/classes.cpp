@@ -46,7 +46,7 @@ double PongGame::random(double min, double max, bool rand_sign, bool include_max
 int PongGame::intRandom(int min, int max, bool rand_sign){
 
 	int res = (int) this->random(min, max + 1, rand_sign, false);
-	cout << "[" << min << ", " << max << "] --> " << res << endl;
+	//cout << "[" << min << ", " << max << "] --> " << res << endl;
 	return res;
 
 }
@@ -105,8 +105,21 @@ void PongGame::giveScore(PlayerP* pl, int score){
 	}
 
 }
+/*
+void PongGame::addEventListener(string &evtName, function<void>& fn){
 
+	this->eventListeners.push_back(
+		EvtListener({evtName, fn})
+	);
 
+}
+*/
+void PongGame::addMessage(std::string evtMsg){
+
+	this->messages.push(evtMsg);
+
+}
+	
 void PongGame::processTick(bool* keys){
 
 	if(this->paused || this->finished){
@@ -132,12 +145,8 @@ void PongGame::processTick(bool* keys){
 			this->giveScore(players[0], 1);
 		}
 
-		//this->triggerEvent("scored");
-/*
-		PlaySound(Re, 130);
-		PlaySound(Do, 250);
-		PlayAudio();
-*/
+		this->addMessage("scored");
+
 		this->iniciarPunto(0);
 
 	}
@@ -291,10 +300,9 @@ void Ball::onPlayerHit(PlayerP *pl){
 		else if (y - pl->getY() > 1) vY += 0.5;
 		if(y - pl->getY() < -2) vY -= 1;
 		if (y - pl->getY() < -1) vY -= 0.5;
-/*
-		PlaySound(Mi, 40, 4);
-		PlayAudio();
-*/
+
+		this->game->addMessage("hit");
+
 	}
 
 	int grosorB;
