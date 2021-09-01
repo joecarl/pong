@@ -1,7 +1,5 @@
 #include "classes.h"
 
-#include <allegro5/allegro.h>
-
 #include <math.h>
 #include <stdexcept>
 #include <iostream>
@@ -120,19 +118,17 @@ void PongGame::addMessage(std::string evtMsg){
 
 }
 	
-void PongGame::processTick(bool* keys){
+void PongGame::processTick(){
 
 	if(this->paused || this->finished){
 		return;
 	}
 
-	if(keys[ALLEGRO_KEY_G]) players[0]->medlen += 1;//DEBUG
-
 	if(this->numPlayers == 2){
-		players[1]->controlMove(keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN], keys[ALLEGRO_KEY_I], keys[ALLEGRO_KEY_K]);
-		players[0]->controlMove(keys[ALLEGRO_KEY_W], keys[ALLEGRO_KEY_S]);
+		players[1]->controlMove();
+		players[0]->controlMove();
 	} else {
-		players[0]->controlMove(keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN]);
+		players[0]->controlMove();
 		players[1]->moveIA();
 	}
 	
@@ -223,7 +219,7 @@ void Element::process(){
 }
 
 
-void Element::setParameters(float px, float py, float vx, float vy, int st){
+void Element::setParameters(double px, double py, double vx, double vy, int st){
 
 	x = x00 = px;
 	y = y00 = py;
@@ -283,9 +279,9 @@ Ball::Ball(PongGame *game): Element(game){
 
 void Ball::preprocess(){
 
-	if(this->game->players[0]->bonus_ball && !this->game->players[1]->bonus_ball)
+	if(this->game->players[0]->bonus_ball > 0 && !this->game->players[1]->bonus_ball)
 		radius = (320 - x) / 20 + 2;
-	else if(this->game->players[1]->bonus_ball && !this->game->players[0]->bonus_ball)
+	else if(this->game->players[1]->bonus_ball > 0 && !this->game->players[0]->bonus_ball)
 		radius = x / 20 + 2;
 	else
 		radius = RADIUS;
@@ -309,7 +305,7 @@ void Ball::onPlayerHit(PlayerP *pl){
 	if(this->game->numPlayers != 0) grosorB = GROSOR;
 	else grosorB = 0;
 
-	float newX = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - grosorB - 1);
+	double newX = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - grosorB - 1);
 
 	this->setParameters(newX, y, -vX, vY, stat);
 
@@ -339,6 +335,10 @@ void Bonus::onPlayerHit(PlayerP *pl){
 
 PlayerP::PlayerP(PongGame *pongGame, int px, int py){
 
+	for(int i = 0; i < CONTROL_MAX; i++){
+		this->controls[i] = false;
+	}
+	
 	this->game = pongGame;
 	x = px;
 	y = py;
@@ -375,10 +375,10 @@ void PlayerP::moveIA(){
 
 }
 
-void PlayerP::controlMove(int key_up, int key_down, int key_up2, int key_down2){
+void PlayerP::controlMove(){
 
-	if(key_up	|| key_up2) y -= 2;//ch='w';
-	if(key_down || key_down2) y += 2;//ch='s';
+	if(controls[CONTROL_MOVE_UP]) y -= 2;
+	if(controls[CONTROL_MOVE_DOWN]) y += 2;
 
 	this->lockLimit();
 
@@ -388,19 +388,19 @@ void PlayerP::giveBonus(int bonus_type){
 
 	if(bonus_type == BONUS_LONG){
 		medlen += 7;
-		strcpy(comTxt, "LONGERRR");
+		comTxt = "LONGERRR";
 		comTxtY = 150;
 	}
 
 	else if(bonus_type == BONUS_IMPA){
-		strcpy(comTxt, "UNSTOPABLE");
+		comTxt = "UNSTOPABLE";
 		comTxtY = 150;
 	}
 
 	else if(bonus_type == BONUS_BALL){
-		strcpy(comTxt, "SPECIAL BALL");
-		comTxtY = 150;
 		bonus_ball = 80;
+		comTxt = "SPECIAL BALL";
+		comTxtY = 150;
 	}
 
 }

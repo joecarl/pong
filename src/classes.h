@@ -11,9 +11,16 @@
 #define MAX_Y 200
 #define DEF_H 200
 #define DEF_W 320
+
 #define BONUS_LONG 1
 #define BONUS_IMPA 2
 #define BONUS_BALL 3
+
+enum Control{
+	CONTROL_MOVE_UP = 0,
+	CONTROL_MOVE_DOWN,
+	CONTROL_MAX
+};
 
 class PlayerP;
 class Element;
@@ -56,7 +63,7 @@ public:
 
 	void giveScore(PlayerP* pl, int score);
 
-	void processTick(bool* keys);
+	void processTick();//bool* keys);
 
 	//void addEventListener(std::string &evtName, std::function<void>& fn);
 	void addMessage(std::string evtMsg);
@@ -89,15 +96,15 @@ public:
 
 	int stat;
 
-	float x, y, x00, y00, radius;
+	double x, y, x00, y00, radius;
 	
-	float vX, vY, t;
+	double vX, vY, t;
 
 	PongGame *game;
 
 	Element(PongGame *game);
 
-	void setParameters(float px, float py, float vx, float vy, int st = 1); //Configures to start a new movement
+	void setParameters(double px, double py, double vx, double vy, int st = 1); //Configures to start a new movement
 	
 	void processColliding();
 
@@ -115,7 +122,7 @@ public:
 
 	void setPos(int px, int py){x = x00 = px; y = y00 = py;}
 
-	float getvX(){ return vX; }
+	double getvX(){ return vX; }
 	
 	virtual void onPlayerHit(PlayerP *pl){}
 };
@@ -154,10 +161,14 @@ class PlayerP{
 public:
 	
 	int x, y, comTxtY;
-	char comTxt[30];
+	
+	std::string comTxt;
+
 	int score, medlen, racha;
 
-	float bonus_ball;
+	double bonus_ball;
+
+	bool controls[CONTROL_MAX];
 
 	PlayerP(PongGame *pongGame, int px, int py);
 
@@ -165,7 +176,7 @@ public:
  
 	void lockLimit();
 
-	void controlMove(int key_up, int key_down, int key_up2 = 0, int key_down2 = 0);
+	void controlMove();
 
 	void moveIA();
 
