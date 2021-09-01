@@ -1,5 +1,6 @@
 #include "classes.h"
-#include "utils.h"
+
+#include <allegro5/allegro.h>
 
 #include <math.h>
 #include <stdexcept>
@@ -12,12 +13,41 @@ using namespace std;
 
 PongGame::PongGame(){
 
+	this->mt = new mt19937(time(nullptr));
+
+	//cout << "TEST:" << (*this->mt)() << endl;
+
 	ball = new Ball(this);
-	players[0] = new PlayerP(1, 50);
-	players[1] = new PlayerP((DEF_W - GROSOR / 2), 50);
+	players[0] = new PlayerP(this, 1, 50);
+	players[1] = new PlayerP(this, (DEF_W - GROSOR / 2), 50);
 	bonus[0] = new Bonus(this, BONUS_LONG);
 	bonus[1] = new Bonus(this, BONUS_BALL);
 	this->numPlayers = 0;
+
+	//cout << "TEST:" << (*this->mt)() << endl;
+
+}
+
+double PongGame::random(double min, double max, bool rand_sign, bool include_max){
+
+	double real_max = (double)this->mt->max() + (include_max ? 0 : 1);
+
+	double rnd_factor = (double)(*this->mt)() / real_max;
+	//cout << "max: " << real_max << " | rnd_factor: " << rnd_factor << endl;
+	double num = min + rnd_factor * (max - min);
+	
+	if(rand_sign && (*this->mt)() > this->mt->max() / 2){
+		num = -num;
+	}
+
+	return num;
+}
+
+int PongGame::intRandom(int min, int max, bool rand_sign){
+
+	int res = (int) this->random(min, max + 1, rand_sign, false);
+	cout << "[" << min << ", " << max << "] --> " << res << endl;
+	return res;
 
 }
 
@@ -38,22 +68,24 @@ void PongGame::togglePause(){
 void PongGame::iniciarPunto(int first){
 
 	int tvx = 0;
+
 	if(first == 1){
 		players[0]->score = 0; 
 		players[1]->score = 0;
-		while(tvx == 0)
-			tvx = 2 * (rand() % 3 - 1);
+		while(tvx == 0){
+			tvx = 2 * (this->intRandom(-1, 1));
+		}
+	} else {
+		tvx = (int)ball->getvX();
 	}
-	else tvx = (int)ball->getvX();
+	
 	players[0]->medlen = MEDLEN; 
 	players[1]->medlen = MEDLEN;
 	players[0]->bonus_ball = 0; players[1]->bonus_ball = 0;
-	ball->setParameters(INIX, INIY, tvx, 0.5 * (rand() % 3 - 1));
+	ball->setParameters(INIX, INIY, tvx, 0.5 * (this->intRandom(-1, 1)));
 	players[0]->setY(40);
 	players[1]->setY(160);
 
-	//printf("iniciado nuevo punto\n");
-	
 }
 
 void PongGame::giveScore(PlayerP* pl, int score){
@@ -88,7 +120,7 @@ void PongGame::processTick(bool* keys){
 		players[0]->controlMove(keys[ALLEGRO_KEY_W], keys[ALLEGRO_KEY_S]);
 	} else {
 		players[0]->controlMove(keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN]);
-		players[1]->moveIA(this->numPlayers, ball);
+		players[1]->moveIA();
 	}
 	
 	//COMPROBAMOS QUE LA BOLA ESTÁ FUERA
@@ -101,11 +133,11 @@ void PongGame::processTick(bool* keys){
 		}
 
 		//this->triggerEvent("scored");
-
+/*
 		PlaySound(Re, 130);
 		PlaySound(Do, 250);
 		PlayAudio();
-
+*/
 		this->iniciarPunto(0);
 
 	}
@@ -117,7 +149,7 @@ void PongGame::processTick(bool* keys){
 
 	}
 
-	ball->process(this->numPlayers, players);
+	ball->process();
 
 	for(int i = 0; i < 2; i++){
 		PlayerP* pl = this->players[i];
@@ -128,12 +160,17 @@ void PongGame::processTick(bool* keys){
 
 	for(int i = 0; i < 2; i++){
 
-		if( bonus[i]->getStat() == 0 && bonus_time[i] > 1000 && random_ex(0, 10000) < 1.0 ){
-			bonus[i]->setParameters(random_ex(100, 240), random_ex(70, 130), random_ex(1.5, 2.0, true), random_ex(1.5, 2.0, true));
+		if( bonus[i]->getStat() == 0 && bonus_time[i] > 1000 && this->intRandom(0, 100) == 0 ){
+			bonus[i]->setParameters(
+				this->random(100, 240), 
+				this->random(70, 130), 
+				this->random(1.5, 2.0, true), 
+				this->random(1.5, 2.0, true)
+			);
 			bonus_time[i] =- 1;
 		}
 
-		bonus[i]->process(this->numPlayers, players);
+		bonus[i]->process();
 		if(bonus[i]->getStat() == 0 && bonus_time[i] == -1)
 			bonus_time[i] = 1;
 		if(bonus_time > 0)
@@ -156,7 +193,7 @@ Element::Element(PongGame *game){
 
 }
 
-void Element::process(int plyrNum, PlayerP* players[]){
+void Element::process(){
 
 	if(stat){
 
@@ -166,7 +203,7 @@ void Element::process(int plyrNum, PlayerP* players[]){
 
 		this->preprocess();
 
-		this->processColliding(plyrNum, players);
+		this->processColliding();
 		
 		if(x < -80 || x > DEF_W + 50){
 			stat = 0;
@@ -188,7 +225,9 @@ void Element::setParameters(float px, float py, float vx, float vy, int st){
 
 }
 
-void Element::processColliding(int plyrNum, PlayerP* players[]){
+void Element::processColliding(){
+
+	 PlayerP **players = this->game->players;
 
 	//CHOQUE CON LA PARTE DE ARRIBA
 	if(y <= (radius + LIMIT))
@@ -202,21 +241,21 @@ void Element::processColliding(int plyrNum, PlayerP* players[]){
 	if(x <= (radius + GROSOR)){
 		if(fabs(y-players[0]->getY()) < (players[0]->medlen + radius) && x > (GROSOR)){
 
-			 this->playerHit(players[0]);
+			 this->onPlayerHit(players[0]);
 			
 		}
 	}
 
 	//CHOQUE CON LA PALA DCHA
 	int grosorB;
-	if(plyrNum != 0) grosorB = GROSOR;
+	if(this->game->numPlayers != 0) grosorB = GROSOR;
 	else grosorB = 0;
 
 	if(x >= (320 - radius - grosorB)){
 
 		if(fabs(y - players[1]->getY()) < (players[1]->medlen + radius) && x < (320 - grosorB)){
 
-			this->playerHit(players[1]);
+			this->onPlayerHit(players[1]);
 			
 		}
 
@@ -244,7 +283,7 @@ void Ball::preprocess(){
 
 }
 
-void Ball::playerHit(PlayerP *pl){
+void Ball::onPlayerHit(PlayerP *pl){
 	
 	if(pl == this->game->players[0] || this->game->numPlayers != 0){
 
@@ -252,10 +291,10 @@ void Ball::playerHit(PlayerP *pl){
 		else if (y - pl->getY() > 1) vY += 0.5;
 		if(y - pl->getY() < -2) vY -= 1;
 		if (y - pl->getY() < -1) vY -= 0.5;
-
+/*
 		PlaySound(Mi, 40, 4);
 		PlayAudio();
-
+*/
 	}
 
 	int grosorB;
@@ -280,7 +319,7 @@ Bonus::Bonus(PongGame *game, int bonus_type): Element(game){
 
 }
 
-void Bonus::playerHit(PlayerP *pl){
+void Bonus::onPlayerHit(PlayerP *pl){
 	
 	pl->giveBonus(this->bonus_type);
 	
@@ -290,8 +329,9 @@ void Bonus::playerHit(PlayerP *pl){
 
 //------------------------------------------------------------------------------
 
-PlayerP::PlayerP(int px, int py){
+PlayerP::PlayerP(PongGame *pongGame, int px, int py){
 
+	this->game = pongGame;
 	x = px;
 	y = py;
 	medlen = MEDLEN;
@@ -311,14 +351,17 @@ void PlayerP::lockLimit(){
 
 }
 
-void PlayerP::moveIA(int plyrNum, Element *ball){
+void PlayerP::moveIA(){
 
-	if(plyrNum == 1){
-		if(y > ball->getY()) y -= (1 + rand() % 2);
-		if(y < ball->getY()) y += (1 + rand() % 2);
+	Element *ball = this->game->ball;
+
+	if(this->game->numPlayers == 1){
+		if(y > ball->getY()) y -= (1 + this->game->intRandom(0, 1));
+		if(y < ball->getY()) y += (1 + this->game->intRandom(0, 1));
 	}
-	else if(plyrNum == 0)
+	else if(this->game->numPlayers == 0){
 		y = ball->getY();
+	}
 
 	this->lockLimit();
 
