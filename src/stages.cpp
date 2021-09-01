@@ -129,6 +129,12 @@ void GameStage::drawCourt(){
 	al_draw_line(scale*(320/2-1), scale*LIMIT, scale*(320/2-1), scale*(MAX_Y-LIMIT), al_map_rgb( 255, 255, 255),2);
 	al_draw_line(scale*(320/2+1), scale*LIMIT, scale*(320/2+1), scale*(MAX_Y-LIMIT), al_map_rgb( 255, 255, 255),2);
 
+	if(this->engine->pongGame->numPlayers == 0){
+		
+		al_draw_line(scale*DEF_W, scale*LIMIT, scale*DEF_W, scale*(MAX_Y-LIMIT), al_map_rgb( 255, 255, 255), 2);
+
+	}
+
 }
 
 void GameStage::drawScores(){
@@ -326,11 +332,7 @@ void GameStage::draw(){
 					
 					if(GetData(pkg, "W") == "1" || GetData(pkg, "W") == "2"){
 						gScreen = OVER;
-						PlaySound(Re, 150, 3);
-						PlaySound(Re, 150, 3);
-						PlaySound(Re, 200, 3);
-						PlaySound(LaSos, 500, 2);
-						PlayAudio();
+						
 					}
 				}
 			}
@@ -374,8 +376,6 @@ void GameStage::draw(){
 			}
 
 		}
-
-		
 
 	}
 
