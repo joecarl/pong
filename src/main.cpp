@@ -10,11 +10,11 @@ int main(int argc, char **argv){
 
 	try{
 		
-		HGameEngine *gameEngine = new HGameEngine();
+		HGameEngine gameEngine;
 		
-		gameEngine->setStage(MENU);
+		gameEngine.setStage(MENU);
 
-		gameEngine->run();
+		gameEngine.run();
 		
 		return 0;
 
