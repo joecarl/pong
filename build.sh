@@ -6,7 +6,7 @@
 SRC_DIR=./src
 BUILD_DIR=./build
 
-GLOBAL_PARAMS="-Wall -fexceptions -g -C -I$SRC_DIR -IC:/msys64/mingw64/include/freetype2"
+GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR -IC:/msys64/mingw64/include/freetype2"
 
 mkdir ./build > /dev/null 2>&1
 mkdir $BUILD_DIR > /dev/null 2>&1
