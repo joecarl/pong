@@ -12,7 +12,9 @@ using boost::asio::ip::tcp;
 using namespace std;
 
 void ioClient::Connect(string ip, string port){
+
 	try{
+
 		timeout = 1000;
 		cout << "Configurando parámetros de conexión..." << endl;
 		tcp::resolver resolver(io_service);
@@ -28,12 +30,14 @@ void ioClient::Connect(string ip, string port){
 		);
 		deadline.async_wait(boost::bind(&ioClient::check_deadline, this));
 		io_th = new boost::thread(boost::bind(&ioClient::io_task, this));
-	}
 
-	catch(std::exception& e){
+	} catch(std::exception& e) {
+
 		stopped = true;
 		std::cerr << e.what() << std::endl;
+
 	}
+	
 }
 
 const char* ioClient::FetchPacket(){
@@ -95,8 +99,8 @@ void ioClient::handle_read(const boost::system::error_code& ec, std::size_t size
 			stopped=1;
 			deadline.cancel();
 		} else {
-			std::runtime_error err("error de lectura");
-			throw err;
+			
+			throw std::runtime_error("error de lectura");
 		}
 	}
 }
@@ -118,8 +122,7 @@ void ioClient::handle_connect(const boost::system::error_code& ec) {
 		send_th = new boost::thread(boost::bind(&ioClient::send_task, this));
 	} else {
 		stopped = true;
-		std::runtime_error err("error de conexion");
-		throw err;
+		throw std::runtime_error("error de conexion");
 	}
 
 }
@@ -137,8 +140,7 @@ void ioClient::check_deadline(){
 
 	if (deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now()){
 		cout << "Tiempo de espera agotado." << endl;
-		std::runtime_error err("timeout excedido");
-		throw err;
+		throw std::runtime_error("timeout excedido");
 	}
 
 	deadline.expires_from_now(boost::posix_time::pos_infin);
