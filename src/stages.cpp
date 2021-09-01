@@ -356,7 +356,7 @@ void Tracer::drawBall(Ball *b, float scale){
 		return;
 	}
 
-	al_draw_filled_circle(b->x, b->y, b->radius * scale, al_map_rgb( 255,255, 255));
+	al_draw_filled_circle(scale * b->x, scale * b->y, scale * b->radius, al_map_rgb( 255,255, 255));
 
 }
 
@@ -368,7 +368,7 @@ void Tracer::drawBonus(Bonus * b, float scale){
 
 	ALLEGRO_BITMAP *spr = this->getSpriteForBonusType(b->bonus_type);
 	if(spr != nullptr){
-		al_draw_bitmap(spr, b->x - 10, b->y - 10, 0);
+		al_draw_bitmap(spr, scale * (b->x - 10), scale * (b->y - 10), 0);
 		// x-sprite->w/2, y-sprite->h/2);
 	}
 
@@ -380,25 +380,44 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 	int medln = pl->medlen;
 	
 	al_draw_filled_rectangle(
-		pl->x - 2, 
-		pl->y - scale * medln, 
-		pl->x + 2, 
-		pl->y + scale * medln, 
+		scale * (pl->x - 2), 
+		scale * (pl->y - medln), 
+		scale * (pl->x + 2), 
+		scale * (pl->y + medln), 
 		WHITE
 	);
 
 	al_draw_filled_rectangle(
-		pl->x - 1,
-		pl->y - scale * medln - 1, 
-		pl->x + 1, 
-		pl->y + scale * medln + 1, 
+		scale * (pl->x - 1),
+		scale * (pl->y - medln - 1), 
+		scale * (pl->x + 1), 
+		scale * (pl->y + medln + 1), 
 		WHITE
 	);
 	
 	if(pl->bonus_ball){
 
-		if(pl->x < 100)	al_draw_filled_rectangle(0, 16, 158.0 * pl->bonus_ball / 80.0, 20, al_map_rgb(0, 200, 50));
-		else			al_draw_filled_rectangle(DEF_W, 16, DEF_W - 158.0 * pl->bonus_ball / 80.0, 20, al_map_rgb(0, 200, 50));
+		if(pl->x < 100){
+
+			al_draw_filled_rectangle(
+				scale * 0, 
+				scale * 16, 
+				scale * (158.0 * pl->bonus_ball / 80.0), 
+				scale * 20, 
+				al_map_rgb(0, 200, 50)
+			);
+
+		} else {
+
+			al_draw_filled_rectangle(
+				scale * (DEF_W), 
+				scale * 16, 
+				scale * (DEF_W - 158.0 * pl->bonus_ball / 80.0),
+				scale * 20, 
+				al_map_rgb(0, 200, 50)
+			);
+
+		}
 	
 	}
 
@@ -406,14 +425,14 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 
 		int txtX;
 
-		if(pl->x < 100) txtX = scale * 60;
-		else txtX = scale * 220;
+		if(pl->x < 100) txtX = 60;
+		else txtX = 220;
 
 		al_draw_text(
 			this->engine->font, 
 			al_map_rgb(  150 - pl->comTxtY, 150 - pl->comTxtY * 4, 255), 
-			txtX, 
-			pl->comTxtY, 
+			scale * txtX, 
+			scale * pl->comTxtY, 
 			ALLEGRO_ALIGN_CENTER, 
 			pl->comTxt
 		);
