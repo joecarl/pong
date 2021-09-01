@@ -17,7 +17,8 @@
 #define BONUS_BALL 3
 
 enum Control{
-	CONTROL_MOVE_UP = 0,
+	CONTROL_NONE = 0,
+	CONTROL_MOVE_UP,
 	CONTROL_MOVE_DOWN,
 	CONTROL_MAX
 };
@@ -26,12 +27,14 @@ class PlayerP;
 class Element;
 class Ball;
 class Bonus;
+
 /*
 struct EvtListener{
 	std::string eventName;
 	std::function<void(void)> fn;
 };
 */
+
 class PongGame{
 
 public:
@@ -51,6 +54,7 @@ public:
 	Bonus *bonus[2];
 
 	//std::vector<EvtListener> eventListeners;
+
 	std::queue<std::string> messages;
 	
 	PongGame();
@@ -63,9 +67,10 @@ public:
 
 	void giveScore(PlayerP* pl, int score);
 
-	void processTick();//bool* keys);
+	void processTick();
 
 	//void addEventListener(std::string &evtName, std::function<void>& fn);
+
 	void addMessage(std::string evtMsg);
 	
 

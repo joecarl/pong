@@ -125,11 +125,15 @@ void PongGame::processTick(){
 	}
 
 	if(this->numPlayers == 2){
+
 		players[1]->controlMove();
 		players[0]->controlMove();
+
 	} else {
+
 		players[0]->controlMove();
 		players[1]->moveIA();
+		
 	}
 	
 	//COMPROBAMOS QUE LA BOLA ESTÁ FUERA
@@ -235,15 +239,22 @@ void Element::processColliding(){
 	 PlayerP **players = this->game->players;
 
 	//CHOQUE CON LA PARTE DE ARRIBA
-	if(y <= (radius + LIMIT))
+	if(y <= (radius + LIMIT)){
+
 		this->setParameters(this->x, (radius + LIMIT + 1), this->vX, -this->vY, stat);
 
+	}
+
 	//CHOQUE CON LA PARTE DE ABAJO
-	if(y >= (MAX_Y - radius - LIMIT))
+	if(y >= (MAX_Y - radius - LIMIT)){
+
 		this->setParameters(this->x, (MAX_Y - radius - LIMIT - 1), this->vX, -this->vY, stat);
+
+	}
 
 	//CHOQUE CON LA PALA IZDA
 	if(x <= (radius + GROSOR)){
+
 		if(fabs(y-players[0]->getY()) < (players[0]->medlen + radius) && x > (GROSOR)){
 
 			 this->onPlayerHit(players[0]);
@@ -252,13 +263,10 @@ void Element::processColliding(){
 	}
 
 	//CHOQUE CON LA PALA DCHA
-	int grosorB;
-	if(this->game->numPlayers != 0) grosorB = GROSOR;
-	else grosorB = 0;
+	
+	if(x >= (320 - radius - GROSOR)){
 
-	if(x >= (320 - radius - grosorB)){
-
-		if(fabs(y - players[1]->getY()) < (players[1]->medlen + radius) && x < (320 - grosorB)){
+		if(fabs(y - players[1]->getY()) < (players[1]->medlen + radius) && x < (320 - GROSOR)){
 
 			this->onPlayerHit(players[1]);
 			
@@ -301,11 +309,7 @@ void Ball::onPlayerHit(PlayerP *pl){
 
 	}
 
-	int grosorB;
-	if(this->game->numPlayers != 0) grosorB = GROSOR;
-	else grosorB = 0;
-
-	double newX = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - grosorB - 1);
+	double newX = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - GROSOR - 1);
 
 	this->setParameters(newX, y, -vX, vY, stat);
 
