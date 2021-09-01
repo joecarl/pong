@@ -82,7 +82,11 @@ public:
 
 	void onEvent(ALLEGRO_EVENT evt);
 
+	void onTick();
+
 	void draw();
+
+	void processMessage(std::string &msg);
 
 };
 

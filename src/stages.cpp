@@ -184,6 +184,58 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 
 }
 
+void GameStage::processMessage(string &msg){
+
+	if(msg == "scored"){
+
+		PlaySound(Re, 130);
+		PlaySound(Do, 250);
+		PlayAudio();
+
+	}
+	else if(msg == "hit"){
+
+		PlaySound(Mi, 40, 4);
+		PlayAudio();
+
+	}
+
+}
+
+void GameStage::onTick(){
+
+	PongGame* pongGame = this->engine->pongGame;
+
+	if (delayer > 0){
+		delayer--;
+		return;
+	} 
+
+	if(pongGame->paused) {
+		return;
+	}
+
+	pongGame->processTick(this->engine->keys);
+
+	while(!pongGame->messages.empty()){
+		string msg = pongGame->messages.front();
+		pongGame->messages.pop();
+		this->processMessage(msg);
+	}
+
+	if(pongGame->finished){
+		
+		this->engine->setStage(OVER);
+		PlaySound(Re, 150, 3);
+		PlaySound(Re, 150, 3);
+		PlaySound(Re, 200, 3);
+		PlaySound(LaSos, 500, 2);
+		PlayAudio();
+
+	}
+	
+}
+
 void GameStage::draw(){
 
 	PongGame* pongGame = this->engine->pongGame;
@@ -192,7 +244,7 @@ void GameStage::draw(){
 
 	float scale = this->engine->scale;
 	
-	if (delayer-- > 0) {
+	if (delayer > 0) {
 
 		al_draw_textf(
 			font, 
@@ -253,8 +305,6 @@ void GameStage::draw(){
 			*/
 		} 
 
-		pongGame->processTick(this->engine->keys);
-
 		if (pongGame->paused) {
 
 			al_draw_text(
@@ -289,16 +339,7 @@ void GameStage::draw(){
 
 		}
 
-		if(pongGame->finished){
 		
-			this->engine->setStage(OVER);
-			PlaySound(Re, 150, 3);
-			PlaySound(Re, 150, 3);
-			PlaySound(Re, 200, 3);
-			PlaySound(LaSos, 500, 2);
-			PlayAudio();
-
-		}
 
 	}
 
@@ -561,7 +602,7 @@ void ConnStage::draw(){
 		al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
 		al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Wait please %s", pts.c_str());
 		
-		static int delay=0;
+		static int delay = 0;
 		if((delay++) % 40 == 20){
 			connection.SendPacket("PING:-1 \r\n");
 			if(const char* pkg = connection.FetchPacket()){
