@@ -206,13 +206,17 @@ void HGameEngine::run(){
 		else if(event.type == ALLEGRO_EVENT_TIMER){
 
 			this->runTick();
-			
-			this->allegroHnd->startDrawing();
-			
-			this->draw();
 
-			this->allegroHnd->finishDrawing();
-			
+			if(al_event_queue_is_empty(this->allegroHnd->event_queue)){
+				
+				this->allegroHnd->startDrawing();
+				
+				this->draw();
+
+				this->allegroHnd->finishDrawing();
+
+			}
+
 		}
 
 	} while(!this->finish);
