@@ -124,14 +124,17 @@ void GameStage::drawCourt(){
 
 	float scale = this->engine->scale;
 
-	al_draw_line(0, scale*LIMIT, scale*DEF_W, scale*LIMIT, al_map_rgb( 255, 255, 255),2);
-	al_draw_line(0, scale*(MAX_Y-LIMIT),scale*DEF_W, scale*(MAX_Y-LIMIT), al_map_rgb( 255, 255, 255),2);
-	al_draw_line(scale*(320/2-1), scale*LIMIT, scale*(320/2-1), scale*(MAX_Y-LIMIT), al_map_rgb( 255, 255, 255),2);
-	al_draw_line(scale*(320/2+1), scale*LIMIT, scale*(320/2+1), scale*(MAX_Y-LIMIT), al_map_rgb( 255, 255, 255),2);
+	float minCourtY = scale * (LIMIT);
+	float maxCourtY = scale * (MAX_Y - LIMIT);
+
+	al_draw_line(0, minCourtY, scale*DEF_W, minCourtY, al_map_rgb( 255, 255, 255),2);
+	al_draw_line(0, maxCourtY,scale*DEF_W, maxCourtY, al_map_rgb( 255, 255, 255),2);
+	al_draw_line(scale*(320/2-1), minCourtY, scale*(320/2-1), maxCourtY, al_map_rgb( 255, 255, 255),2);
+	al_draw_line(scale*(320/2+1), minCourtY, scale*(320/2+1), maxCourtY, al_map_rgb( 255, 255, 255),2);
 
 	if(this->engine->pongGame->numPlayers == 0){
 		
-		al_draw_line(scale*DEF_W, scale*LIMIT, scale*DEF_W, scale*(MAX_Y-LIMIT), al_map_rgb( 255, 255, 255), 2);
+		al_draw_line(scale*DEF_W, minCourtY, scale*DEF_W, maxCourtY, al_map_rgb( 255, 255, 255), 2);
 
 	}
 
