@@ -1,3 +1,8 @@
+#include "classes.h"
+#include "utils.h"
+#include "hengine.h"
+#include "stages.h"
+
 #include <iostream>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
@@ -6,20 +11,21 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_audio.h>
-
+#include <boost/json.hpp>
 #include <string>
 #include <math.h>
 
-#include "classes.h"
-#include "utils.h"
-#include "hengine.h"
-#include "stages.h"
-
-#define ALPHA_COLOR al_map_rgb(255,0,255)
-
+#define ALPHA_COLOR al_map_rgb(255, 0, 255)
 
 using namespace std;
 
+enum{
+	PLAYMODE_NONE = 0,
+	PLAYMODE_SINGLE_PLAYER,
+	PLAYMODE_TWO_PLAYERS,
+	PLAYMODE_TRAINING,
+	PLAYMODE_ONLINE
+};
 
 string GetData(string pkg, string field){
 
@@ -52,6 +58,8 @@ void MainMenuStage::onTick(){
 
 }
 
+int playMode = 0;
+
 void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 
 	int keycode = event.keyboard.keycode;
@@ -63,13 +71,23 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 		//isClient = false;
 		////al_draw_textf(font,WHITE,20, 75, ALLEGRO_ALIGN_LEFT,"%f", sin(x)*sin(x));
 		
-		if(keycode == ALLEGRO_KEY_1) pongGame->numPlayers = 1;
-		if(keycode == ALLEGRO_KEY_2) pongGame->numPlayers = 2;
-		if(keycode == ALLEGRO_KEY_3) pongGame->numPlayers = 0;
-		if(keycode == ALLEGRO_KEY_4){
+		if(keycode == ALLEGRO_KEY_1){
+			pongGame->numPlayers = 1;
+			playMode = PLAYMODE_SINGLE_PLAYER;
+		} 
+		else if(keycode == ALLEGRO_KEY_2) {
+			pongGame->numPlayers = 2;
+			playMode = PLAYMODE_TWO_PLAYERS;
+		}
+		else if(keycode == ALLEGRO_KEY_3){
+			pongGame->numPlayers = 0;
+			playMode = PLAYMODE_TRAINING;
+		}
+		else if(keycode == ALLEGRO_KEY_4){
 			pongGame->numPlayers = 2;
 			//isClient = true;
 			this->engine->setStage(CONN); 
+			playMode = PLAYMODE_ONLINE;
 		}
 		
 		if(keycode == ALLEGRO_KEY_C){//CAMBIAR RESOLUCION, bad performance
@@ -132,7 +150,7 @@ void GameStage::drawCourt(){
 	al_draw_line(scale*(320/2-1), minCourtY, scale*(320/2-1), maxCourtY, al_map_rgb( 255, 255, 255),2);
 	al_draw_line(scale*(320/2+1), minCourtY, scale*(320/2+1), maxCourtY, al_map_rgb( 255, 255, 255),2);
 
-	if(this->engine->pongGame->numPlayers == 0){
+	if(playMode == PLAYMODE_TRAINING){
 		
 		al_draw_line(scale*DEF_W, minCourtY, scale*DEF_W, maxCourtY, al_map_rgb( 255, 255, 255), 2);
 
@@ -146,7 +164,7 @@ void GameStage::drawScores(){
 	ALLEGRO_FONT* font = this->engine->font;
 	float scale = this->engine->scale;
 
-	if(pongGame->numPlayers != 0){
+	if(playMode != PLAYMODE_TRAINING){
 		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*25, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", pongGame->players[0]->score );
 		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*240, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", pongGame->players[1]->score );
 	} else {
@@ -169,6 +187,33 @@ void GameStage::onEnterStage(){
 	pongGame->iniciarPunto(1);
 
 	delayer = 75;
+
+}
+
+int getControl(int kCode, int playMode, int playerID){
+
+	if(playMode == PLAYMODE_TWO_PLAYERS) {
+
+		if(playerID == 1){
+
+			if (kCode == ALLEGRO_KEY_UP || kCode == ALLEGRO_KEY_I) return CONTROL_MOVE_UP;
+			else if (kCode == ALLEGRO_KEY_DOWN || kCode == ALLEGRO_KEY_K) return CONTROL_MOVE_DOWN;
+
+		} else if(playerID == 0){
+
+			if (kCode == ALLEGRO_KEY_W) return CONTROL_MOVE_UP;
+			else if (kCode == ALLEGRO_KEY_S) return CONTROL_MOVE_DOWN;
+
+		}
+
+	} else {
+
+		if (kCode == ALLEGRO_KEY_UP) return CONTROL_MOVE_UP;
+		else if (kCode == ALLEGRO_KEY_DOWN) return CONTROL_MOVE_DOWN;
+
+	}
+
+	return CONTROL_NONE;
 
 }
 
@@ -198,29 +243,33 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 
 		bool newSt = evt.type == ALLEGRO_EVENT_KEY_DOWN;
 
-		if(pongGame->numPlayers == 2){
+		int controlP1 = getControl(kCode, playMode, 0);
+		int controlP2 = getControl(kCode, playMode, 1);
+
+		if(playMode == PLAYMODE_ONLINE){
+				
+			boost::json::value inputEvt;
+			inputEvt.emplace_null();
+
+			if(controlP1 != CONTROL_NONE){
+
+				inputEvt = {
+					{"newState", newSt},
+					{"control", evt.keyboard.keycode}
+				};
+
+				//cout << inputEvt << endl;
+				//send inputEvt
+
+			}
+
+		} else  {
+		
+			pongGame->players[0]->controls[controlP1] = newSt;
+
+			pongGame->players[1]->controls[controlP2] = newSt;
 			
-			if (kCode == ALLEGRO_KEY_UP || kCode == ALLEGRO_KEY_I)
-				pongGame->players[1]->controls[CONTROL_MOVE_UP] = newSt;
-
-			else if (kCode == ALLEGRO_KEY_DOWN || kCode == ALLEGRO_KEY_K)
-				pongGame->players[1]->controls[CONTROL_MOVE_DOWN] = newSt;
-				
-			else if (kCode == ALLEGRO_KEY_W)
-				pongGame->players[0]->controls[CONTROL_MOVE_UP] = newSt;
-				
-			else if (kCode == ALLEGRO_KEY_S)
-				pongGame->players[0]->controls[CONTROL_MOVE_DOWN] = newSt;
-
-		} else {
-
-			if (kCode == ALLEGRO_KEY_UP)
-				pongGame->players[0]->controls[CONTROL_MOVE_UP] = newSt;
-				
-			else if (kCode == ALLEGRO_KEY_DOWN)
-				pongGame->players[0]->controls[CONTROL_MOVE_DOWN] = newSt;
-
-		}
+		} 
 
 	}
 	
@@ -244,6 +293,7 @@ void GameStage::processMessage(string &msg){
 
 }
 
+
 void GameStage::onTick(){
 
 	PongGame* pongGame = this->engine->pongGame;
@@ -259,8 +309,7 @@ void GameStage::onTick(){
 
 	//if(keys[ALLEGRO_KEY_G]) players[0]->medlen += 1;//DEBUG
 
-
-	pongGame->processTick();//this->engine->keys);
+	pongGame->processTick();
 
 	while(!pongGame->messages.empty()){
 		string msg = pongGame->messages.front();
@@ -303,49 +352,6 @@ void GameStage::draw(){
 		
 	} else {
 
-		//NETWORK
-		//static int counter, time;
-		bool isClient = false;//, sendping;
-
-		if(isClient){
-			/*
-			int	pingCounter = 1;
-			int pingms;
-			if ((counter++) % 60 == 1){// && sendping){
-				time = milliseconds;
-				sendping = false;
-				connection.SendPacket("PING:" + boost::to_string(pingCounter++) + " \r\n");
-			}
-
-			//stringstream buff;
-			//connection.SendPacket(buff.str());
-			
-			while (const char* data=connection.FetchPacket()) {
-				if (GetData(data, "PING") == boost::to_string(pingCounter - 1)) {
-					pingms = milliseconds - time;
-					sendping = true;
-				}
-				if(GetData(data, "PING") == ""){
-					string pkg=data;
-					player[0]->SetY(atoi(GetData(pkg, "P1Y").c_str()));
-					player[1]->SetY(atoi(GetData(pkg, "P2Y").c_str()));
-					player[0]->score=atoi(GetData(pkg, "S1").c_str());
-					player[1]->score=atoi(GetData(pkg, "S2").c_str());
-					//Ball->SetPos(atoi(GetData(pkg, "BX").c_str()), atoi(GetData(pkg, "BY").c_str()));
-					
-					if(GetData(pkg, "W") == "1" || GetData(pkg, "W") == "2"){
-						gScreen = OVER;
-						
-					}
-				}
-			}
-
-			
-			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * resX / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "PING:%d", pingms);
-			//[END]NETWORK
-			*/
-		} 
-
 		if (pongGame->paused) {
 
 			al_draw_text(
@@ -373,8 +379,13 @@ void GameStage::draw(){
 
 			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int)(this->engine->fps));
 
+			if(playMode == PLAYMODE_ONLINE){
+				int pingms = 0;
+				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "PING:%d", pingms);
+			}
+
 			tr->drawPlayer(pongGame->players[0], scale);
-			if(pongGame->numPlayers != 0){
+			if(playMode != PLAYMODE_TRAINING){
 				tr->drawPlayer(pongGame->players[1], scale);
 			}
 
@@ -648,9 +659,7 @@ void ConnStage::draw(){
 				string pk = pkg;
 				if(GetData(pkg, "PING") != ""){
 					this->engine->setStage(GAME);
-					//isClient = 1;
 					cout << "Conexion OK!" << endl;
-					//sendping = true;
 				}
 			}
 		}
