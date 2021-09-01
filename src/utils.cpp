@@ -8,18 +8,6 @@
 
 using namespace std;
 
-float random_ex(float min, float max, bool rand_sign){
-
-	float rnd_factor = rand() / RAND_MAX;
-	float num =  min + rnd_factor * (max - min);
-	
-	if(rand_sign && rand() > RAND_MAX / 2){
-		num = -num;
-	}
-
-	return num;
-}
-
 #define FREC_MUESTREO 48000
 
 int last_pos = 0;

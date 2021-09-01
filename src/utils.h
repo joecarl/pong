@@ -15,8 +15,6 @@ const int Do = 1, DoSos = 2, Re = 3, ReSos = 4, Mi = 5, Fa = 6, FaSos = 7,
 /*const Do=522, DoSos=554, Re=588, ReSos=622, Mi=660, Fa=698, FaSos=740,
 	  Sol=784, SolSos=830, La=880, LaSos=932, Si=988*/
 
-float random_ex(float min, float max, bool rand_sign = false);
-
 std::string GetWaitString();
 
 void  PlaySound(int nota, float time, int octava = 4);

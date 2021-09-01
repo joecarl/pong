@@ -160,8 +160,6 @@ void Stage::onEnterStage(){
 
 HGameEngine::HGameEngine(){
 
-	srand(time(NULL));
-
 	this->allegroHnd = new AllegroHandler(this); 
 	
 	this->allegroHnd->initializeResources();
