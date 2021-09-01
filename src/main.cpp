@@ -26,17 +26,3 @@ int main(int argc, char **argv){
 	}
 
 }
-
-
-/*
-void timer_task(int *ms){
-	while (1) {
-		//usleep(1000);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-		(*ms)++;
-	}
-}
-
-int milliseconds = 0;
-boost::thread th_tim(timer_task, &milliseconds);
-*/
