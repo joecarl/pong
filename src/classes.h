@@ -23,8 +23,6 @@ public:
 
 	int bonus_time[2] = {-1, -1};
 
-	float scale = 1.0;
-
 	unsigned int numPlayers;
 
 	bool paused = false, finished = false;
@@ -36,7 +34,7 @@ public:
 	Bonus *bonus[2];
 
 	
-	PongGame(float sc);
+	PongGame();
 
 	void restart();
 
@@ -65,9 +63,9 @@ public:
 
 	Element(PongGame *game);
 	void setParameters(float px, float py, float vx, float vy, int st = 1); //Configures to start a new movement
-	void processColliding(int scale, int plyrNum, PlayerP* players[]);
+	void processColliding(int plyrNum, PlayerP* players[]);
 	virtual void preprocess(){}
-	void process(int scale, int plyrNum, PlayerP* players[]);//Moves, tests collinding and draws the element
+	void process(int plyrNum, PlayerP* players[]);//Moves, tests collinding and draws the element
 	int getStat(){ return stat; }
 	void setStat(int st){ stat = st; }
 	int getX(){ return x; }
@@ -118,9 +116,9 @@ class PlayerP{
 	PlayerP(int px, int py);
 	void giveBonus(int bonus_type);
  
-	void lockLimit(int scale);
-	void controlMove(int scale, int key_up, int key_down, int key_up2 = 0, int key_down2 = 0);
-	void moveIA(int plyrNum, Element *ball, int scale);
+	void lockLimit();
+	void controlMove(int key_up, int key_down, int key_up2 = 0, int key_down2 = 0);
+	void moveIA(int plyrNum, Element *ball);
 	void setX(int px){ x = px; }
 	void setY(int py){ y = py; }
 	int getX(){ return x; }

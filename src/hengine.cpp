@@ -173,7 +173,7 @@ HGameEngine::HGameEngine(){
 
 	font = al_load_ttf_font(FONT_DIR, scale * 10, ALLEGRO_TTF_MONOCHROME);
 
-	pongGame = new PongGame(scale);
+	pongGame = new PongGame();
 
 	stages[MENU] = new MainMenuStage(this);
 	stages[GAME] = new GameStage(this);

@@ -10,15 +10,14 @@
 
 using namespace std;
 
-PongGame::PongGame(float sc){
+PongGame::PongGame(){
 
 	ball = new Ball(this);
-	players[0] = new PlayerP(scale * 1, 50);
-	players[1] = new PlayerP(scale * (DEF_W-GROSOR/2), 50);
+	players[0] = new PlayerP(1, 50);
+	players[1] = new PlayerP((DEF_W - GROSOR / 2), 50);
 	bonus[0] = new Bonus(this, BONUS_LONG);
 	bonus[1] = new Bonus(this, BONUS_BALL);
 	this->numPlayers = 0;
-	this->scale = sc;
 
 }
 
@@ -43,15 +42,15 @@ void PongGame::iniciarPunto(int first){
 		players[0]->score = 0; 
 		players[1]->score = 0;
 		while(tvx == 0)
-			tvx = scale * 2 * (rand() % 3 - 1);
+			tvx = 2 * (rand() % 3 - 1);
 	}
 	else tvx = (int)ball->getvX();
 	players[0]->medlen = MEDLEN; 
 	players[1]->medlen = MEDLEN;
 	players[0]->bonus_ball = 0; players[1]->bonus_ball = 0;
-	ball->setParameters(scale * INIX, scale * INIY, tvx, scale * 0.5 * (rand() % 3 - 1));
-	players[0]->setY(scale * 40);
-	players[1]->setY(scale * 160);
+	ball->setParameters(INIX, INIY, tvx, 0.5 * (rand() % 3 - 1));
+	players[0]->setY(40);
+	players[1]->setY(160);
 
 	//printf("iniciado nuevo punto\n");
 	
@@ -85,15 +84,15 @@ void PongGame::processTick(bool* keys){
 	if(keys[ALLEGRO_KEY_G]) players[0]->medlen += 1;//DEBUG
 
 	if(this->numPlayers == 2){
-		players[1]->controlMove(scale, keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN], keys[ALLEGRO_KEY_I], keys[ALLEGRO_KEY_K]);
-		players[0]->controlMove(scale, keys[ALLEGRO_KEY_W], keys[ALLEGRO_KEY_S]);
+		players[1]->controlMove(keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN], keys[ALLEGRO_KEY_I], keys[ALLEGRO_KEY_K]);
+		players[0]->controlMove(keys[ALLEGRO_KEY_W], keys[ALLEGRO_KEY_S]);
 	} else {
-		players[0]->controlMove(scale, keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN]);
-		players[1]->moveIA(this->numPlayers, ball, scale);
+		players[0]->controlMove(keys[ALLEGRO_KEY_UP], keys[ALLEGRO_KEY_DOWN]);
+		players[1]->moveIA(this->numPlayers, ball);
 	}
 	
 	//COMPROBAMOS QUE LA BOLA ESTÁ FUERA
-	if(ball->getX() > scale * (320 + 15) || ball->getX() < scale * (-15) ){
+	if(ball->getX() > (320 + 15) || ball->getX() < -15 ){
 
 		if(ball->getX() < -15){
 			this->giveScore(players[1], 1);
@@ -118,7 +117,7 @@ void PongGame::processTick(bool* keys){
 
 	}
 
-	ball->process(scale, this->numPlayers, players);
+	ball->process(this->numPlayers, players);
 
 	for(int i = 0; i < 2; i++){
 		PlayerP* pl = this->players[i];
@@ -134,7 +133,7 @@ void PongGame::processTick(bool* keys){
 			bonus_time[i] =- 1;
 		}
 
-		bonus[i]->process(scale, this->numPlayers, players);
+		bonus[i]->process(this->numPlayers, players);
 		if(bonus[i]->getStat() == 0 && bonus_time[i] == -1)
 			bonus_time[i] = 1;
 		if(bonus_time > 0)
@@ -157,7 +156,7 @@ Element::Element(PongGame *game){
 
 }
 
-void Element::process(int scale, int plyrNum, PlayerP* players[]){
+void Element::process(int plyrNum, PlayerP* players[]){
 
 	if(stat){
 
@@ -167,9 +166,9 @@ void Element::process(int scale, int plyrNum, PlayerP* players[]){
 
 		this->preprocess();
 
-		this->processColliding(scale, plyrNum, players);
+		this->processColliding(plyrNum, players);
 		
-		if(x < -scale * 80 || x > scale * DEF_W + 50){
+		if(x < -80 || x > DEF_W + 50){
 			stat = 0;
 		}
 
@@ -189,19 +188,19 @@ void Element::setParameters(float px, float py, float vx, float vy, int st){
 
 }
 
-void Element::processColliding(int scale, int plyrNum, PlayerP* players[]){
+void Element::processColliding(int plyrNum, PlayerP* players[]){
 
 	//CHOQUE CON LA PARTE DE ARRIBA
-	if(y <= scale * (radius + LIMIT))
-		this->setParameters(this->x, scale*(radius+LIMIT+1), this->vX, -this->vY, stat);
+	if(y <= (radius + LIMIT))
+		this->setParameters(this->x, (radius + LIMIT + 1), this->vX, -this->vY, stat);
 
 	//CHOQUE CON LA PARTE DE ABAJO
-	if(y >= scale * (MAX_Y - radius - LIMIT))
-		this->setParameters(this->x, scale * (MAX_Y - radius - LIMIT - 1), this->vX, -this->vY, stat);
+	if(y >= (MAX_Y - radius - LIMIT))
+		this->setParameters(this->x, (MAX_Y - radius - LIMIT - 1), this->vX, -this->vY, stat);
 
 	//CHOQUE CON LA PALA IZDA
-	if(x <= scale * (radius + GROSOR)){
-		if(fabs(y-players[0]->getY()) < scale * (players[0]->medlen + radius) && x > scale * (GROSOR)){
+	if(x <= (radius + GROSOR)){
+		if(fabs(y-players[0]->getY()) < (players[0]->medlen + radius) && x > (GROSOR)){
 
 			 this->playerHit(players[0]);
 			
@@ -213,9 +212,9 @@ void Element::processColliding(int scale, int plyrNum, PlayerP* players[]){
 	if(plyrNum != 0) grosorB = GROSOR;
 	else grosorB = 0;
 
-	if(x >= scale * (320 - radius - grosorB)){
+	if(x >= (320 - radius - grosorB)){
 
-		if(fabs(y - players[1]->getY()) < scale * (players[1]->medlen + radius) && x < scale * (320 - grosorB)){
+		if(fabs(y - players[1]->getY()) < (players[1]->medlen + radius) && x < (320 - grosorB)){
 
 			this->playerHit(players[1]);
 			
@@ -243,18 +242,16 @@ void Ball::preprocess(){
 	else
 		radius = RADIUS;
 
-	radius *= this->game->scale;
-
 }
 
 void Ball::playerHit(PlayerP *pl){
 	
 	if(pl == this->game->players[0] || this->game->numPlayers != 0){
 
-		if(y - pl->getY() > this->game->scale * 2) vY += 1;
-		else if (y - pl->getY() > this->game->scale * 1) vY += 0.5;
-		if(y - pl->getY() < -this->game->scale * 2) vY -= 1;
-		if (y - pl->getY() < -this->game->scale * 1) vY -= 0.5;
+		if(y - pl->getY() > 2) vY += 1;
+		else if (y - pl->getY() > 1) vY += 0.5;
+		if(y - pl->getY() < -2) vY -= 1;
+		if (y - pl->getY() < -1) vY -= 0.5;
 
 		PlaySound(Mi, 40, 4);
 		PlayAudio();
@@ -267,7 +264,7 @@ void Ball::playerHit(PlayerP *pl){
 
 	float newX = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - grosorB - 1);
 
-	this->setParameters(this->game->scale * newX, y, -vX, vY, stat);
+	this->setParameters(newX, y, -vX, vY, stat);
 
 }
 
@@ -305,33 +302,34 @@ PlayerP::PlayerP(int px, int py){
 
 }
 
-void PlayerP::lockLimit(int scale){
+void PlayerP::lockLimit(){
 
-	if(y >= scale * (MAX_Y - medlen - LIMIT))
-		y = scale * (MAX_Y - medlen - LIMIT - 1);
-	if(y <= scale * (medlen + LIMIT))
-		y = scale * (medlen + LIMIT + 1);
+	if(y >= (MAX_Y - medlen - LIMIT))
+		y = (MAX_Y - medlen - LIMIT - 1);
+	if(y <= (medlen + LIMIT))
+		y = (medlen + LIMIT + 1);
 
 }
 
-void PlayerP::moveIA(int plyrNum, Element *ball,int scale){
+void PlayerP::moveIA(int plyrNum, Element *ball){
 
 	if(plyrNum == 1){
-		if(y > ball->getY()) y -= scale * (1 + rand() % 2);
-		if(y < ball->getY()) y += scale * (1 + rand() % 2);
+		if(y > ball->getY()) y -= (1 + rand() % 2);
+		if(y < ball->getY()) y += (1 + rand() % 2);
 	}
 	else if(plyrNum == 0)
 		y = ball->getY();
 
-	this->lockLimit(scale);
+	this->lockLimit();
 
 }
 
-void PlayerP::controlMove(int scale, int key_up, int key_down, int key_up2, int key_down2){
+void PlayerP::controlMove(int key_up, int key_down, int key_up2, int key_down2){
 
-	if(key_up	|| key_up2) y -= scale*2;//ch='w';
-	if(key_down || key_down2) y += scale*2;//ch='s';
-	this->lockLimit(scale);
+	if(key_up	|| key_up2) y -= 2;//ch='w';
+	if(key_down || key_down2) y += 2;//ch='s';
+
+	this->lockLimit();
 
 }
 
