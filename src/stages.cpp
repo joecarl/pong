@@ -137,7 +137,6 @@ void GameStage::drawScores(){
 	ALLEGRO_FONT* font = this->engine->font;
 	float scale = this->engine->scale;
 
-	//al_draw_text(font,al_map_rgb( 255, 0, 0),scale*320/2, scale*2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu" );
 	if(pongGame->numPlayers != 0){
 		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*25, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", pongGame->players[0]->score );
 		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*240, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", pongGame->players[1]->score );
@@ -165,16 +164,20 @@ void GameStage::onEnterStage(){
 }
 
 void GameStage::onEvent(ALLEGRO_EVENT evt){
+
+	PongGame* pongGame = this->engine->pongGame;
+
+	int kCode = evt.keyboard.keycode;
 	
 	if(evt.type == ALLEGRO_EVENT_KEY_DOWN){
 
-		if(evt.keyboard.keycode == ALLEGRO_KEY_ESCAPE){
+		if(kCode == ALLEGRO_KEY_ESCAPE){
 
 			this->engine->setStage(MENU);
 
 		}
 
-		else if(evt.keyboard.keycode == ALLEGRO_KEY_P){//P (PAUSA)
+		else if(kCode == ALLEGRO_KEY_P){//P (PAUSA)
 			
 			this->engine->pongGame->togglePause();
 
@@ -182,6 +185,36 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 
 	}
 
+	if(evt.type == ALLEGRO_EVENT_KEY_DOWN || evt.type == ALLEGRO_EVENT_KEY_UP){
+
+		bool newSt = evt.type == ALLEGRO_EVENT_KEY_DOWN;
+
+		if(pongGame->numPlayers == 2){
+			
+			if (kCode == ALLEGRO_KEY_UP || kCode == ALLEGRO_KEY_I)
+				pongGame->players[1]->controls[CONTROL_MOVE_UP] = newSt;
+
+			else if (kCode == ALLEGRO_KEY_DOWN || kCode == ALLEGRO_KEY_K)
+				pongGame->players[1]->controls[CONTROL_MOVE_DOWN] = newSt;
+				
+			else if (kCode == ALLEGRO_KEY_W)
+				pongGame->players[0]->controls[CONTROL_MOVE_UP] = newSt;
+				
+			else if (kCode == ALLEGRO_KEY_S)
+				pongGame->players[0]->controls[CONTROL_MOVE_DOWN] = newSt;
+
+		} else {
+
+			if (kCode == ALLEGRO_KEY_UP)
+				pongGame->players[0]->controls[CONTROL_MOVE_UP] = newSt;
+				
+			else if (kCode == ALLEGRO_KEY_DOWN)
+				pongGame->players[0]->controls[CONTROL_MOVE_DOWN] = newSt;
+
+		}
+
+	}
+	
 }
 
 void GameStage::processMessage(string &msg){
@@ -215,7 +248,10 @@ void GameStage::onTick(){
 		return;
 	}
 
-	pongGame->processTick(this->engine->keys);
+	//if(keys[ALLEGRO_KEY_G]) players[0]->medlen += 1;//DEBUG
+
+
+	pongGame->processTick();//this->engine->keys);
 
 	while(!pongGame->messages.empty()){
 		string msg = pongGame->messages.front();
@@ -475,7 +511,7 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 			scale * txtX, 
 			scale * pl->comTxtY, 
 			ALLEGRO_ALIGN_CENTER, 
-			pl->comTxt
+			pl->comTxt.c_str()
 		);
 
 		pl->comTxtY -= 2;
