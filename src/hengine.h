@@ -8,8 +8,6 @@
 
 #define TICKS_PER_SECOND 60.0
 
-using namespace std;
-
 class HGameEngine;
 
 enum {
