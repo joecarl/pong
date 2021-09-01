@@ -279,11 +279,15 @@ Bonus::Bonus(PongGame *game, int bonus_type): Element(game){
 	
 	this->bonus_type = bonus_type;
 
+	this->radius = RADIUS;//provisional
+
 }
 
 void Bonus::playerHit(PlayerP *pl){
 	
 	pl->giveBonus(this->bonus_type);
+	
+	this->stat = false;
 
 }
 
@@ -323,7 +327,7 @@ void PlayerP::moveIA(int plyrNum, Element *ball,int scale){
 
 }
 
-void PlayerP::controlMove(int scale, int key_up, int key_down,int key_up2, int key_down2){
+void PlayerP::controlMove(int scale, int key_up, int key_down, int key_up2, int key_down2){
 
 	if(key_up	|| key_up2) y -= scale*2;//ch='w';
 	if(key_down || key_down2) y += scale*2;//ch='s';
@@ -339,12 +343,12 @@ void PlayerP::giveBonus(int bonus_type){
 		comTxtY = 150;
 	}
 
-	if(bonus_type == BONUS_IMPA){
+	else if(bonus_type == BONUS_IMPA){
 		strcpy(comTxt, "UNSTOPABLE");
 		comTxtY = 150;
 	}
 
-	if(bonus_type == BONUS_BALL){
+	else if(bonus_type == BONUS_BALL){
 		strcpy(comTxt, "SPECIAL BALL");
 		comTxtY = 150;
 		bonus_ball = 80;

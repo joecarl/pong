@@ -21,32 +21,32 @@ class PongGame{
 
 public:
 
-    int bonus_time[2] = {-1, -1};
+	int bonus_time[2] = {-1, -1};
 
-    float scale = 1.0;
+	float scale = 1.0;
 
-    unsigned int numPlayers;
+	unsigned int numPlayers;
 
-    bool paused = false, finished = false;
+	bool paused = false, finished = false;
 
-    PlayerP* players[2];
+	PlayerP* players[2];
 
 	Ball *ball;
 
-    Bonus *bonus[2];
+	Bonus *bonus[2];
 
-    
-    PongGame(float sc);
+	
+	PongGame(float sc);
 
-    void restart();
+	void restart();
 
-    void togglePause();
+	void togglePause();
 
-    void iniciarPunto(int first);
+	void iniciarPunto(int first);
 
-    void giveScore(PlayerP* pl, int score);
+	void giveScore(PlayerP* pl, int score);
 
-    void processTick(bool* keys);
+	void processTick(bool* keys);
 
 };
 
@@ -55,27 +55,27 @@ class Element{
 
 public:
 
-    int stat;
+	int stat;
 
-    float x, y, x00, y00, radius;
-    
-    float vX, vY, t;
+	float x, y, x00, y00, radius;
+	
+	float vX, vY, t;
 
-    PongGame *game;
+	PongGame *game;
 
-    Element(PongGame *game);
-    void setParameters(float px, float py, float vx, float vy, int st = 1); //Configures to start a new movement
-    void processColliding(int scale, int plyrNum, PlayerP* players[]);
-    virtual void preprocess(){}
-    void process(int scale, int plyrNum, PlayerP* players[]);//Moves, tests collinding and draws the element
-    int getStat(){ return stat; }
-    void setStat(int st){ stat = st; }
-    int getX(){ return x; }
-    int getY(){ return y; }
-    void setPos(int px, int py){x = x00 = px; y = y00 = py;}
-    float getvX(){ return vX; }
-    
-    virtual void playerHit(PlayerP *pl){}
+	Element(PongGame *game);
+	void setParameters(float px, float py, float vx, float vy, int st = 1); //Configures to start a new movement
+	void processColliding(int scale, int plyrNum, PlayerP* players[]);
+	virtual void preprocess(){}
+	void process(int scale, int plyrNum, PlayerP* players[]);//Moves, tests collinding and draws the element
+	int getStat(){ return stat; }
+	void setStat(int st){ stat = st; }
+	int getX(){ return x; }
+	int getY(){ return y; }
+	void setPos(int px, int py){x = x00 = px; y = y00 = py;}
+	float getvX(){ return vX; }
+	
+	virtual void playerHit(PlayerP *pl){}
 };
 
 
@@ -83,48 +83,48 @@ class Ball: public Element{
 	
 public:
 
-    Ball(PongGame* game);
+	Ball(PongGame* game);
 
-    void playerHit(PlayerP *pl);
-    
-    void preprocess();
+	void playerHit(PlayerP *pl);
+	
+	void preprocess();
 
 };
 
 
 class Bonus: public Element{
 	
-    public:
+	public:
 
-    int bonus_type;
+	int bonus_type;
 
-    Bonus(PongGame* game, int bonus_type);
-    
-    void playerHit(PlayerP *pl);
-    
+	Bonus(PongGame* game, int bonus_type);
+	
+	void playerHit(PlayerP *pl);
+	
 };
 
 
 class PlayerP{
 
-    public:
-    
-    int x, y, comTxtY;
-    char comTxt[30];
-    int score, medlen, racha;
+	public:
+	
+	int x, y, comTxtY;
+	char comTxt[30];
+	int score, medlen, racha;
 
-    float bonus_ball;
+	float bonus_ball;
 
-    PlayerP(int px, int py);
-    void giveBonus(int bonus_type);
+	PlayerP(int px, int py);
+	void giveBonus(int bonus_type);
  
-    void lockLimit(int scale);
-    void controlMove(int scale, int key_up, int key_down, int key_up2 = 0, int key_down2 = 0);
-    void moveIA(int plyrNum, Element *ball, int scale);
-    void setX(int px){ x = px; }
-    void setY(int py){ y = py; }
-    int getX(){ return x; }
-    int getY(){ return y; }
+	void lockLimit(int scale);
+	void controlMove(int scale, int key_up, int key_down, int key_up2 = 0, int key_down2 = 0);
+	void moveIA(int plyrNum, Element *ball, int scale);
+	void setX(int px){ x = px; }
+	void setY(int py){ y = py; }
+	int getX(){ return x; }
+	int getY(){ return y; }
 
 };
 
