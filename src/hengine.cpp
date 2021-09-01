@@ -5,7 +5,6 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
-#include <boost/json.hpp>
 
 #include "hengine.h"
 #include "classes.h"
@@ -288,25 +287,16 @@ void HGameEngine::onEvent(ALLEGRO_EVENT event){
 
 	Stage* activeStage = (Stage*) this->stages[this->activeStageID];
 
-	boost::json::value inputEvt;
-	inputEvt.emplace_null();
-
 	if(event.type == ALLEGRO_EVENT_KEY_DOWN){
-		inputEvt = {
-			{"type", event.type},
-			{"keycode", event.keyboard.keycode}
-		};
-		//cout << inputEvt << endl;
+		
 		keys[event.keyboard.keycode] = true;
+
 	}
 
 	else if(event.type == ALLEGRO_EVENT_KEY_UP){
-		inputEvt = {
-			{"type", event.type},
-			{"keycode", event.keyboard.keycode}
-		};
-		//cout << inputEvt << endl;
+		
 		keys[event.keyboard.keycode] = false;
+
 	}
 
 	activeStage->onEvent(event);
