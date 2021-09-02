@@ -3,8 +3,8 @@
 
 
 
-SRC_DIR=./src
-BUILD_DIR=./build
+SRC_DIR=./src/client
+BUILD_DIR=./build/client
 
 GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR -IC:/msys64/mingw64/include/freetype2"
 
@@ -13,9 +13,9 @@ mkdir $BUILD_DIR > /dev/null 2>&1
 mkdir $BUILD_DIR/obj > /dev/null 2>&1
 
 scripts=()
+scripts+=(/../classes)
 scripts+=(hengine)
 scripts+=(stages)
-scripts+=(classes)
 scripts+=(utils)
 scripts+=(ioclient)
 scripts+=(main)

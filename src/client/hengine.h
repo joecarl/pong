@@ -4,7 +4,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 
-#include "classes.h"//move pongGame to specific stage!
+#include "../classes.h"//move pongGame to specific stage!
 
 #define TICKS_PER_SECOND 60.0
 

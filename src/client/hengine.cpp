@@ -7,7 +7,6 @@
 #include <allegro5/allegro_primitives.h>
 
 #include "hengine.h"
-#include "classes.h"
 #include "stages.h"
 
 using namespace std;
