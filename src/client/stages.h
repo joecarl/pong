@@ -1,10 +1,10 @@
 #ifndef STAGES_H
 #define STAGES_H
 
-#include <allegro5/allegro.h>
 #include "hengine.h"
 #include "utils.h"
-
+#include "../classes.h"
+#include <allegro5/allegro.h>
 
 #ifdef __APPLE__
 #define LONG_DIR "../Resources/long.bmp"

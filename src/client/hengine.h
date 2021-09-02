@@ -1,7 +1,6 @@
 #ifndef HENGINE_H
 #define HENGINE_H
 
-#include "../classes.h"//move pongGame to specific stage!
 #include "ioclient.h"
 
 #include <allegro5/allegro.h>
@@ -99,11 +98,9 @@ public:
 
 	Stage* stages[MAX_SCREENS];
 
-	PongGame* pongGame;
-
 	bool keys[300];
 
-	int resX = DEF_W, resY = DEF_H;
+	int resX = 320/*DEF_W*/, resY = 200/*DEF_H*/;
 
 	HGameEngine();
 

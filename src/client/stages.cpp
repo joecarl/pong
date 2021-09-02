@@ -40,6 +40,32 @@ string GetData(string pkg, string field){
 
 }
 
+
+int playMode = PLAYMODE_NONE;
+
+PongGame* pongGame = nullptr;
+
+void makeNewPongGame(int_fast32_t seed){
+
+	if(pongGame != nullptr){
+		delete pongGame;
+	}
+
+	pongGame = new PongGame(seed);
+
+	if(playMode == PLAYMODE_SINGLE_PLAYER){
+		pongGame->numPlayers = 1;
+	} 
+	else if(playMode == PLAYMODE_TRAINING){
+		pongGame->numPlayers = 0;
+	}
+	else if(playMode == PLAYMODE_ONLINE || playMode == PLAYMODE_TWO_PLAYERS){
+		pongGame->numPlayers = 2;
+	}
+	
+}
+
+
 //-----------------------------------------------------------------------------
 //------------------------------ MainMenuStage --------------------------------
 
@@ -57,31 +83,24 @@ void MainMenuStage::onTick(){
 	if(easteregg++ == 1000) PlayExorcista();
 
 }
-
-int playMode = 0;
+	
 
 void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 
 	int keycode = event.keyboard.keycode;
 
-	PongGame* pongGame = this->engine->pongGame;
-
 	if(event.type == ALLEGRO_EVENT_KEY_DOWN){
 	
 		if(keycode == ALLEGRO_KEY_1){
-			pongGame->numPlayers = 1;
 			playMode = PLAYMODE_SINGLE_PLAYER;
 		} 
 		else if(keycode == ALLEGRO_KEY_2) {
-			pongGame->numPlayers = 2;
 			playMode = PLAYMODE_TWO_PLAYERS;
 		}
 		else if(keycode == ALLEGRO_KEY_3){
-			pongGame->numPlayers = 0;
 			playMode = PLAYMODE_TRAINING;
 		}
 		else if(keycode == ALLEGRO_KEY_4){
-			pongGame->numPlayers = 2;
 			this->engine->setStage(CONN); 
 			playMode = PLAYMODE_ONLINE;
 		}
@@ -102,6 +121,7 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 
 		else if(keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3) {
 
+			makeNewPongGame(time(nullptr)); 
 			this->engine->setStage(GAME);
 
 		}
@@ -157,7 +177,6 @@ void GameStage::drawCourt(){
 
 void GameStage::drawScores(){
 	
-	PongGame* pongGame = this->engine->pongGame;
 	ALLEGRO_FONT* font = this->engine->font;
 	float scale = this->engine->scale;
 
@@ -183,7 +202,7 @@ void GameStage::onEnterStage(){
 				bool newState = evt["state"].as_bool();
 				int playerKey = evt["playerKey"].as_int64();
 				
-				this->engine->pongGame->players[playerKey]->controls[control] = newState;
+				pongGame->players[playerKey]->controls[control] = newState;
 
 			}
 
@@ -191,8 +210,6 @@ void GameStage::onEnterStage(){
 
 	}
 
-	PongGame* pongGame = this->engine->pongGame;
-		
 	PlaySound(Do, 400);
 	PlaySound(Re, 200);
 	PlaySound(La, 100);
@@ -235,8 +252,6 @@ int getControl(int kCode, int playMode, int playerID){
 
 void GameStage::onEvent(ALLEGRO_EVENT evt){
 
-	PongGame* pongGame = this->engine->pongGame;
-
 	int kCode = evt.keyboard.keycode;
 	
 	if(evt.type == ALLEGRO_EVENT_KEY_DOWN){
@@ -249,7 +264,7 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 
 		else if(kCode == ALLEGRO_KEY_P){//P (PAUSA)
 			
-			this->engine->pongGame->togglePause();
+			pongGame->togglePause();
 
 		}
 
@@ -314,8 +329,6 @@ void GameStage::processMessage(string &msg){
 
 void GameStage::onTick(){
 
-	PongGame* pongGame = this->engine->pongGame;
-
 	if (delayer > 0){
 		delayer--;
 		return;
@@ -350,8 +363,6 @@ void GameStage::onTick(){
 
 void GameStage::draw(){
 
-	PongGame* pongGame = this->engine->pongGame;
-	
 	ALLEGRO_FONT* font = this->engine->font;
 
 	float scale = this->engine->scale;
@@ -578,7 +589,6 @@ void GameOverStage::onEvent(ALLEGRO_EVENT event){
 
 void GameOverStage::draw(){
 
-	PongGame* pongGame = this->engine->pongGame;
 	int winner;
 	if(pongGame->players[0]->score > pongGame->players[1]->score) winner = 1;
 	else winner = 2;
@@ -606,6 +616,20 @@ void ConnStage::onEnterStage(){
 	input->start();
 	//al_flush_event_queue(event_queue);
 	//connection->Reset();
+
+	this->engine->connection.process_actions_fn = [&](boost::json::object& evt){
+
+		cout << "RECEIVED: " << evt << endl;
+		if(evt["type"] == "game_start"){
+
+			makeNewPongGame((int_fast32_t)evt["seed"].as_int64());
+
+			this->engine->setStage(GAME);
+		
+		}
+
+	};
+
 	
 }
 
@@ -655,17 +679,6 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 
 void ConnStage::onTick(){
 
-	IoClient* connection = &this->engine->connection;
-
-	static int delayer2 = 0;
-
-	if(connection->get_state() == CONNECTION_STATE_CONNECTED){
-
-		if(delayer2++ > 60){
-			this->engine->setStage(GAME);
-		}
-
-	}
 
 }
 
