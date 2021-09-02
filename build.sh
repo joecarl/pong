@@ -14,6 +14,7 @@ mkdir $BUILD_DIR/obj > /dev/null 2>&1
 
 scripts=()
 scripts+=(/../classes)
+scripts+=(/../netutils)
 scripts+=(hengine)
 scripts+=(stages)
 scripts+=(utils)
