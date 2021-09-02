@@ -103,6 +103,7 @@ void PongGame::giveScore(PlayerP* pl, int score){
 	}
 
 }
+
 /*
 void PongGame::addEventListener(string &evtName, function<void>& fn){
 
@@ -112,6 +113,7 @@ void PongGame::addEventListener(string &evtName, function<void>& fn){
 
 }
 */
+
 void PongGame::addMessage(std::string evtMsg){
 
 	this->messages.push(evtMsg);
@@ -260,6 +262,7 @@ void Element::processColliding(){
 			 this->onPlayerHit(players[0]);
 			
 		}
+
 	}
 
 	//CHOQUE CON LA PALA DCHA
@@ -335,7 +338,9 @@ void Bonus::onPlayerHit(PlayerP *pl){
 
 }
 
+
 //------------------------------------------------------------------------------
+//-------------------------------- [ PlayerP ] ---------------------------------
 
 PlayerP::PlayerP(PongGame *pongGame, int px, int py){
 
