@@ -10,7 +10,6 @@ using namespace std;
 using namespace boost::asio::ip;
 
 
-
 int Client::count_instances = 0;
 
 Client::Client(
@@ -41,48 +40,39 @@ Client::~Client(){
 
 }
 
-void Client::setPlayer(PlayerP * _pl){
-	
-	this->pl = _pl;
-
-}
-
 
 void Client::process_request(std::string request){
-	//let's parse query
-
+	
 	boost::json::value q = boost::json::parse( request );
+
 	if ( !q.is_object() ){
-		cerr << "Not valid JSON" << endl;
-		cerr << request << endl;
+
+		cerr << "Not valid JSON" << endl << request << endl;
 		return;
-	} else {
-		//cout << q << endl;
+
 	}
     
     boost::json::object evt = q.get_object();
 
 	auto evtType = evt["type"].get_string();
+
 	if(evtType == "ping"){
+
 		evt["type"] = "pong";
 		this->qsend(boost::json::serialize(evt));
+
+	} else {
+
+		if( this->on_pkg_received != nullptr){
+
+			this->on_pkg_received(evt);
+
+		}
+
 	}
-	else if(evtType == "set_control_state"){
-		cout << evt << endl;
-		this->qsend(boost::json::serialize(evt));
-	}
-    
+
 }
-/*
-void Client::process_stage_action(boost::json::object& pt){
-	if(this->stage == 0){
-		stage0_process_action(this, pt);
-	}
-	else if (this->stage == 1){
-		stage1_process_action(this, pt);
-	}
-}
-*/
+
 
 void Client::qsend(std::string pkg, bool ignore_busy){
 
@@ -138,6 +128,7 @@ void Client::handle_qsent_content( const boost::system::error_code& error, std::
 		this->qsend(this->pkg_queue.front());
 		this->pkg_queue.pop();
 	}
+
 }
 
 
@@ -186,6 +177,7 @@ void Client::handle_read_content(const boost::system::error_code& error, std::si
 		//boost::thread(boost::bind(&Client::process_request, this, pkg, req_id));
 		this->process_request(pkg);
 	}
+	
 	read_remainder = data;
 
 	this->async_wait_for_data();

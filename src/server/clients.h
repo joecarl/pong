@@ -2,8 +2,6 @@
 #ifndef clients_hpp
 #define clients_hpp
 
-#include "../classes.h"
-
 #include <boost/json.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -36,26 +34,22 @@ class Client{
 
 public:
 
-	PlayerP *pl = nullptr;
-	
-	int stage = 0;
-
-	//player pl;
-	bool logged = false;
-
 	//conn vars
 	boost::system::error_code conn_err;
 	Client(boost::asio::io_service& io_service, boost::asio::ip::tcp::acceptor& acceptor);
 	~Client();
 
-	void setPlayer(PlayerP * pl);
-
 	void async_wait_for_data();
+	
 	void qsend(std::string pkg, bool ignore_busy = false);
+
 	bool is_dead();
+
 	bool is_connected();
 
 	void process_request(std::string request);
+	
+	std::function<void(boost::json::object& pt)> on_pkg_received;
 
 };
 
