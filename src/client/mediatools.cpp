@@ -1,10 +1,12 @@
-#include "utils.h"
+#include "mediatools.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <math.h>
 #include <string>
 #include <cstdlib>
+#include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -28,22 +30,6 @@ void PlaySound(int nota, float time, int octava) {
 	
 	last_pos += samples;
 	
-}
-
-string GetWaitString(){
-
-	static string pts;
-	static int resize_timer = 0, pts_len = 0;
-	
-	resize_timer++;
-	resize_timer = resize_timer % 30;
-	
-	if(resize_timer == 19){
-		pts = "...";
-		pts.resize(++pts_len % 4);
-	}
-	
-	return pts;
 }
 
 void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode){
@@ -93,6 +79,22 @@ void PlayExorcista(){
 	PlaySound(Mi, 100, o);
 	PlaySound(Si, 200, o);
 	PlayAudio(1, ALLEGRO_PLAYMODE_LOOP);
+
+}
+
+
+ALLEGRO_BITMAP* load_bitmap(string filename){
+
+	cout << "Loading bitmap: " << filename << endl;
+
+	ALLEGRO_BITMAP* sprite = al_load_bitmap(filename.c_str());
+	al_convert_mask_to_alpha(sprite, ALPHA_COLOR);
+
+	if(!sprite){
+		throw std::runtime_error("error loading bitmap");
+	}
+
+	return sprite;
 
 }
 

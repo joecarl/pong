@@ -1,7 +1,9 @@
-#ifndef NETUTILSH
-#define NETUTILSH
+#ifndef UTILSH
+#define UTILSH
 
 #include <string>
+
+std::string GetWaitString();
 
 std::string file_get_contents(std::string filepath);
 

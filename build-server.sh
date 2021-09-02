@@ -14,7 +14,7 @@ mkdir $BUILD_DIR/obj > /dev/null 2>&1
 
 scripts=()
 scripts+=(/../classes)
-scripts+=(/../netutils)
+scripts+=(/../utils)
 scripts+=(clients)
 scripts+=(group)
 scripts+=(server)

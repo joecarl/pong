@@ -14,10 +14,10 @@ mkdir $BUILD_DIR/obj > /dev/null 2>&1
 
 scripts=()
 scripts+=(/../classes)
-scripts+=(/../netutils)
+scripts+=(/../utils)
 scripts+=(hengine)
 scripts+=(stages)
-scripts+=(utils)
+scripts+=(mediatools)
 scripts+=(ioclient)
 scripts+=(main)
 

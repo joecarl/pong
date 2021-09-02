@@ -2,7 +2,7 @@
 #define STAGES_H
 
 #include "hengine.h"
-#include "utils.h"
+#include "mediatools.h"
 #include "../classes.h"
 #include <allegro5/allegro.h>
 

@@ -1,7 +1,7 @@
 
 #include "clients.h"
 #include "server.h"
-#include "../netutils.h"
+#include "../utils.h"
 
 #include <iostream>
 #include <stdlib.h>

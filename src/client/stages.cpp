@@ -1,5 +1,6 @@
 #include "../classes.h"
-#include "utils.h"
+#include "../utils.h"
+#include "mediatools.h"
 #include "hengine.h"
 #include "stages.h"
 
@@ -14,8 +15,6 @@
 #include <boost/json.hpp>
 #include <string>
 #include <math.h>
-
-#define ALPHA_COLOR al_map_rgb(255, 0, 255)
 
 using namespace std;
 
@@ -424,20 +423,6 @@ void GameStage::draw(){
 }
 
 
-ALLEGRO_BITMAP* load_bitmap(string filename){
-
-	cout << "Loading bitmap: " << filename << endl;
-
-	ALLEGRO_BITMAP* sprite = al_load_bitmap(filename.c_str());
-	al_convert_mask_to_alpha(sprite, ALPHA_COLOR);
-
-	if(!sprite){
-		throw std::runtime_error("error loading bitmap");
-	}
-
-	return sprite;
-
-}
 
 Tracer::Tracer(HGameEngine* _engine){
 

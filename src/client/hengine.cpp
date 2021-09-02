@@ -1,6 +1,6 @@
 #include "hengine.h"
 #include "stages.h"
-#include "../netutils.h"
+#include "../utils.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
