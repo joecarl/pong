@@ -1,166 +1,204 @@
 //
-//  lumper.cpp
-//  spl
+//  connections.cpp
+//  otherside
 //
-//  Created by Joe on 31/1/15.
-//  Copyright (c) 2015 Copinstar. All rights reserved.
+//  Created by Joe on 13/9/18.
 //
 
 #include "ioclient.h"
-#include <boost/asio/deadline_timer.hpp>
-using boost::asio::ip::tcp;
+#include "../netutils.h"
+#include <iostream>
+
+using namespace boost::asio;
 using namespace std;
 
-void ioClient::Connect(string ip, string port){
 
-	try{
+client::client(string addr, unsigned short port):
+	io_service(),
+	socket(io_service),
+	//resolver(io_service),
+	endpoint()
+{
 
-		timeout = 1000;
-		cout << "Configurando parámetros de conexión..." << endl;
-		tcp::resolver resolver(io_service);
-		tcp::resolver::query query(ip, port);
-		tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-		boost::asio::ip::tcp::endpoint endpoint=endpoint_iterator->endpoint();//(boost::asio::ip::address::from_string(ip), atoi(port.c_str()));
-		
-		deadline.expires_from_now(boost::posix_time::millisec(timeout * 5));
-		socket.async_connect(endpoint, 
-			boost::bind(&ioClient::handle_connect, this, 
-				boost::asio::placeholders::error()
-			)
-		);
-		deadline.async_wait(boost::bind(&ioClient::check_deadline, this));
-		io_th = new boost::thread(boost::bind(&ioClient::io_task, this));
-
-	} catch(std::exception& e) {
-
-		stopped = true;
-		std::cerr << e.what() << std::endl;
-
-	}
-	
-}
-
-const char* ioClient::FetchPacket(){
-	
-	if (pkgin_queue.size() > 0){
-
-		string out = pkgin_queue[0];
-		for (unsigned int i = 0; i < pkgin_queue.size() - 1; i++){
-			pkgin_queue[i] = pkgin_queue[i + 1];
-		}
-		pkgin_queue.pop_back();
-		return out.c_str();
-	}
-	else return NULL;
-
-}
-
-int ioClient::SendPacket(string pkg){
-
-	pkgout_queue.push_back(pkg);
-	return 1;
-
-}
-
-void ioClient::send_task(){
 	boost::system::error_code error;
-	while (connected) {
-		//usleep(1000);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-		if(pkgout_queue.size() > 0 && connected){
-			boost::asio::write(socket, boost::asio::buffer(pkgout_queue[0].c_str(), pkgout_queue[0].length()), error);
-			for (unsigned int i = 0; i < pkgout_queue.size() - 1; i++)
-				pkgout_queue[i] = pkgout_queue[i + 1];
-			pkgout_queue.pop_back();
-		}
+
+	endpoint.address(boost::asio::ip::make_address(addr));
+	endpoint.port(port);
+	socket.connect(endpoint, error);
+
+	cout << "Trying " << endpoint << " ..." << endl;
+	if(error){
+		cout << "Error occurred[C" << this->id_client << "]: " << error << endl;
+		this->dead = true;
 	}
+
+	io_service.run();//will exit inmediately
+	//quiza la lectura haya q hacerla en otro socket.. nose..
+	qread();
 }
 
-void ioClient::handle_read(const boost::system::error_code& ec, std::size_t size){
-	
-	if (!ec){
-	
-		stringstream aux;
-		aux << &buff;
-		string buff_str = aux.str();
-		buff_str.resize(size);
-		pkgin_queue.push_back(buff_str);
-		cout << "Recibido: " << buff_str;
-		boost::asio::async_read_until(socket, buff, "\r\n", 
-			boost::bind(&ioClient::handle_read, this, 
-				boost::asio::placeholders::error(),
-				boost::asio::placeholders::bytes_transferred()
-			)
-		);
-	
-	} else {
-	
-		if(ec == boost::asio::error::eof){
-			stopped=1;
-			deadline.cancel();
-		} else {
-			
-			throw std::runtime_error("error de lectura");
-		}
-	}
+client::~client(){
+	this->io_service.stop();
+
+	//usleep(1000000);
+	Sleep(1000);
 }
 
-void ioClient::handle_connect(const boost::system::error_code& ec) {
-	
-	if (!ec) {
+bool client::is_alive(){
+	return !this->dead;
+}
 
-		cout << "Conectado al servidor!" << endl;
-		connected = true;
-		deadline.expires_from_now(boost::posix_time::millisec(timeout));
-		boost::asio::async_read_until(socket, buff, "\r\n", 
-			boost::bind(&ioClient::handle_read, this, 
-				boost::asio::placeholders::error(),
-				boost::asio::placeholders::bytes_transferred()
-			)
-		);
+void client::qsend(std::string pkg, std::function<void(boost::json::object& pt)> _cb){
+	//colas!!!!!
+	if(this->busy){
+		this->pkg_queue.push({pkg, _cb});
+		return;
+	}
+	this->busy = true;
+
+	auto handler = boost::bind(&client::handle_qsent_content, this,
+							   boost::asio::placeholders::error(),
+							   boost::asio::placeholders::bytes_transferred());
+
+	pkg += "\r\n\r\n";
+
+	if(_cb != nullptr){
 		
-		send_th = new boost::thread(boost::bind(&ioClient::send_task, this));
-	} else {
-		stopped = true;
-		throw std::runtime_error("error de conexion");
+		boost::json::object obj = boost::json::parse(pkg).get_object();
+
+		                     
+		//std::string action = obj["action"];
+		std::string action = obj["action"].get_string().c_str();//pt.get<std::string>("action");
+		
+		if(action.length() > 0){
+			auto t_start = std::chrono::high_resolution_clock::now();
+
+			cbs.push_back({action, _cb, t_start});
+		}
 	}
 
+	boost::asio::async_write(socket, boost::asio::buffer(pkg), handler);
+	//socket.async_write_some(boost::asio::buffer(pkg), handler);
+	if(io_service.stopped()){
+		io_service.restart();
+		boost::thread(boost::bind(&boost::asio::io_service::run, &io_service));
+	}
+	pkgs_sent ++;
+	//std::cout << " S:" << pkgs_sent << endl;
+	//std::cout << " Sending: " << pkg << endl;
+
 }
 
- void ioClient::Reset(){
-	connected = stopped = 0;
-	io_service.stop();
-	io_service.reset();
-	socket.close();
+void client::qread(){
+	auto handler = boost::bind(&client::handle_qread_content, this,
+							   boost::asio::placeholders::error(),
+							   boost::asio::placeholders::bytes_transferred());
+
+	socket.async_read_some(boost::asio::buffer(read_buffer, 1024), handler);
+
+	if(io_service.stopped()){
+		io_service.restart();
+		boost::thread(boost::bind(&boost::asio::io_service::run, &io_service));
+	}
 }
 
-void ioClient::check_deadline(){
+void client::handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred){
 
-	if(stopped) return;
+	this->busy = false;
 
-	if (deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now()){
-		cout << "Tiempo de espera agotado." << endl;
-		throw std::runtime_error("timeout excedido");
+	if(error){
+		//cout << "Error occurred! S[C" << this->id_client << "]: " << error << endl;
+		this->dead = true;
+		return;
+	}
+	if(!this->pkg_queue.empty()){
+		this->qsend(this->pkg_queue.front().pkg, this->pkg_queue.front()._cb);
+		this->pkg_queue.pop();
+	}
+	//pkgs_sent ++;
+	//std::cout << " S:" << pkgs_sent << endl;
+}
+
+
+void client::handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred){
+
+	if(error){
+		cout << "Error occurred R[C" << this->id_client << "]: " << error << endl;
+		this->dead = true;
+		return;
 	}
 
-	deadline.expires_from_now(boost::posix_time::pos_infin);
-	deadline.async_wait(boost::bind(&ioClient::check_deadline, this));
+	//std::cout << "Data received[C" << this->id_client << "]: " ;
 
-}
+	std::string data((char*)read_buffer, bytes_transferred );
+	//cout << data << endl;
+	data = read_remainder + data;
+	std::string pkg;
 
-void ioClient::io_task(){
-	
-	try {
-		cout << "Esperando conexión..." << endl;
-		io_service.run();
-	} catch (std::exception& e) {
-		connected = false;
-		std::cerr << e.what() << std::endl;
+	while((pkg = extract_pkg(data)) != ""){
+		pkgs_recv ++;
+		//std::cout << " R:" << pkgs_recv << endl;
+
+		boost::json::value pt;
+/*
+		if(this->wait_for_binary){
+			this->wait_for_binary = false;
+			//pt = this->wait_for_binary_pt;
+			pt["action"] = "binary_transfer";
+			pt["data"] = pkg;
+
+			this->process_actions_fn(pt);
+
+		} else {
+*/
+			//bool parse_ok = parse_json(pkg, pt);
+			pt = boost::json::parse(pkg);
+
+			if( pt.is_object() ){
+
+				boost::json::object obj = pt.get_object();
+				//cout << pkg << endl;
+				/*
+				if(pt["binary_transfer"]){//as bool
+					this->wait_for_binary = true;
+					this->wait_for_binary_pt = pt;
+				}
+				*/
+				boost::json::value resp = obj["response"];
+				if(!resp.is_null()){ //as string
+					std::string response_name = resp.get_string().c_str();//.get<std::string>("response");
+
+					for(int i = 0; i < cbs.size(); i++){
+						if(cbs[i].name == response_name){ //si hay dos con el mismo nombre que pasa?
+							cbs[i].cb(obj);
+
+							auto t_end = std::chrono::high_resolution_clock::now();
+							this->ping_ms = std::chrono::duration<double, std::milli>(t_end - cbs[i].c_s).count();
+							//std::cout << "PING: " << this->ping_ms << "ms" << endl;
+
+							cbs.erase(cbs.begin() + i);
+							if(cbs.size() > 0){
+								cout << "CM remaining: " << cbs.size() << endl;
+							}
+
+
+							break;
+						}
+					}
+
+				}
+
+				if(obj["action"].is_string() && this->process_actions_fn != nullptr){
+					//std::cout << "ACCION!!!" << std::endl;
+					this->process_actions_fn(obj);
+				}
+			}
+			else{
+				cout << "error parsing: " << pkg << endl;
+			}
+//		}
 	}
-	
+	read_remainder = data;
+	//cout << read_remainder << endl;
+	qread();
 }
-
-
-
-
-
