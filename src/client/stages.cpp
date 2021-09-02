@@ -251,7 +251,8 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 			if(controlP1 != CONTROL_NONE){
 
 				inputEvt = {
-					{"newState", newSt},
+					{"type", "set_control_state"},
+					{"state", newSt},
 					{"control", evt.keyboard.keycode}
 				};
 
@@ -605,10 +606,14 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 				server = input->getValue();
 
 				if (server == ""){
-					server = "copinstar.com";
+
+					server = this->engine->cfg["defaultServer"].as_string().c_str();
+
 				}
+				
+				unsigned short port = (unsigned short) this->engine->cfg["defaultPort"].as_int64();
 							
-				this->engine->connection.connect(server, 28090);//addr
+				this->engine->connection.connect(server, port);
 				
 			}
 
