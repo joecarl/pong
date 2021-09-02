@@ -19,7 +19,7 @@ using namespace std;
 
 
 
-server::server(int _port): io_service(), acceptor(io_service){
+Server::Server(int _port): io_service(), acceptor(io_service){
 
 	this->port = _port;
 	this->endpoint = tcp::endpoint(tcp::v4(), port);
@@ -35,7 +35,7 @@ server::server(int _port): io_service(), acceptor(io_service){
 
 }
 
-void server::process_clients_requests(){
+void Server::process_clients_requests(){
 
 	for(int i = 0; i < this->max_connections; i++){
 		if(clients[i] == nullptr) continue;
@@ -44,7 +44,7 @@ void server::process_clients_requests(){
 }
 
 
-void server::poll(){
+void Server::poll(){
     while(1){
 
 		this->io_service.restart();//en windows no hacia falta hacer restart :/
@@ -55,7 +55,7 @@ void server::poll(){
     }
 }
 
-bool server::is_full(){
+bool Server::is_full(){
 
 	for(int i = 0; i < this->max_connections; i++){
 		if(clients[i] == nullptr){
@@ -69,12 +69,12 @@ bool server::is_full(){
 }
 
 
-void server::kick_client(int idx){
+void Server::kick_client(int idx){
 	delete clients[idx];
 	clients[idx] = nullptr;
 }
 
-void server::start_listening(){
+void Server::start_listening(){
 
 	boost::system::error_code ec;
 
@@ -91,7 +91,7 @@ void server::start_listening(){
 }
 
 
-void server::stop_listening(){
+void Server::stop_listening(){
 
 	boost::system::error_code ec;
 
@@ -105,7 +105,7 @@ void server::stop_listening(){
 	}
 }
 
-void server::send_to_all(std::string pkg){
+void Server::send_to_all(std::string pkg){
 	for(int i = 0; i < this->max_connections; i++){
 		if(clients[i] != nullptr && !clients[i]->is_dead()){
 			if(clients[i]->logged || 1){
@@ -115,10 +115,10 @@ void server::send_to_all(std::string pkg){
 	}
 }
 
-void server::game_main_loop(boost::asio::steady_timer* t){
+void Server::game_main_loop(boost::asio::steady_timer* t){
 
 	useconds_t usec = 1000000 / 60;
-	static int counter = 0;
+	//static int counter = 0;
 
 	for(int i = 0; i < this->max_connections; i++){
 		if(clients[i] != nullptr && !clients[i]->is_dead()){
@@ -153,11 +153,11 @@ void server::game_main_loop(boost::asio::steady_timer* t){
 	}
 */
 	t->expires_at(t->expiry() + boost::asio::chrono::microseconds(usec));
-	t->async_wait(boost::bind(&server::game_main_loop, this, t));
+	t->async_wait(boost::bind(&Server::game_main_loop, this, t));
 
 }
 
-void server::run(){
+void Server::run(){
 
 	useconds_t usec = 1000000 / 60;
 
@@ -165,14 +165,14 @@ void server::run(){
 
 	boost::asio::steady_timer t(io, boost::asio::chrono::microseconds(usec));
 
-	t.async_wait(boost::bind(&server::game_main_loop, this, &t));
+	t.async_wait(boost::bind(&Server::game_main_loop, this, &t));
 
 	//io.run();
 	boost::thread th0(boost::bind(&boost::asio::io_context::run, &io));
 
 	//boost::system::error_code ec;
 
-	boost::thread th(boost::bind(&server::poll, this));
+	boost::thread th(boost::bind(&Server::poll, this));
 
 	while(1){
 

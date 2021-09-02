@@ -15,7 +15,7 @@
 
 #include "clients.h"
 
-class server{
+class Server{
 
 	int port = 25000;
 
@@ -45,7 +45,7 @@ public:
 	boost::asio::io_service io_service;
 	boost::asio::ip::tcp::acceptor acceptor;
 
-	server(int _port);
+	Server(int _port);
 
 	void process_clients_requests();
 
