@@ -16,6 +16,7 @@ scripts=()
 scripts+=(/../classes)
 scripts+=(/../netutils)
 scripts+=(clients)
+scripts+=(group)
 scripts+=(server)
 scripts+=(main)
 
