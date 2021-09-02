@@ -1,5 +1,6 @@
 #include "hengine.h"
 #include "stages.h"
+#include "../netutils.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -47,7 +48,10 @@ void AllegroHandler::initializeResources(){
 
 void AllegroHandler::createComponents(){
 	
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+	if(this->engine->cfg["windowed"].as_bool() == false){
+		al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+	}
+
 	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_REQUIRE);
 
 	ALLEGRO_DISPLAY_MODE disp_data;
@@ -158,6 +162,22 @@ void Stage::onEnterStage(){
 //----------------------------- [HGameEngine] ---------------------------------
 
 HGameEngine::HGameEngine(){
+
+	boost::json::value cfgV = boost::json::parse(file_get_contents("cfg.json"));
+
+	if(cfgV.is_object()){
+
+		this->cfg = cfgV.get_object();
+
+	} else {
+
+		this->cfg["windowed"] = false;
+		this->cfg["defaultServer"] = "copinstar.com";
+		this->cfg["defaultPort"] = "28090";
+
+	}
+
+	//cout << this->cfg << endl;
 
 	this->allegroHnd = new AllegroHandler(this); 
 	

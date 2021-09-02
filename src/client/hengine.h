@@ -1,11 +1,12 @@
 #ifndef HENGINE_H
 #define HENGINE_H
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_font.h>
-
 #include "../classes.h"//move pongGame to specific stage!
 #include "ioclient.h"
+
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
+#include <boost/json.hpp>
 
 #define TICKS_PER_SECOND 60.0
 
@@ -85,6 +86,8 @@ public:
 	IoClient connection;
 	
 	ALLEGRO_FONT* font;
+
+	boost::json::object cfg;
 
 	float fps = 0;
 	
