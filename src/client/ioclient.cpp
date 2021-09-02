@@ -24,7 +24,7 @@ void IoClient::connect(string host, unsigned short port){
 				host, to_string(port), 
 				asio::ip::tcp::resolver::query::numeric_service
 			);
-			
+
 			// Creating a resolver.
 			asio::ip::tcp::resolver resolver(io_service);
 
@@ -52,8 +52,10 @@ void IoClient::connect(string host, unsigned short port){
 
 			socket.connect(endpoint);
 
+			this->connection_state = CONNECTION_STATE_CONNECTED;
+
 			cout << "Connected!" << endl;
-			
+
 			io_service.run();//will exit inmediately
 			//quiza la lectura haya q hacerla en otro socket.. nose..
 			qread();
