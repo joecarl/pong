@@ -1,54 +1,90 @@
-//
-//  connections.cpp
-//  otherside
-//
-//  Created by Joe on 13/9/18.
-//
 
 #include "ioclient.h"
 #include "../netutils.h"
 #include <iostream>
 
-using namespace boost::asio;
 using namespace std;
 
+namespace asio = boost::asio;
 
-client::client(string addr, unsigned short port):
-	io_service(),
-	socket(io_service),
-	//resolver(io_service),
-	endpoint()
-{
+IoClient::IoClient(): socket(io_service){
 
-	boost::system::error_code error;
-
-	endpoint.address(boost::asio::ip::make_address(addr));
-	endpoint.port(port);
-	socket.connect(endpoint, error);
-
-	cout << "Trying " << endpoint << " ..." << endl;
-	if(error){
-		cout << "Error occurred[C" << this->id_client << "]: " << error << endl;
-		this->dead = true;
-	}
-
-	io_service.run();//will exit inmediately
-	//quiza la lectura haya q hacerla en otro socket.. nose..
-	qread();
 }
 
-client::~client(){
+void IoClient::connect(string host, unsigned short port){
+
+	this->connection_state = CONNECTION_STATE_CONNECTING;
+	
+	boost::thread( [=]{
+
+		try {
+
+			// Creating a query.
+			asio::ip::tcp::resolver::query resolver_query(
+				host, to_string(port), 
+				asio::ip::tcp::resolver::query::numeric_service
+			);
+			
+			// Creating a resolver.
+			asio::ip::tcp::resolver resolver(io_service);
+
+			// Resolve query
+			cout << "Resolving " << host << " ..." << endl;
+			asio::ip::tcp::resolver::iterator it = resolver.resolve(resolver_query);
+
+			asio::ip::tcp::endpoint endpoint = it->endpoint();
+			/*
+			//Otra forma de hacerlo es iterando sobre todas las resoluciones encontradas
+			asio::ip::tcp::resolver::iterator it_end;
+			asio::ip::tcp::endpoint endpoint;
+
+			for(; it != it_end; it++){
+				endpoint = it->endpoint(); //nos quedaremos con el último
+				cout << "Found " << endpoint << endl;
+			}
+			*/
+			/*
+			//otra forma también es especificar IP y puerto directamente
+			endpoint.address(asio::ip::make_address(addr));
+			endpoint.port(port);
+			*/
+			cout << "Trying " << endpoint << " ..." << endl;
+
+			socket.connect(endpoint);
+
+			cout << "Connected!" << endl;
+			
+			io_service.run();//will exit inmediately
+			//quiza la lectura haya q hacerla en otro socket.. nose..
+			qread();
+
+		} catch (std::exception &e) {
+
+			cout << "Error occurred[C" << this->id_client << "]: " << e.what() << endl;
+			this->connection_state = CONNECTION_STATE_DISCONNECTED;
+
+		}
+
+	});
+
+}
+
+IoClient::~IoClient(){
+
 	this->io_service.stop();
 
 	//usleep(1000000);
 	Sleep(1000);
+
 }
 
-bool client::is_alive(){
-	return !this->dead;
+int IoClient::get_state(){
+
+	return this->connection_state;
+
 }
 
-void client::qsend(std::string pkg, std::function<void(boost::json::object& pt)> _cb){
+void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt)> _cb){
 	//colas!!!!!
 	if(this->busy){
 		this->pkg_queue.push({pkg, _cb});
@@ -56,9 +92,9 @@ void client::qsend(std::string pkg, std::function<void(boost::json::object& pt)>
 	}
 	this->busy = true;
 
-	auto handler = boost::bind(&client::handle_qsent_content, this,
-							   boost::asio::placeholders::error(),
-							   boost::asio::placeholders::bytes_transferred());
+	auto handler = boost::bind(&IoClient::handle_qsent_content, this,
+							   asio::placeholders::error(),
+							   asio::placeholders::bytes_transferred());
 
 	pkg += "\r\n\r\n";
 
@@ -77,11 +113,11 @@ void client::qsend(std::string pkg, std::function<void(boost::json::object& pt)>
 		}
 	}
 
-	boost::asio::async_write(socket, boost::asio::buffer(pkg), handler);
-	//socket.async_write_some(boost::asio::buffer(pkg), handler);
+	asio::async_write(socket, asio::buffer(pkg), handler);
+	//socket.async_write_some(asio::buffer(pkg), handler);
 	if(io_service.stopped()){
 		io_service.restart();
-		boost::thread(boost::bind(&boost::asio::io_service::run, &io_service));
+		boost::thread(boost::bind(&asio::io_service::run, &io_service));
 	}
 	pkgs_sent ++;
 	//std::cout << " S:" << pkgs_sent << endl;
@@ -89,26 +125,26 @@ void client::qsend(std::string pkg, std::function<void(boost::json::object& pt)>
 
 }
 
-void client::qread(){
-	auto handler = boost::bind(&client::handle_qread_content, this,
-							   boost::asio::placeholders::error(),
-							   boost::asio::placeholders::bytes_transferred());
+void IoClient::qread(){
+	auto handler = boost::bind(&IoClient::handle_qread_content, this,
+							   asio::placeholders::error(),
+							   asio::placeholders::bytes_transferred());
 
-	socket.async_read_some(boost::asio::buffer(read_buffer, 1024), handler);
+	socket.async_read_some(asio::buffer(read_buffer, 1024), handler);
 
 	if(io_service.stopped()){
 		io_service.restart();
-		boost::thread(boost::bind(&boost::asio::io_service::run, &io_service));
+		boost::thread(boost::bind(&asio::io_service::run, &io_service));
 	}
 }
 
-void client::handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred){
+void IoClient::handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred){
 
 	this->busy = false;
 
 	if(error){
 		//cout << "Error occurred! S[C" << this->id_client << "]: " << error << endl;
-		this->dead = true;
+		this->connection_state = CONNECTION_STATE_DISCONNECTED;
 		return;
 	}
 	if(!this->pkg_queue.empty()){
@@ -120,11 +156,11 @@ void client::handle_qsent_content(const boost::system::error_code& error, std::s
 }
 
 
-void client::handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred){
+void IoClient::handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred){
 
 	if(error){
 		cout << "Error occurred R[C" << this->id_client << "]: " << error << endl;
-		this->dead = true;
+		this->connection_state = CONNECTION_STATE_DISCONNECTED;
 		return;
 	}
 
@@ -168,7 +204,7 @@ void client::handle_qread_content(const boost::system::error_code& error, std::s
 				if(!resp.is_null()){ //as string
 					std::string response_name = resp.get_string().c_str();//.get<std::string>("response");
 
-					for(int i = 0; i < cbs.size(); i++){
+					for(std::size_t i = 0; i < cbs.size(); i++){
 						if(cbs[i].name == response_name){ //si hay dos con el mismo nombre que pasa?
 							cbs[i].cb(obj);
 
