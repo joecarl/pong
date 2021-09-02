@@ -172,6 +172,25 @@ void GameStage::drawScores(){
 
 void GameStage::onEnterStage(){
 
+	if(playMode == PLAYMODE_ONLINE){
+
+		this->engine->connection.process_actions_fn = [&](boost::json::object& evt){
+
+			cout << "RECEIVED: " << evt << endl;
+			if(evt["type"] == "set_control_state"){
+
+				int control = evt["control"].as_int64();
+				bool newState = evt["state"].as_bool();
+				int playerKey = evt["playerKey"].as_int64();
+				
+				this->engine->pongGame->players[playerKey]->controls[control] = newState;
+
+			}
+
+		};
+
+	}
+
 	PongGame* pongGame = this->engine->pongGame;
 		
 	PlaySound(Do, 400);
@@ -247,21 +266,22 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 				
 			boost::json::value inputEvt;
 			inputEvt.emplace_null();
+			
 
 			if(controlP1 != CONTROL_NONE){
 
 				inputEvt = {
 					{"type", "set_control_state"},
 					{"state", newSt},
-					{"control", evt.keyboard.keycode}
+					{"control", controlP1}
 				};
 
-				//cout << inputEvt << endl;
-				//send inputEvt
+				cout << "Sending: " << inputEvt << endl;
+				this->engine->connection.qsend(boost::json::serialize(inputEvt));//send inputEvt
 
 			}
 
-		} else  {
+		} else {
 		
 			pongGame->players[0]->controls[controlP1] = newSt;
 
@@ -363,7 +383,7 @@ void GameStage::draw(){
 			
 		} else {
 
-			al_draw_text(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
+			//al_draw_text(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
 				
 			this->drawCourt();
 
@@ -378,8 +398,7 @@ void GameStage::draw(){
 			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int)(this->engine->fps));
 
 			if(playMode == PLAYMODE_ONLINE){
-				int pingms = 0;
-				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "PING:%d", pingms);
+				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "PING:%d", this->engine->connection.ping_ms);
 			}
 
 			tr->drawPlayer(pongGame->players[0], scale);
@@ -610,7 +629,7 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 					server = this->engine->cfg["defaultServer"].as_string().c_str();
 
 				}
-				
+
 				unsigned short port = (unsigned short) this->engine->cfg["defaultPort"].as_int64();
 							
 				this->engine->connection.connect(server, port);
@@ -637,21 +656,16 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 void ConnStage::onTick(){
 
 	IoClient* connection = &this->engine->connection;
-	/*
-	when (connState == CONNECTION_STATE_CONNECTED):
 
-	static int delay = 0;
-	if((delay++) % 40 == 20){
-		connection->SendPacket("PING:-1 \r\n");
-		if(const char* pkg = connection->FetchPacket()){
-			string pk = pkg;
-			if(GetData(pkg, "PING") != ""){
-				this->engine->setStage(GAME);
-				cout << "Conexion OK!" << endl;
-			}
+	static int delayer2 = 0;
+
+	if(connection->get_state() == CONNECTION_STATE_CONNECTED){
+
+		if(delayer2++ > 60){
+			this->engine->setStage(GAME);
 		}
+
 	}
-	*/
 
 }
 
