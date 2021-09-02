@@ -47,7 +47,7 @@ void Group::addClient(Client* cl){
 
 void Group::startGame(){
 
-    cout << "Starting game in group" << endl;
+	cout << "Starting game in group" << endl;
 
 	boost::asio::io_context io;
 

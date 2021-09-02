@@ -72,7 +72,7 @@ resources_dir=$SRC_DIR/resources
 
 if [ -d "$resources_dir" ]; then
 	echo "Copying resources..."
-    cp -rv $resources_dir $BUILD_DIR
+	cp -rv $resources_dir $BUILD_DIR
 fi
 
 echo "Done!"

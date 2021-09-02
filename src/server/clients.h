@@ -19,7 +19,7 @@ class Client{
 	bool busy = false;
 
 	static int count_instances;
-    int id_client = 0;
+	int id_client = 0;
 	bool dead = false;
 	bool connected = false;
 	boost::asio::ip::tcp::socket socket;

@@ -16,10 +16,10 @@ Client::Client(
 	boost::asio::io_service& io_service, 
 	tcp::acceptor& acceptor
 ): 
-    socket(io_service)
+	socket(io_service)
 {
 
-    this->id_client = count_instances++;
+	this->id_client = count_instances++;
 	acceptor.accept(socket, this->conn_err);
 
 	if(this->conn_err){
@@ -51,8 +51,8 @@ void Client::process_request(std::string request){
 		return;
 
 	}
-    
-    boost::json::object evt = q.get_object();
+	
+	boost::json::object evt = q.get_object();
 
 	auto evtType = evt["type"].get_string();
 
@@ -85,8 +85,8 @@ void Client::qsend(std::string pkg, bool ignore_busy){
 	this->busy = true;
 
 	auto handler = boost::bind(&Client::handle_qsent_content, this,
-							   boost::asio::placeholders::error(),
-							   boost::asio::placeholders::bytes_transferred());
+							boost::asio::placeholders::error(),
+							boost::asio::placeholders::bytes_transferred());
 
 	if(pkg.length() > 1024 * 64){ //max 64kB (me lo estoy inventando a ver si cuela...)
 
@@ -159,9 +159,9 @@ void Client::handle_read_content(const boost::system::error_code& error, std::si
 
 	if(error){
 
-        cout << "Error occurred (READ)[C" << this->id_client << "]: " << error << endl;
+		cout << "Error occurred (READ)[C" << this->id_client << "]: " << error << endl;
 		this->dead = true;
-        return;
+		return;
 	}
 	//std::cout << "Data received[C" << this->id_client << "]: ";
 

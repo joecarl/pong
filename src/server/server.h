@@ -25,8 +25,8 @@ class Server{
 
 	const int max_connections = 3;
 
-    void poll();
-    
+	void poll();
+	
 	boost::asio::ip::tcp::endpoint endpoint;
 	
 	void game_main_loop(boost::asio::steady_timer* t);

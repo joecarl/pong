@@ -137,7 +137,7 @@ void AllegroHandler::cleanup(){
 
 Stage::Stage(HGameEngine* _engine){
 
-    this->engine = _engine;
+	this->engine = _engine;
 
 }
 

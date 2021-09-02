@@ -141,7 +141,7 @@ void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt
 		
 		boost::json::object obj = boost::json::parse(pkg).get_object();
 
-		                     
+		
 		//std::string action = obj["action"];
 		std::string action = obj["action"].get_string().c_str();//pt.get<std::string>("action");
 		

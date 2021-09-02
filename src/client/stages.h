@@ -44,7 +44,7 @@ class Tracer{
 
 	HGameEngine* engine;
 
-    ALLEGRO_BITMAP *bonus_ball_spr, *bonus_long_spr;
+	ALLEGRO_BITMAP *bonus_ball_spr, *bonus_long_spr;
 
 public:
 
