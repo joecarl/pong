@@ -57,7 +57,7 @@ public:
 
 	std::queue<std::string> messages;
 	
-	PongGame();
+	PongGame(uint_fast32_t seed = time(nullptr));
 
 	void restart();
 
