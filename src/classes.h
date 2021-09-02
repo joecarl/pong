@@ -41,6 +41,8 @@ public:
 
 	std::mt19937 *mt;
 
+	uint_fast32_t seed;
+
 	int bonus_time[2] = {-1, -1};
 
 	unsigned int numPlayers;
@@ -57,7 +59,7 @@ public:
 
 	std::queue<std::string> messages;
 	
-	PongGame(uint_fast32_t seed = time(nullptr));
+	PongGame(uint_fast32_t _seed = time(nullptr));
 
 	void restart();
 

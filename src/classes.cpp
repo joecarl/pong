@@ -9,9 +9,11 @@
 
 using namespace std;
 
-PongGame::PongGame(uint_fast32_t seed){
+PongGame::PongGame(uint_fast32_t _seed){
 
-	this->mt = new mt19937(seed);
+	this->seed = _seed;
+
+	this->mt = new mt19937(_seed);
 
 	//cout << "TEST:" << (*this->mt)() << endl;
 
