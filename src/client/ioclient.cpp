@@ -1,7 +1,10 @@
 
 #include "ioclient.h"
 #include "../netutils.h"
+
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
@@ -11,11 +14,25 @@ IoClient::IoClient(): socket(io_service){
 
 }
 
+int64_t time_ms(){
+	
+	/*
+	auto now = std::chrono::system_clock::now();
+	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+	return now_ms.time_since_epoch().count()
+	*/
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()
+	).count();
+
+}
+
 void IoClient::connect(string host, unsigned short port){
 
 	this->connection_state = CONNECTION_STATE_CONNECTING;
 	
-	boost::thread( [=]{
+	boost::thread([=]{
 
 		try {
 
@@ -58,6 +75,26 @@ void IoClient::connect(string host, unsigned short port){
 
 			io_service.run();//will exit inmediately
 			//quiza la lectura haya q hacerla en otro socket.. nose..
+
+			boost::thread([=]{
+
+				while(true){
+
+					//cout << "milliseconds since epoch: " << time_ms() << endl;
+
+					boost::json::object pingPkg = {
+						{"type", "ping"},
+						{"ms", time_ms()}
+					};
+
+					this->qsend(boost::json::serialize(pingPkg));
+					
+					std::this_thread::sleep_for(std::chrono::seconds(1));
+
+				}
+
+			});
+
 			qread();
 
 		} catch (std::exception &e) {
@@ -210,15 +247,10 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 						if(cbs[i].name == response_name){ //si hay dos con el mismo nombre que pasa?
 							cbs[i].cb(obj);
 
-							auto t_end = std::chrono::high_resolution_clock::now();
-							this->ping_ms = std::chrono::duration<double, std::milli>(t_end - cbs[i].c_s).count();
-							//std::cout << "PING: " << this->ping_ms << "ms" << endl;
-
 							cbs.erase(cbs.begin() + i);
 							if(cbs.size() > 0){
 								cout << "CM remaining: " << cbs.size() << endl;
 							}
-
 
 							break;
 						}
@@ -226,9 +258,19 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 
 				}
 
-				if(obj["action"].is_string() && this->process_actions_fn != nullptr){
-					//std::cout << "ACCION!!!" << std::endl;
-					this->process_actions_fn(obj);
+
+				if( obj["type"].is_string() ){
+
+					if(obj["type"] == "pong"){
+						
+						this->ping_ms = time_ms() - obj["ms"].as_int64();
+						//std::cout << "PING: " << this->ping_ms << "ms" << endl;
+					}
+
+					else if( this->process_actions_fn != nullptr){
+						//std::cout << "ACCION!!!" << std::endl;
+						this->process_actions_fn(obj);
+					}
 				}
 			}
 			else{

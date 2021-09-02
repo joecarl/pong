@@ -69,7 +69,7 @@ class IoClient{
 
 public:
 
-	float ping_ms = 0;
+	int64_t ping_ms = 0;
 
 	IoClient();
 
@@ -79,7 +79,7 @@ public:
 
 	int get_state();
 
-	void send(std::string pkg, std::function<void(std::string& res)> _cb);
+	//void send(std::string pkg, std::function<void(std::string& res)> _cb);
 
 	void qsend(std::string pkg, std::function<void(boost::json::object& pt)> _cb = nullptr);
 
