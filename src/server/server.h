@@ -1,11 +1,3 @@
-//
-//  server.hpp
-//  mysql_test
-//
-//  Created by Joe on 11/9/18.
-//  Copyright © 2018 Joe. All rights reserved.
-//
-
 #ifndef server_hpp
 #define server_hpp
 
@@ -47,8 +39,6 @@ public:
 
 	Server(int _port);
 
-	void process_clients_requests();
-
 	void run();
 	
 	bool is_full();
@@ -58,8 +48,10 @@ public:
 	void start_listening();
 	
 	void stop_listening();
-	
-	void send_to_all(std::string pkg);
+
+	//void process_clients_requests();
+
+	//void send_to_all(std::string pkg);
 
 };
 #endif /* server_hpp */
