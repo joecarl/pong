@@ -398,7 +398,7 @@ void GameStage::draw(){
 			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int)(this->engine->fps));
 
 			if(playMode == PLAYMODE_ONLINE){
-				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "PING:%d", this->engine->connection.ping_ms);
+				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "PING:%d", (int)(this->engine->connection.ping_ms));
 			}
 
 			tr->drawPlayer(pongGame->players[0], scale);
