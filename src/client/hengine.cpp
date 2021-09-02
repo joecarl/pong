@@ -54,14 +54,14 @@ void AllegroHandler::createComponents(){
 
 	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_REQUIRE);
 
-	ALLEGRO_DISPLAY_MODE disp_data;
+	//ALLEGRO_DISPLAY_MODE disp_data;
 		
-	al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
+	//al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
 
 	this->screenWidth = this->engine->scale * this->engine->resX;
 	this->screenHeight = this->engine->scale * this->engine->resY;
 
-	display = al_create_display(disp_data.width, disp_data.height);
+	display = al_create_display(640, 400);//disp_data.width, disp_data.height);
 	if(!display){
 		throw std::runtime_error("failed to create display!");
 	}
