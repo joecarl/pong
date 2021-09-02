@@ -5,6 +5,7 @@
 #include <allegro5/allegro_font.h>
 
 #include "../classes.h"//move pongGame to specific stage!
+#include "ioclient.h"
 
 #define TICKS_PER_SECOND 60.0
 
@@ -81,6 +82,8 @@ class HGameEngine{
 
 public:
 
+	IoClient connection;
+	
 	ALLEGRO_FONT* font;
 
 	float fps = 0;

@@ -1,3 +1,5 @@
+#include "hengine.h"
+#include "stages.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -6,8 +8,7 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 
-#include "hengine.h"
-#include "stages.h"
+#include <iostream>
 
 using namespace std;
 

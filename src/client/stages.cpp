@@ -68,9 +68,6 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 
 	if(event.type == ALLEGRO_EVENT_KEY_DOWN){
 	
-		//isClient = false;
-		////al_draw_textf(font,WHITE,20, 75, ALLEGRO_ALIGN_LEFT,"%f", sin(x)*sin(x));
-		
 		if(keycode == ALLEGRO_KEY_1){
 			pongGame->numPlayers = 1;
 			playMode = PLAYMODE_SINGLE_PLAYER;
@@ -85,7 +82,6 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 		}
 		else if(keycode == ALLEGRO_KEY_4){
 			pongGame->numPlayers = 2;
-			//isClient = true;
 			this->engine->setStage(CONN); 
 			playMode = PLAYMODE_ONLINE;
 		}
@@ -93,9 +89,8 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 		if(keycode == ALLEGRO_KEY_C){//CAMBIAR RESOLUCION, bad performance
 			/*
 			scale = scale == 1 ? 2 : 1;
-			al_destroy_display(display);
 			al_destroy_font(font);
-			player[1]->SetX(scale * (DEF_W - GROSOR / 2));
+			al_destroy_bitmap(buffer);
 			font = al_load_ttf_font("resources/font.ttf", scale * 9, 0) ;
 			buffer = al_create_bitmap(scale * resX, scale * resY);
 			*/
@@ -125,6 +120,8 @@ void MainMenuStage::draw(){
 	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 150, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
 	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 165, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
 
+	////al_draw_textf(font,WHITE,20, 75, ALLEGRO_ALIGN_LEFT,"%f", sin(x)*sin(x));
+	
 }
 
 
@@ -588,7 +585,7 @@ void ConnStage::onEnterStage(){
 
 	input->start();
 	//al_flush_event_queue(event_queue);
-	connection.Reset();
+	//connection->Reset();
 	
 }
 
@@ -599,12 +596,22 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 		if(input->active){
 			
 			if (event.keyboard.keycode != ALLEGRO_KEY_ENTER) {
+
 				input->processKey(event.keyboard.unichar, event.keyboard.keycode);
+
 			} else {
+
 				input->finish();
 				server = input->getValue();
-				start_connection = true;
+
+				if (server == ""){
+					server = "copinstar.com";
+				}
+							
+				this->engine->connection.connect(server, 28090);//addr
+				
 			}
+
 		}
 
 	}
@@ -622,50 +629,61 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 
 }
 
+void ConnStage::onTick(){
+
+	IoClient* connection = &this->engine->connection;
+	/*
+	when (connState == CONNECTION_STATE_CONNECTED):
+
+	static int delay = 0;
+	if((delay++) % 40 == 20){
+		connection->SendPacket("PING:-1 \r\n");
+		if(const char* pkg = connection->FetchPacket()){
+			string pk = pkg;
+			if(GetData(pkg, "PING") != ""){
+				this->engine->setStage(GAME);
+				cout << "Conexion OK!" << endl;
+			}
+		}
+	}
+	*/
+
+}
+
 void ConnStage::draw(){
 
 	ALLEGRO_FONT* font = this->engine->font;
+
+	IoClient* connection = &this->engine->connection;
 
 	string pts = GetWaitString();
 	
 	al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "ENTER SERVER IP ADDRESS or press ");
 	al_draw_text(font, WHITE, 20, 40, ALLEGRO_ALIGN_LEFT, "enter to connect to default server:");
 
-	if (!input->active && !connection.connected) {
-		if(!connection.stopped){
-			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
-			if (start_connection) {
-				
-				if (server == ""){
-					server = "copinstar.com";
-				}
-				connection.Connect(server, "25000");//addr
-				start_connection = false;
-				
-			}
-		} else {
-			al_draw_text(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
-		}
-		
-	} else if (connection.connected && !connection.stopped) {
-
-		al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
-		al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Wait please %s", pts.c_str());
-		
-		static int delay = 0;
-		if((delay++) % 40 == 20){
-			connection.SendPacket("PING:-1 \r\n");
-			if(const char* pkg = connection.FetchPacket()){
-				string pk = pkg;
-				if(GetData(pkg, "PING") != ""){
-					this->engine->setStage(GAME);
-					cout << "Conexion OK!" << endl;
-				}
-			}
-		}
-	}
-
 	if(input->active){
+
 		input->draw(30, 60);
+
+	} else {
+
+		int connState = connection->get_state();
+
+		if(connState == CONNECTION_STATE_CONNECTING) {
+
+			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
+				
+		} else if(connState == CONNECTION_STATE_DISCONNECTED) {
+			
+			al_draw_text(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
+			
+		} else if (connState == CONNECTION_STATE_CONNECTED) {
+
+			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
+			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Wait please %s", pts.c_str());
+		
+		}
+
 	}
+
 }

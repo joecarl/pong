@@ -3,7 +3,6 @@
 
 #include <allegro5/allegro.h>
 #include "hengine.h"
-#include "ioclient.h"
 #include "utils.h"
 
 
@@ -118,8 +117,6 @@ class ConnStage: public Stage{
 
 	bool start_connection = 0;
 
-	ioClient connection;
-	
 public:
 
 	ConnStage(HGameEngine* _engine);
@@ -127,6 +124,8 @@ public:
 	void onEnterStage();
 
 	void onEvent(ALLEGRO_EVENT event);
+	
+	void onTick();
 
 	void draw();
 
