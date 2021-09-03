@@ -16,7 +16,7 @@ void Group::newGame(){
 
 	this->game = new PongGame();
 
-	this->game->numPlayers = 2;
+	this->game->controlMode = CONTROLMODE_TWO_PLAYERS;
 
 	this->game->restart();
 

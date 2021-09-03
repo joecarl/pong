@@ -27,13 +27,16 @@ void GameHandler::makeNewPongGame(int_fast32_t seed){
 	pongGame = new PongGame(seed);
 
 	if(playMode == PLAYMODE_SINGLE_PLAYER){
-		pongGame->numPlayers = 1;
+		pongGame->controlMode = CONTROLMODE_SINGLE_PLAYER;
 	} 
 	else if(playMode == PLAYMODE_TRAINING){
-		pongGame->numPlayers = 0;
+		pongGame->controlMode = CONTROLMODE_TRAINING;
+	} 
+	else if(playMode == PLAYMODE_DEBUG){
+		pongGame->controlMode = CONTROLMODE_DEBUG;
 	}
 	else if(playMode == PLAYMODE_ONLINE || playMode == PLAYMODE_TWO_PLAYERS){
-		pongGame->numPlayers = 2;
+		pongGame->controlMode = CONTROLMODE_TWO_PLAYERS;
 	}
 	
 }
@@ -125,6 +128,9 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 			this->engine->setStage(CONN); 
 			gameHandler.playMode = PLAYMODE_ONLINE;
 		}
+		else if(keycode == ALLEGRO_KEY_5){
+			gameHandler.playMode = PLAYMODE_DEBUG;
+		}
 		
 		if(keycode == ALLEGRO_KEY_C){//CAMBIAR RESOLUCION, bad performance
 			/*
@@ -140,7 +146,7 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 			this->engine->finish = true;
 		}
 
-		else if(keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3) {
+		else if(keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3 || keycode == ALLEGRO_KEY_5) {
 
 			gameHandler.makeNewPongGame(time(nullptr)); 
 			this->engine->setStage(GAME);

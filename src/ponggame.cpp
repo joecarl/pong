@@ -22,7 +22,6 @@ PongGame::PongGame(uint_fast32_t _seed){
 	players[1] = new PlayerP(this, (DEF_W - GROSOR / 2), 50);
 	bonus[0] = new Bonus(this, BONUS_LONG);
 	bonus[1] = new Bonus(this, BONUS_BALL);
-	this->numPlayers = 0;
 
 	//cout << "TEST:" << (*this->mt)() << endl;
 
@@ -91,7 +90,7 @@ void PongGame::iniciarPunto(int first){
 
 void PongGame::giveScore(PlayerP* pl, int score){
 
-	for(unsigned int i = 0; i < this->numPlayers; i++){
+	for(unsigned int i = 0; i < 2; i++){
 		PlayerP* iterPl = this->players[i];
 		if(iterPl != pl){
 			iterPl->racha = 0;
@@ -129,15 +128,29 @@ void PongGame::processTick(){
 		return;
 	}
 
-	if(this->numPlayers == 2){
+	if(this->controlMode == CONTROLMODE_DEBUG){
+		
+		players[0]->movePerfect();
+		players[1]->movePerfect();
 
-		players[1]->controlMove();
+	} else if(this->controlMode == CONTROLMODE_TRAINING){
+
 		players[0]->controlMove();
+		players[1]->movePerfect();
 
-	} else {
+	} else if(this->controlMode == CONTROLMODE_SINGLE_PLAYER){
 
 		players[0]->controlMove();
 		players[1]->moveIA();
+
+	} else if(this->controlMode == CONTROLMODE_TWO_PLAYERS){
+
+		players[0]->controlMove();
+		players[1]->controlMove();
+
+	} else {
+
+		//no se contempla
 		
 	}
 	
@@ -156,7 +169,7 @@ void PongGame::processTick(){
 
 	}
 	
-	if((players[0]->score == 11 || players[1]->score == 11) && this->numPlayers != 0){
+	if((players[0]->score == 11 || players[1]->score == 11) && this->controlMode != CONTROLMODE_TRAINING){
 
 		this->finished = true;
 		cout << "Game finished!" << endl;
@@ -295,9 +308,12 @@ Ball::Ball(PongGame *game): Element(game){
 
 void Ball::preprocess(){
 
-	if(this->game->players[0]->bonus_ball > 0 && !this->game->players[1]->bonus_ball)
+	PlayerP *p1 = this->game->players[0];
+	PlayerP *p2 = this->game->players[1];
+
+	if(p1->bonus_ball > 0 && p2->bonus_ball <= 0)
 		radius = (320 - x) / 20 + 2;
-	else if(this->game->players[1]->bonus_ball > 0 && !this->game->players[0]->bonus_ball)
+	else if(p2->bonus_ball > 0 && p1->bonus_ball <= 0)
 		radius = x / 20 + 2;
 	else
 		radius = RADIUS;
@@ -306,7 +322,7 @@ void Ball::preprocess(){
 
 void Ball::onPlayerHit(PlayerP *pl){
 	
-	if(pl == this->game->players[0] || this->game->numPlayers != 0){
+	if(pl == this->game->players[0] || this->game->controlMode != CONTROLMODE_TRAINING){
 
 		if(y - pl->getY() > 2) vY += 1;
 		else if (y - pl->getY() > 1) vY += 0.5;
@@ -377,14 +393,17 @@ void PlayerP::moveIA(){
 
 	Element *ball = this->game->ball;
 
-	if(this->game->numPlayers == 1){
-		if(y > ball->getY()) y -= (1 + this->game->intRandom(0, 1));
-		if(y < ball->getY()) y += (1 + this->game->intRandom(0, 1));
-	}
-	else if(this->game->numPlayers == 0){
-		y = ball->getY();
-	}
+	if(y > ball->getY()) y -= (1 + this->game->intRandom(0, 1));
+	if(y < ball->getY()) y += (1 + this->game->intRandom(0, 1));
+	
+	this->lockLimit();
 
+}
+
+void PlayerP::movePerfect(){
+
+	y = this->game->ball->getY();
+	
 	this->lockLimit();
 
 }

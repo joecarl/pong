@@ -35,6 +35,16 @@ struct EvtListener{
 };
 */
 
+
+enum{
+	CONTROLMODE_NONE = 0,
+	CONTROLMODE_SINGLE_PLAYER,
+	CONTROLMODE_TWO_PLAYERS,
+	CONTROLMODE_TRAINING,
+	CONTROLMODE_DEBUG
+};
+
+
 class PongGame{
 
 public:
@@ -45,7 +55,7 @@ public:
 
 	int bonus_time[2] = {-1, -1};
 
-	unsigned int numPlayers;
+	unsigned int controlMode = CONTROLMODE_NONE;
 
 	bool paused = false, finished = false;
 
@@ -188,6 +198,8 @@ public:
 	void controlMove();
 
 	void moveIA();
+
+	void movePerfect();
 
 	void setX(int px){ x = px; }
 
