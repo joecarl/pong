@@ -1,5 +1,5 @@
-#ifndef CLASSESH
-#define CLASSESH
+#ifndef PONGGAMEH
+#define PONGGAMEH
 
 #include <random>
 #include <queue>

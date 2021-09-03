@@ -1,4 +1,4 @@
-#include "classes.h"
+#include "ponggame.h"
 
 #include <math.h>
 #include <stdexcept>

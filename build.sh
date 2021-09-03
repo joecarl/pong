@@ -13,7 +13,7 @@ mkdir $BUILD_DIR > /dev/null 2>&1
 mkdir $BUILD_DIR/obj > /dev/null 2>&1
 
 scripts=()
-scripts+=(/../classes)
+scripts+=(/../ponggame)
 scripts+=(/../utils)
 scripts+=(hengine)
 scripts+=(stages)

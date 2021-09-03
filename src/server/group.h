@@ -2,7 +2,7 @@
 #ifndef group_hpp
 #define group_hpp
 
-#include "../classes.h"
+#include "../ponggame.h"
 #include "server.h"
 
 #include <ctime>

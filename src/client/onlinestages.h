@@ -3,7 +3,7 @@
 
 #include "hengine.h"
 #include "mediatools.h"
-#include "../classes.h"
+#include "../ponggame.h"
 #include <allegro5/allegro.h>
 #include <boost/json.hpp>
 

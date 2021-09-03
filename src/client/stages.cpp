@@ -1,4 +1,4 @@
-#include "../classes.h"
+#include "../ponggame.h"
 #include "../utils.h"
 #include "mediatools.h"
 #include "hengine.h"
