@@ -396,6 +396,12 @@ void GameStage::draw(){
 		} else {
 
 			//al_draw_text(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
+			
+			int secs = gameHandler.pongGame->tick / 60;
+			int secsD = (secs % 60) / 10;
+			int secsU = secs % 10;
+			int min = secs / 60;
+			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 1, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secsD, secsU);
 				
 			this->drawCourt();
 
@@ -410,7 +416,7 @@ void GameStage::draw(){
 			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int)(this->engine->fps));
 
 			if(gameHandler.playMode == PLAYMODE_ONLINE){
-				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "PING:%d", (int)(this->engine->connection.ping_ms));
+				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", (int)(this->engine->connection.ping_ms));
 			}
 
 			tr->drawPlayer(gameHandler.pongGame->players[0], scale);
