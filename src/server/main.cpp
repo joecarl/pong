@@ -9,8 +9,21 @@ using namespace std;
 int main(int argc, char **argv){
 
 	try{
+
+		string port = "28090";
+
+		for(int i = 0; i < argc; i++){
+
+			string arg = argv[i];
+
+			if(arg == "-p" && i + 1 < argc){
+				port = argv[++i];
+			}
+			
+		}
+
 		
-		Server server(28090);
+		Server server(stoi(port));
 
 		server.run();
 		
