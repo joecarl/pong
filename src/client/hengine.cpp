@@ -1,5 +1,6 @@
 #include "hengine.h"
 #include "stages.h"
+#include "onlinestages.h"
 #include "../utils.h"
 
 #include <allegro5/allegro.h>
@@ -195,6 +196,7 @@ HGameEngine::HGameEngine(){
 	stages[GAME] = new GameStage(this);
 	stages[OVER] = new GameOverStage(this);
 	stages[CONN] = new ConnStage(this);
+	stages[LOBBY] = new LobbyStage(this);
 
 }
 

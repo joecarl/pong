@@ -13,9 +13,10 @@ class HGameEngine;
 
 enum {
 	MENU = 0,
-	GAME = 1,
-	OVER = 2,
-	CONN = 3,
+	GAME,
+	OVER,
+	CONN,
+	LOBBY,
 	MAX_SCREENS
 };
 
