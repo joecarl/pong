@@ -42,14 +42,17 @@ done
 echo "Linking ..."
 
 LINKERLIBS=""
+EXECNAME=""
 if [ "$1" == "win" ]; then
 	LINKERLIBS="-static-libstdc++ -static-libgcc -static \
 				-lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lboost_json-mt -lws2_32"
+	EXECNAME="PONGSERVER.exe"
 else 
 	LINKERLIBS="-lboost_chrono -lboost_system -lboost_thread -lboost_json -lpthread"
+	EXECNAME="PONGSERVER"
 fi
 
-g++ -o $BUILD_DIR/PONGSERVER.exe $BUILD_DIR/obj/* $LINKERLIBS
+g++ -o $BUILD_DIR/$EXECNAME $BUILD_DIR/obj/* $LINKERLIBS
 
 if [ $? -ne 0 ]; then
 	echo "Linking ERROR! Exiting...";
