@@ -42,7 +42,7 @@ done
 echo "Linking ..."
 
 LINKERLIBS=""
-if [ $1 == "win" ]; then
+if [ "$1" == "win" ]; then
 	LINKERLIBS="-static-libstdc++ -static-libgcc -static \
 				-lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lboost_json-mt -lws2_32"
 else 
