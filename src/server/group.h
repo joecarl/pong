@@ -15,15 +15,27 @@
 
 class Group{
 
-	PongGame game;
+	PongGame *game = nullptr;
 
 	std::vector<Client*> clients;
 
-	void game_main_loop(boost::asio::steady_timer* t);
+	std::queue<boost::json::object> evt_queue;
+
+	boost::asio::io_context io;
+
+	boost::asio::steady_timer *t;
+
+	int players_ready;
+
+	void game_main_loop();
+
+	void process_event(boost::json::object &evt);
 
 public:
 
 	Group();
+	
+	void newGame();
 
 	void addClient(Client* cl);
 
