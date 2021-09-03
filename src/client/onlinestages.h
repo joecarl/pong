@@ -54,7 +54,7 @@ class LobbyStage: public Stage{
 
 	JC_TEXTINPUT* input;
 
-	bool ready;
+	bool ready = false;
 
 
 public:
