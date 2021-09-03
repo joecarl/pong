@@ -71,6 +71,8 @@ void IoClient::connect(string host, unsigned short port){
 
 			this->connection_state = CONNECTION_STATE_CONNECTED;
 
+			this->current_host = host;
+
 			cout << "Connected!" << endl;
 
 			io_service.run();//will exit inmediately

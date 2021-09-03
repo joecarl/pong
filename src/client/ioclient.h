@@ -69,6 +69,8 @@ class IoClient{
 
 public:
 
+	std::string current_host;
+
 	int64_t ping_ms = 0;
 
 	IoClient();
@@ -89,8 +91,8 @@ public:
 
 };
 
-void read_socket_task(boost::asio::ip::tcp::socket* socket);
+//void read_socket_task(boost::asio::ip::tcp::socket* socket);
 
-void connection_task();
+//void connection_task();
 
 #endif /* connections_hpp */
