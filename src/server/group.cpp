@@ -16,6 +16,12 @@ void Group::newGame(){
 
 	this->game = new PongGame();
 
+	this->game->numPlayers = 2;
+
+	this->game->restart();
+
+	this->game->iniciarPunto(1);
+
 	cout << "New game created, tick: " << this->game->tick << endl;
 
 	this->players_ready = 0;
@@ -92,7 +98,9 @@ void Group::startGame(){
 
 	cout << "Starting game in group" << endl;
 
-	t = new boost::asio::steady_timer(io, boost::asio::chrono::milliseconds(75 * 1000 / 60)); //el 75 se corresponde al delayer, quiza deberia commonizarse
+	io = new boost::asio::io_context();
+
+	t = new boost::asio::steady_timer(*io, boost::asio::chrono::milliseconds(75 * 1000 / 60)); //el 75 se corresponde al delayer, quiza deberia commonizarse
 
 	t->async_wait(boost::bind(&Group::game_main_loop, this));
 
@@ -104,7 +112,7 @@ void Group::startGame(){
 	this->sendToAll(boost::json::serialize(pkg));
 
 	//io.run();
-	boost::thread(boost::bind(&boost::asio::io_context::run, &io));
+	boost::thread(boost::bind(&boost::asio::io_context::run, io));
 
 }
 

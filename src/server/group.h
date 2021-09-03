@@ -21,7 +21,7 @@ class Group{
 
 	std::queue<boost::json::object> evt_queue;
 
-	boost::asio::io_context io;
+	boost::asio::io_context *io;
 
 	boost::asio::steady_timer *t;
 
