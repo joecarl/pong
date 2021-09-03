@@ -19,6 +19,37 @@
 #define FONT_DIR "resources/font.ttf"
 #endif
 
+
+enum{
+	PLAYMODE_NONE = 0,
+	PLAYMODE_SINGLE_PLAYER,
+	PLAYMODE_TWO_PLAYERS,
+	PLAYMODE_TRAINING,
+	PLAYMODE_ONLINE
+};
+
+
+class GameHandler{
+
+public:
+
+	int playMode = PLAYMODE_NONE;
+
+	PongGame* pongGame = nullptr;
+
+	~GameHandler();
+
+	void makeNewPongGame(int_fast32_t seed);
+	
+	void cleanup();
+
+};
+
+extern GameHandler gameHandler;
+
+
+//----------------------------------------------------------------------------
+
 class MainMenuStage: public Stage{
 
 	int easteregg = 0;
@@ -106,29 +137,5 @@ public:
 
 };
 
-
-//-----------------------------------------------------------------------------
-
-class ConnStage: public Stage{
-
-	JC_TEXTINPUT* input;
-
-	std::string server;
-
-	bool start_connection = 0;
-
-public:
-
-	ConnStage(HGameEngine* _engine);
-
-	void onEnterStage();
-
-	void onEvent(ALLEGRO_EVENT event);
-	
-	void onTick();
-
-	void draw();
-
-};
 
 #endif
