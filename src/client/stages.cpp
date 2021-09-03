@@ -26,20 +26,6 @@ enum{
 	PLAYMODE_ONLINE
 };
 
-string GetData(string pkg, string field){
-
-	size_t pos = pkg.find(field);
-	if(pos == std::string::npos)
-		return "";
-	pkg = &pkg[pos + field.length() + 1];
-	pos = pkg.find(" ");
-	if(pos != std::string::npos)
-		pkg.resize(pos);
-	return pkg;
-
-}
-
-
 int playMode = PLAYMODE_NONE;
 
 PongGame* pongGame = nullptr;
@@ -65,9 +51,78 @@ void makeNewPongGame(int_fast32_t seed){
 }
 
 
+class Controller{
+
+	PongGame *game;
+
+	void process_event(boost::json::object &evt){
+
+		cout << "Processing evt" << evt << endl;
+
+		auto evtType = evt["type"].as_string();
+			
+		if(evtType == "set_control_state"){
+			
+			int control = evt["control"].as_int64();
+			bool newState = evt["state"].as_bool();
+			int playerID = evt["playerKey"].as_int64();
+			
+			this->game->players[playerID]->controls[control] = newState;
+
+		} else {
+			cerr << "Unknown event type: " << evtType << endl;
+		}
+
+	}
+
+public:
+
+	std::queue<boost::json::object> evt_queue;
+
+	void setup(PongGame *game){
+		
+		this->game = game;
+		
+		//vaciamos la cola de eventos
+		std::queue<boost::json::object> empty;
+   		std::swap( this->evt_queue, empty );
+
+	}
+
+	void onTick(){
+
+		while(this->evt_queue.size() > 0){
+
+			auto evt = this->evt_queue.front();
+			unsigned int evtTick = (unsigned int)evt["tick"].as_int64();
+
+			if(evtTick == this->game->tick){
+
+				this->process_event(evt);
+
+				this->evt_queue.pop();
+
+			} else if (evtTick < this->game->tick){
+
+				cerr << "evtTick: " << evtTick << " | gameTick: " << this->game->tick << endl;
+
+				throw std::runtime_error("Evento perdido");
+
+			} else {
+				
+				break;
+
+			}
+
+		}
+	}
+};
+
+Controller controller;
+
+
 //-----------------------------------------------------------------------------
 //------------------------------ MainMenuStage --------------------------------
-
 
 MainMenuStage::MainMenuStage(HGameEngine* _engine):Stage(_engine){
 	
@@ -194,17 +249,9 @@ void GameStage::onEnterStage(){
 
 		this->engine->connection.process_actions_fn = [&](boost::json::object& evt){
 
-			cout << "RECEIVED: " << evt << endl;
-			if(evt["type"] == "set_control_state"){
-
-				int control = evt["control"].as_int64();
-				bool newState = evt["state"].as_bool();
-				int playerKey = evt["playerKey"].as_int64();
-				
-				pongGame->players[playerKey]->controls[control] = newState;
-
-			}
-
+			cout << "QUEUED: " << evt << endl;
+			controller.evt_queue.push(evt);
+			
 		};
 
 	}
@@ -338,6 +385,11 @@ void GameStage::onTick(){
 	}
 
 	//if(keys[ALLEGRO_KEY_G]) players[0]->medlen += 1;//DEBUG
+	if(playMode == PLAYMODE_ONLINE){
+
+		controller.onTick();
+	
+	}
 
 	pongGame->processTick();
 
@@ -553,6 +605,23 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 
 void GameOverStage::onEnterStage(){
 
+	if(playMode == PLAYMODE_ONLINE){ //una copia de connstage, ver como optimizar... quiza moviendo a un lobbystage
+
+		this->engine->connection.process_actions_fn = [&](boost::json::object& evt){
+
+			cout << "RECEIVED: " << evt << endl;
+			if(evt["type"] == "game_start"){
+
+				makeNewPongGame((int_fast32_t)evt["seed"].as_int64());
+
+				controller.setup(pongGame);
+
+				this->engine->setStage(GAME);
+			
+			}
+
+		};
+	}
 }
 
 void GameOverStage::onEvent(ALLEGRO_EVENT event){
@@ -562,7 +631,17 @@ void GameOverStage::onEvent(ALLEGRO_EVENT event){
 		int keycode = event.keyboard.keycode;
 
 		if(keycode == ALLEGRO_KEY_Y){
-			this->engine->setStage(GAME);
+			if(playMode == PLAYMODE_ONLINE){
+
+				boost::json::object pkg = {{"type", "play_again"}};
+				
+				this->engine->connection.qsend(boost::json::serialize(pkg));
+
+			} else {
+				
+				this->engine->setStage(GAME);
+
+			}
 		} 
 		else if(keycode == ALLEGRO_KEY_N){
 			this->engine->setStage(MENU);
@@ -608,6 +687,8 @@ void ConnStage::onEnterStage(){
 		if(evt["type"] == "game_start"){
 
 			makeNewPongGame((int_fast32_t)evt["seed"].as_int64());
+
+			controller.setup(pongGame);
 
 			this->engine->setStage(GAME);
 		
