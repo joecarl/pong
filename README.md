@@ -12,14 +12,65 @@ Allego5 based.
 1. Ejecutar `bash win-build.sh` (esto se puede hacer desde Git Bash).
 1. Para lanzar la aplicación utilizar `bash win-run.sh`. Este comando incluye en el PATH la carpeta `bin` de mingw64. Por ahora para distribuir la aplicación sería necesario copiar una gran cantidad de DLLs de dicha carpeta. 
 
-## Compilar el servidor en CentOS 7
 
-1. Instalar boost.
-1. Instalar gcc g++ (en CentOs `yum install devtoolset-7-gcc-c++ --enablerepo='centos-sclo-rh'` y `scl enable devtoolset-7 'bash'`).
-1. Clonar este repositorio en la carpeta deseada, y navegar a la carpeta clonada.
-1. Ejecutar `bash ./build-server.sh`.
+## Compilar el servidor en Linux
 
-## Ejecutar el servidor en CentOS 7
+### Prerequisitos
+1. Instalar el compilador de C++14 o superior.
+1. Instalar las libs de Boost v1.75 o superior.
 
-1. Ejecutar `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib` o el directorio donde se haya instalado boost.
-1. Ejecutar `./build/server/PONGSERVER -p DESIRED_PORT`
+### Compilación
+1. Ir a la carpeta del repositorio.
+
+    Si aun no tenemos el repositorio en nuestro sistema:
+
+    ```
+    git clone https://github.com/joecarl/pong.git
+    cd pong
+    ```
+
+    Si ya tenemos el repositorio en nuestro sistema simplemente, navegamos a él y lo actualizamos con: 
+
+    ```
+    git pull
+    ```
+
+1. Finalmente  ejecutar :
+
+    ```
+    bash ./build-server.sh
+    ```
+
+## Ejecutar el servidor en Linux
+
+1. El servidor se compila en la carpeta `./build/server`, por tanto:
+
+    ```
+    cd build/server
+    ./PONGSERVER -p DESIRED_PORT
+    ```
+
+---
+
+## Indicaciones para CentOS 7
+
+- Para instalar el compilador de C++ se puede hacer con:
+    ```
+    yum install devtoolset-7-gcc-c++ --enablerepo='centos-sclo-rh'
+    ```
+
+- Siempre que abramos una nueva sesión de consola será necesario ejecutar:
+
+    Para habilitar g++:
+
+    ```
+    scl enable devtoolset-7 'bash'
+    ```
+
+    Para poder ejecutar la aplicación:
+
+    ```
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+    ```
+
+    Cambiando `/usr/local/lib` por el directorio donde se haya instalado boost si es necesario.
