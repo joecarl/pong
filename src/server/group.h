@@ -25,7 +25,7 @@ class Group{
 
 	boost::asio::steady_timer *t;
 
-	int players_ready;
+	bool players_ready[2];
 
 	void game_main_loop();
 

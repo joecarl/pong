@@ -24,7 +24,8 @@ void Group::newGame(){
 
 	cout << "New game created, tick: " << this->game->tick << endl;
 
-	this->players_ready = 0;
+	this->players_ready[0] = false;
+	this->players_ready[1] = false;
 
 }
 
@@ -40,12 +41,16 @@ void Group::addClient(Client* cl){
 
 			auto evtType = pkg["type"].as_string();
 		
-			if(evtType == "play_again"){//if scope == group-event
+			if(evtType == "ready_to_play"){//if scope == group-event
+
 				cout << "Player ready!!" << endl;
-				this->players_ready ++;
-				if(this->players_ready == 2){
+				
+				this->players_ready[playerID] = true;
+
+				if(this->players_ready[0] && this->players_ready[1]){
 					this->startGame();
 				}
+
 			} else {
 
 			//if(evtType == "set_control_state"){//if scope == game-event
@@ -63,7 +68,7 @@ void Group::addClient(Client* cl){
 		};
 
 	}
-
+/*
 	auto numClients = this->clients.size();
 
 	if(numClients == 2){
@@ -71,7 +76,7 @@ void Group::addClient(Client* cl){
 		this->startGame();
 
 	}
-
+*/
 }
 
 void Group::process_event(boost::json::object &evt){
