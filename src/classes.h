@@ -55,6 +55,8 @@ public:
 
 	Bonus *bonus[2];
 
+	unsigned int tick = 0;
+
 	//std::vector<EvtListener> eventListeners;
 
 	std::queue<std::string> messages;

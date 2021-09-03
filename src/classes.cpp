@@ -158,6 +158,7 @@ void PongGame::processTick(){
 	if((players[0]->score == 11 || players[1]->score == 11) && this->numPlayers != 0){
 
 		this->finished = true;
+		cout << "Game finished!" << endl;
 		return;
 
 	}
@@ -190,6 +191,7 @@ void PongGame::processTick(){
 			bonus_time[i]++;
 	}
 
+	this->tick++;
 }
 
 
