@@ -235,6 +235,11 @@ void LobbyStage::onEvent(ALLEGRO_EVENT event){
 			this->ready = true;
 
 		}
+		else if(keycode == ALLEGRO_KEY_ESCAPE){
+			
+			this->engine->setStage(MENU);
+
+		}
 
 	}
 
