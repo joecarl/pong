@@ -56,6 +56,7 @@ void PongGame::restart(){
 	this->players[0]->score = 0;
 	this->players[1]->score = 0;
 	this->finished = false;
+	this->tick = 0;
 
 }
 
