@@ -48,8 +48,10 @@ void AllegroHandler::initializeResources(){
 }
 
 void AllegroHandler::createComponents(){
+
+	bool windowed = this->engine->cfg["windowed"].as_bool();
 	
-	if(this->engine->cfg["windowed"].as_bool() == false){
+	if(!windowed){
 		al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	}
 
@@ -83,6 +85,10 @@ void AllegroHandler::createComponents(){
 	this->scaleH = screenHeight * scaled;
 	this->scaleX = (windowWidth - scaleW) / 2;
 	this->scaleY = (windowHeight - scaleH) / 2;
+
+	if(!windowed){
+		al_hide_mouse_cursor(display);
+	}
 	
 	cout << "Display created" << endl;
 
@@ -102,8 +108,7 @@ void AllegroHandler::createComponents(){
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 
 	al_start_timer(timer);
-	al_hide_mouse_cursor(display);
-
+	
 }
 
 void AllegroHandler::startDrawing(){
