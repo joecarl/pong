@@ -22,15 +22,14 @@
 
 enum{
 	PLAYMODE_NONE = 0,
-	PLAYMODE_SINGLE_PLAYER,
-	PLAYMODE_TWO_PLAYERS,
-	PLAYMODE_TRAINING,
-	PLAYMODE_ONLINE,
-	PLAYMODE_DEBUG
+	PLAYMODE_LOCAL,
+	PLAYMODE_ONLINE
 };
 
 
 class GameHandler{
+
+	int controlMode = CONTROLMODE_NONE;
 
 public:
 
@@ -40,7 +39,11 @@ public:
 
 	~GameHandler();
 
+	void setup(int playMode, int controlMode);
+
 	void makeNewPongGame(int_fast32_t seed);
+	
+	int getControl(int kCode, int playerID);
 	
 	void cleanup();
 

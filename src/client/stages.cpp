@@ -20,22 +20,23 @@
 using namespace std;
 
 
+
+void GameHandler::setup(int _playMode, int _controlMode){
+
+	this->playMode = _playMode;
+	this->controlMode = _controlMode;
+	
+}
+
 void GameHandler::makeNewPongGame(int_fast32_t seed){
 
 	this->cleanup();
 
 	pongGame = new PongGame(seed);
 
-	if(playMode == PLAYMODE_SINGLE_PLAYER){
-		pongGame->controlMode = CONTROLMODE_SINGLE_PLAYER;
-	} 
-	else if(playMode == PLAYMODE_TRAINING){
-		pongGame->controlMode = CONTROLMODE_TRAINING;
-	} 
-	else if(playMode == PLAYMODE_DEBUG){
-		pongGame->controlMode = CONTROLMODE_DEBUG;
-	}
-	else if(playMode == PLAYMODE_ONLINE || playMode == PLAYMODE_TWO_PLAYERS){
+	pongGame->controlMode = this->controlMode;
+
+	if(this->playMode == PLAYMODE_ONLINE){
 		pongGame->controlMode = CONTROLMODE_TWO_PLAYERS;
 	}
 	
@@ -55,17 +56,12 @@ GameHandler::~GameHandler(){
 
 }
 
-
-GameHandler gameHandler;
-
-//-----------------------------------------------------------------------------
-
 /**
- * Retrieves the game CONTROL_* based on playMode, keycode and playerID
+ * Retrieves the game CONTROL_* based on controlMode, keycode and playerID
  */
-int getControl(int kCode, int playMode, int playerID){
+int GameHandler::getControl(int kCode, int playerID){
 
-	if(playMode == PLAYMODE_TWO_PLAYERS) {
+	if(this->pongGame->controlMode == CONTROLMODE_TWO_PLAYERS) {
 
 		if(playerID == 1){
 
@@ -89,6 +85,11 @@ int getControl(int kCode, int playMode, int playerID){
 	return CONTROL_NONE;
 
 }
+
+
+
+GameHandler gameHandler;
+
 
 
 //-----------------------------------------------------------------------------
@@ -116,20 +117,20 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event){
 	if(event.type == ALLEGRO_EVENT_KEY_DOWN){
 	
 		if(keycode == ALLEGRO_KEY_1){
-			gameHandler.playMode = PLAYMODE_SINGLE_PLAYER;
+			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_SINGLE_PLAYER);
 		} 
 		else if(keycode == ALLEGRO_KEY_2) {
-			gameHandler.playMode = PLAYMODE_TWO_PLAYERS;
+			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_TWO_PLAYERS);
 		}
 		else if(keycode == ALLEGRO_KEY_3){
-			gameHandler.playMode = PLAYMODE_TRAINING;
+			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_TRAINING);
 		}
 		else if(keycode == ALLEGRO_KEY_4){
 			this->engine->setStage(CONN); 
-			gameHandler.playMode = PLAYMODE_ONLINE;
+			gameHandler.setup(PLAYMODE_ONLINE, CONTROLMODE_TWO_PLAYERS);
 		}
 		else if(keycode == ALLEGRO_KEY_5){
-			gameHandler.playMode = PLAYMODE_DEBUG;
+			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_DEBUG);
 		}
 		
 		if(keycode == ALLEGRO_KEY_C){//CAMBIAR RESOLUCION, bad performance
@@ -195,7 +196,7 @@ void GameStage::drawCourt(){
 	al_draw_line(scale*(320/2-1), minCourtY, scale*(320/2-1), maxCourtY, al_map_rgb( 255, 255, 255),2);
 	al_draw_line(scale*(320/2+1), minCourtY, scale*(320/2+1), maxCourtY, al_map_rgb( 255, 255, 255),2);
 
-	if(gameHandler.playMode == PLAYMODE_TRAINING){
+	if(gameHandler.pongGame->controlMode == CONTROLMODE_TRAINING){
 		
 		al_draw_line(scale*DEF_W, minCourtY, scale*DEF_W, maxCourtY, al_map_rgb( 255, 255, 255), 2);
 
@@ -208,7 +209,7 @@ void GameStage::drawScores(){
 	ALLEGRO_FONT* font = this->engine->font;
 	float scale = this->engine->scale;
 
-	if(gameHandler.playMode != PLAYMODE_TRAINING){
+	if(gameHandler.pongGame->controlMode != CONTROLMODE_TRAINING){
 		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*25, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", gameHandler.pongGame->players[0]->score );
 		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*240, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", gameHandler.pongGame->players[1]->score );
 	} else {
@@ -268,8 +269,8 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 
 		bool newSt = evt.type == ALLEGRO_EVENT_KEY_DOWN;
 
-		int controlP1 = getControl(kCode, gameHandler.playMode, 0);
-		int controlP2 = getControl(kCode, gameHandler.playMode, 1);
+		int controlP1 = gameHandler.getControl(kCode, 0);
+		int controlP2 = gameHandler.getControl(kCode, 1);
 
 		if(gameHandler.playMode == PLAYMODE_ONLINE){
 				
@@ -420,7 +421,7 @@ void GameStage::draw(){
 			}
 
 			tr->drawPlayer(gameHandler.pongGame->players[0], scale);
-			if(gameHandler.playMode != PLAYMODE_TRAINING){
+			if(gameHandler.pongGame->controlMode != CONTROLMODE_TRAINING){
 				tr->drawPlayer(gameHandler.pongGame->players[1], scale);
 			}
 
@@ -511,14 +512,14 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 		WHITE
 	);
 	
-	if(pl->bonus_ball){
+	if(pl->bonus_timers[BONUS_BALL]){
 
 		if(pl->x < 100){
 
 			al_draw_filled_rectangle(
 				scale * 0, 
 				scale * 16, 
-				scale * (158.0 * pl->bonus_ball / 80.0), 
+				scale * (158.0 * pl->bonus_timers[BONUS_BALL] / 800.0), 
 				scale * 20, 
 				al_map_rgb(0, 200, 50)
 			);
@@ -528,7 +529,7 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 			al_draw_filled_rectangle(
 				scale * (DEF_W), 
 				scale * 16, 
-				scale * (DEF_W - 158.0 * pl->bonus_ball / 80.0),
+				scale * (DEF_W - 158.0 * pl->bonus_timers[BONUS_BALL] / 800.0),
 				scale * 20, 
 				al_map_rgb(0, 200, 50)
 			);
@@ -565,24 +566,7 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 
 
 void GameOverStage::onEnterStage(){
-
-	if(gameHandler.playMode == PLAYMODE_ONLINE){ //una copia de connstage, ver como optimizar... quiza moviendo a un lobbystage
-
-		this->engine->connection.process_actions_fn = [&](boost::json::object& evt){
-
-			cout << "RECEIVED: " << evt << endl;
-			if(evt["type"] == "game_start"){
-
-				gameHandler.makeNewPongGame((int_fast32_t)evt["seed"].as_int64());
-
-				controller.setup(gameHandler.pongGame);
-
-				this->engine->setStage(GAME);
-			
-			}
-
-		};
-	}
+	
 }
 
 void GameOverStage::onEvent(ALLEGRO_EVENT event){
