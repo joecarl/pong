@@ -44,8 +44,18 @@ double PongGame::random(double min, double max, bool rand_sign, bool include_max
 
 int PongGame::intRandom(int min, int max, bool rand_sign){
 
-	int res = (int) this->random(min, max + 1, rand_sign, false);
+	//int res = (int) this->random(min, max + 1, rand_sign, false);
 	//cout << "[" << min << ", " << max << "] --> " << res << endl;
+	
+
+	int res = (int) random(0, max - min + 1, false, false);
+	//cout << "[" << min << ", " << max << "] --> " << res << endl;
+	res += min;
+
+	if(rand_sign && (*mt)() > mt->max() / 2){
+		res = -res;
+	}
+
 	return res;
 
 }
@@ -198,21 +208,30 @@ void PongGame::processTick(){
 
 	for(int i = 0; i < 2; i++){
 
-		if( bonus[i]->getStat() == 0 && bonus_time[i] > 1000 && this->intRandom(0, 100) == 0 ){
-			bonus[i]->setParameters(
-				this->random(100, 240), 
-				this->random(70, 130), 
-				this->random(1.5, 2.0, true), 
-				this->random(1.5, 2.0, true)
-			);
-			bonus_time[i] =- 1;
+		Bonus *b = bonus[i];
+
+		if( b->getStat() == 0 ){
+
+			if( b->cooldown == 0 && this->intRandom(0, 100) == 0 ){
+
+				b->setParameters(
+					this->random(100, 240), 
+					this->random(70, 130), 
+					this->random(1.5, 2.0, true), 
+					this->random(1.5, 2.0, true)
+				);
+				b->cooldown = 1000;
+
+			} else if(b->cooldown > 0) {
+
+				b->cooldown--;
+
+			}
+
 		}
 
-		bonus[i]->process();
-		if(bonus[i]->getStat() == 0 && bonus_time[i] == -1)
-			bonus_time[i] = 1;
-		if(bonus_time > 0)
-			bonus_time[i]++;
+		b->process();
+
 	}
 
 	this->tick++;
@@ -375,20 +394,28 @@ void Bonus::onPlayerHit(PlayerP *pl){
 
 PlayerP::PlayerP(PongGame *pongGame, int px, int py){
 
-	for(int i = 0; i < CONTROL_MAX; i++){
-		this->controls[i] = false;
-	}
-	
 	this->game = pongGame;
 	this->x = px;
 	this->y = py;
+
+	this->reset();
+
+}
+
+void PlayerP::reset(){
+
+	for(int i = 0; i < CONTROL_MAX; i++){
+		this->controls[i] = false;
+	}
+
 	this->medlen = MEDLEN;
 	this->score = 0;
+	this->racha = 0;
 	this->comTxtY = -40;//DESACTIVADA
 	this->comTxt = "";
 	
 	for(int i = 0; i < BONUS_MAX; i++){
-		this->bonus_timers[i] = false;
+		this->bonus_timers[i] = 0;
 	}
 
 }
@@ -405,6 +432,8 @@ void PlayerP::lockLimit(){
 void PlayerP::moveIA(){
 
 	Element *ball = this->game->ball;
+
+	//double inc = 1 + 1 + sin((double)this->game->tick / 100.0);
 
 	if(y > ball->getY()) y -= (1 + this->game->intRandom(0, 1));
 	if(y < ball->getY()) y += (1 + this->game->intRandom(0, 1));

@@ -58,7 +58,7 @@ public:
 
 	uint_fast32_t seed;
 
-	int bonus_time[2] = {-1, -1};
+	//int bonus_time[2] = {-1, -1};
 
 	unsigned int controlMode = CONTROLMODE_NONE;
 
@@ -171,6 +171,8 @@ class Bonus: public Element{
 
 	int bonus_type;
 
+	int cooldown = 500;
+
 	Bonus(PongGame* game, int bonus_type);
 	
 	void onPlayerHit(PlayerP *pl);
@@ -199,6 +201,8 @@ public:
 	void giveBonus(int bonus_type);
  
 	void lockLimit();
+	
+	void reset();
 
 	void controlMove();
 
