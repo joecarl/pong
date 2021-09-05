@@ -61,7 +61,7 @@ GameHandler::~GameHandler(){
  */
 int GameHandler::getControl(int kCode, int playerID){
 
-	if(this->pongGame->controlMode == CONTROLMODE_TWO_PLAYERS) {
+	if(this->pongGame->controlMode == CONTROLMODE_TWO_PLAYERS && this->playMode == PLAYMODE_LOCAL) {
 
 		if(playerID == 1){
 
@@ -275,9 +275,8 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 		if(gameHandler.playMode == PLAYMODE_ONLINE){
 				
 			boost::json::value inputEvt;
-			inputEvt.emplace_null();
+			//inputEvt.emplace_null();
 			
-
 			if(controlP1 != CONTROL_NONE){
 
 				inputEvt = {
