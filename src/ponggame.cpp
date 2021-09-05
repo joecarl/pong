@@ -79,9 +79,14 @@ void PongGame::iniciarPunto(int first){
 		tvx = (int)ball->getvX();
 	}
 	
-	players[0]->medlen = MEDLEN; 
-	players[1]->medlen = MEDLEN;
-	players[0]->bonus_ball = 0; players[1]->bonus_ball = 0;
+	for(int i = 0; i < 2; i++){
+		players[i]->medlen = MEDLEN; 
+		for(int j = 0; j < BONUS_MAX; j++){
+			players[i]->bonus_timers[j] = 0;
+
+		}
+	}
+
 	ball->setParameters(INIX, INIY, tvx, 0.5 * (this->intRandom(-1, 1)));
 	players[0]->setY(40);
 	players[1]->setY(160);
@@ -180,10 +185,15 @@ void PongGame::processTick(){
 	ball->process();
 
 	for(int i = 0; i < 2; i++){
+
 		PlayerP* pl = this->players[i];
-		if(pl->bonus_ball > 0){
-			pl->bonus_ball -= 0.1;
+
+		for(int j = 0; j < BONUS_MAX; j++){
+			if(pl->bonus_timers[j] > 0){
+				pl->bonus_timers[j] --;
+			}
 		}
+
 	}
 
 	for(int i = 0; i < 2; i++){
@@ -311,9 +321,9 @@ void Ball::preprocess(){
 	PlayerP *p1 = this->game->players[0];
 	PlayerP *p2 = this->game->players[1];
 
-	if(p1->bonus_ball > 0 && p2->bonus_ball <= 0)
+	if(p1->bonus_timers[BONUS_BALL] > 0 && p2->bonus_timers[BONUS_BALL] == 0)
 		radius = (320 - x) / 20 + 2;
-	else if(p2->bonus_ball > 0 && p1->bonus_ball <= 0)
+	else if(p2->bonus_timers[BONUS_BALL] > 0 && p1->bonus_timers[BONUS_BALL] == 0)
 		radius = x / 20 + 2;
 	else
 		radius = RADIUS;
@@ -370,13 +380,16 @@ PlayerP::PlayerP(PongGame *pongGame, int px, int py){
 	}
 	
 	this->game = pongGame;
-	x = px;
-	y = py;
-	medlen = MEDLEN;
-	//bonus = 0;
-	score = 0;
-	comTxtY = -40;//DESACTIVADA
-	bonus_ball = 0;
+	this->x = px;
+	this->y = py;
+	this->medlen = MEDLEN;
+	this->score = 0;
+	this->comTxtY = -40;//DESACTIVADA
+	this->comTxt = "";
+	
+	for(int i = 0; i < BONUS_MAX; i++){
+		this->bonus_timers[i] = false;
+	}
 
 }
 
@@ -431,7 +444,7 @@ void PlayerP::giveBonus(int bonus_type){
 	}
 
 	else if(bonus_type == BONUS_BALL){
-		bonus_ball = 80;
+		this->bonus_timers[BONUS_BALL] = 800;
 		comTxt = "SPECIAL BALL";
 		comTxtY = 150;
 	}

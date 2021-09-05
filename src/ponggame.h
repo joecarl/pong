@@ -12,9 +12,14 @@
 #define DEF_H 200
 #define DEF_W 320
 
-#define BONUS_LONG 1
-#define BONUS_IMPA 2
-#define BONUS_BALL 3
+
+enum BonusType{
+	BONUS_NONE = 0,
+	BONUS_LONG,
+	BONUS_IMPA,
+	BONUS_BALL,
+	BONUS_MAX
+};
 
 enum Control{
 	CONTROL_NONE = 0,
@@ -185,7 +190,7 @@ public:
 
 	int score, medlen, racha;
 
-	double bonus_ball;
+	unsigned int bonus_timers[BONUS_MAX];
 
 	bool controls[CONTROL_MAX];
 
