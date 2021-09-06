@@ -42,11 +42,12 @@ void Server::start_listening(){
 	if(!this->acceptor.is_open()){
 		cout << "Opening acceptor " << this->endpoint << endl;
 
-		this->acceptor.open(this->endpoint.protocol(), ec);
-		//cout << ec << endl;
+		this->acceptor.open(this->endpoint.protocol());
+		
 		this->acceptor.set_option(tcp::acceptor::reuse_address(true));
-		this->acceptor.bind(this->endpoint, ec);
-		//cout << ec << endl;
+
+		this->acceptor.bind(this->endpoint);
+		
 		this->acceptor.listen();
 	}
 }
@@ -94,10 +95,11 @@ void Server::wait_for_connection(){
 
 	this->remove_dead_connections();
 
+	cout << "Waiting for connection..." << endl;
+
 	acceptor.async_accept( [this](boost::system::error_code ec, tcp::socket socket) {
 
 		if (ec) {
-			//std::make_shared<chat_session>(std::move(socket), room_)->start();
 			cout << "Error opening socket: " << ec << endl;
 		} else {
 			this->on_new_connection(std::move(socket));
@@ -111,9 +113,7 @@ void Server::wait_for_connection(){
 
 
 void Server::run(){
-
-	cout << "Waiting for connection..." << endl;
-
+	
 	this->wait_for_connection();
 	
 	this->io_context.run();
