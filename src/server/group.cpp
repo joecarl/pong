@@ -14,6 +14,10 @@ void Group::newGame(){
 		delete this->game;
 	}
 
+	//vaciamos la cola de eventos
+	std::queue<boost::json::object> empty;
+	std::swap( this->evt_queue, empty );
+
 	this->game = new PongGame();
 
 	this->game->controlMode = CONTROLMODE_TWO_PLAYERS;
