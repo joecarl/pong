@@ -45,7 +45,7 @@ LINKERLIBS=""
 EXECNAME=""
 if [ "$1" == "win" ]; then
 	LINKERLIBS="-static-libstdc++ -static-libgcc -static \
-				-lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lboost_json-mt -lws2_32"
+				-lboost_chrono-mt -lboost_system-mt -lboost_thread-mt -lboost_json-mt -lmswsock -lws2_32"
 	EXECNAME="PONGSERVER.exe"
 else 
 	LINKERLIBS="-lboost_chrono -lboost_system -lboost_thread -lboost_json -lpthread"

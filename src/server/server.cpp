@@ -11,8 +11,9 @@
 using namespace boost::asio::ip;
 using namespace std;
 
+Group group;
 
-Server::Server(int _port): io_service(), acceptor(io_service){
+Server::Server(int _port): io_context(), acceptor(io_context){
 
 	this->port = _port;
 	this->endpoint = tcp::endpoint(tcp::v4(), port);
@@ -26,28 +27,6 @@ Server::Server(int _port): io_service(), acceptor(io_service){
 }
 
 /*
-void Server::process_clients_requests(){
-
-	for(int i = 0; i < this->max_connections; i++){
-		if(clients[i] == nullptr) continue;
-	}
-	
-}
-*/
-
-void Server::poll(){
-
-	while(1){
-
-		this->io_service.restart();//en windows no hacia falta hacer restart :/
-		this->io_service.run();
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-		//cout << "polling!"<< endl;
-
-	}
-
-}
-
 bool Server::is_full(){
 
 	for(int i = 0; i < this->max_connections; i++){
@@ -60,9 +39,9 @@ bool Server::is_full(){
 	}
 	return true;
 }
+*/
 
-
-void Server::kick_client(int idx){
+void Server::remove_client(int idx){
 
 	delete clients[idx];
 
@@ -86,7 +65,7 @@ void Server::start_listening(){
 	}
 }
 
-
+/*
 void Server::stop_listening(){
 
 	boost::system::error_code ec;
@@ -100,74 +79,74 @@ void Server::stop_listening(){
 
 	}
 }
+*/
 
-/*
-void Server::send_to_all(std::string pkg){
+
+void Server::on_new_connection(tcp::socket socket){
+
 	for(int i = 0; i < this->max_connections; i++){
-		if(clients[i] != nullptr && !clients[i]->is_dead()){
-			if(clients[i]->logged || 1){
-				clients[i]->qsend(pkg);
-			}
+
+		cout << "Testing " << i << ": " << (clients[i] == nullptr ? "available!" : "busy") << endl;
+
+		if(clients[i] == nullptr){
+			//sockets[i] = new
+
+			clients[i] = new Client(std::move(socket));
+			
+			std::cout << "Client " << i << " connected!" << std::endl;
+
+			group.addClient(clients[i]);
+			
+			clients[i]->async_wait_for_data();
+			
+			break;
+
+		} 
+
+	}
+
+}
+
+
+void Server::remove_dead_connections(){
+
+	for(int i = 0; i < this->max_connections; i++){
+
+		if(clients[i] != nullptr && clients[i]->is_dead()) {
+			//get rid of dead connections
+			this->remove_client(i);
 		}
 	}
+
 }
-*/
+
+void Server::wait_for_connection(){
+
+	this->remove_dead_connections();
+
+	acceptor.async_accept( [this](boost::system::error_code ec, tcp::socket socket) {
+
+		if (ec) {
+			//std::make_shared<chat_session>(std::move(socket), room_)->start();
+			cout << "Error opening socket: " << ec << endl;
+		} else {
+			this->on_new_connection(std::move(socket));
+		}
+
+		this->wait_for_connection();
+
+	});
+		
+}
+
+
 
 void Server::run(){
 
-	Group group;
+	cout << "Waiting for connection..." << endl;
 
-	boost::asio::io_context io;
-
-	//io.run();
-	boost::thread th0(boost::bind(&boost::asio::io_context::run, &io));
-
-	//boost::system::error_code ec;
-	boost::thread th(boost::bind(&Server::poll, this));
-
-	while(1){
-
-		if(this->is_full()){
-
-			this->stop_listening();
-
-		} else {
-			//cout << "ep acceptor " << this->acceptor.local_endpoint() << endl;
-			if(!this->acceptor.is_open()){
-
-				this->start_listening();
-
-			}
-
-			for(int i = 0; i < this->max_connections; i++){
-				cout << "Testing " << i << ": " << (clients[i] == nullptr ? "available!" : "busy") << endl;
-				if(clients[i] == nullptr){
-					//sockets[i] = new
-
-					cout << "Waiting for connection..." << endl;
-
-					clients[i] = new Client(io_service, acceptor);
-					if(!clients[i]->conn_err){
-
-						std::cout << "Client " << i << " connected!" << std::endl;
-
-						group.addClient(clients[i]);
-						
-						clients[i]->async_wait_for_data();
-
-					}
-
-				} else if(clients[i]->is_dead()) {
-					//get rid of dead connections
-					this->kick_client(i);
-				}
-
-			}
-		}
-
-
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-
-	}
+	this->wait_for_connection();
+	
+	this->io_context.run();
 
 }

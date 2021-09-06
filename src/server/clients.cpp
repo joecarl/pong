@@ -12,22 +12,12 @@ using namespace boost::asio::ip;
 
 int Client::count_instances = 0;
 
-Client::Client(
-	boost::asio::io_service& io_service, 
-	tcp::acceptor& acceptor
-): 
-	socket(io_service)
+Client::Client(boost::asio::ip::tcp::socket _socket): 
+	socket(std::move(_socket))
 {
 
 	this->id_client = count_instances++;
-	acceptor.accept(socket, this->conn_err);
-
-	if(this->conn_err){
-		this->dead = true;
-		cout << "Error opening socket: " << this->conn_err << endl;
-	} else {
-		this->connected = true;
-	}
+	this->connected = true;
 
 }
 
@@ -41,12 +31,12 @@ Client::~Client(){
 }
 
 
-
 void Client::addEventListener(const std::string &evtName, const std::function<void()> &fn){
 	
 	this->evtListeners.push_back({evtName, fn});
 
 }
+
 
 void Client::triggerEvent(std::string evtName){
 	
@@ -57,6 +47,7 @@ void Client::triggerEvent(std::string evtName){
 	}
 
 }
+
 
 void Client::process_request(std::string request){
 	

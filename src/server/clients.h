@@ -41,9 +41,7 @@ class Client{
 
 public:
 
-	//conn vars
-	boost::system::error_code conn_err;
-	Client(boost::asio::io_service& io_service, boost::asio::ip::tcp::acceptor& acceptor);
+	Client(boost::asio::ip::tcp::socket socket);
 	~Client();
 
 	void async_wait_for_data();

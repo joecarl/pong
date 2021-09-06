@@ -9,49 +9,38 @@
 
 class Server{
 
-	int port = 25000;
-
-	int timeout = 0;
-
-	int interactions = -1;
-
-	int ret = 1;
+	int port;
 
 	int verbose = 0;
-
-	char* opt;
 
 	Client* clients[10];
 
 	const int max_connections = 3;
-
-	void poll();
 	
 	boost::asio::ip::tcp::endpoint endpoint;
+
+	void wait_for_connection();
+
+	void on_new_connection(boost::asio::ip::tcp::socket socket);
 	
-	void game_main_loop(boost::asio::steady_timer* t);
+	void remove_dead_connections();
+
+	void remove_client(int idx);
 	
+	//bool is_full();
+	
+	void start_listening();
+	
+	//void stop_listening();
+
 public:
-	//std::function<void(boost::property_tree::ptree& pt, Client* cl)> process_actions_fn;
-	
-	boost::asio::io_service io_service;
+
+	boost::asio::io_context io_context;
 	boost::asio::ip::tcp::acceptor acceptor;
 
 	Server(int _port);
 
 	void run();
-	
-	bool is_full();
-	
-	void kick_client(int idx);
-	
-	void start_listening();
-	
-	void stop_listening();
-
-	//void process_clients_requests();
-
-	//void send_to_all(std::string pkg);
 
 };
 #endif /* server_hpp */
