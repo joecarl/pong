@@ -10,7 +10,7 @@ using namespace std;
 
 namespace asio = boost::asio;
 
-IoClient::IoClient(): socket(io_service){
+IoClient::IoClient(): socket(io_context){
 
 }
 
@@ -43,7 +43,7 @@ void IoClient::connect(string host, unsigned short port){
 			);
 
 			// Creating a resolver.
-			asio::ip::tcp::resolver resolver(io_service);
+			asio::ip::tcp::resolver resolver(io_context);
 
 			// Resolve query
 			cout << "Resolving " << host << " ..." << endl;
@@ -75,9 +75,6 @@ void IoClient::connect(string host, unsigned short port){
 
 			cout << "Connected!" << endl;
 
-			io_service.run();//will exit inmediately
-			//quiza la lectura haya q hacerla en otro socket.. nose..
-
 			boost::thread([=]{
 
 				while(true){
@@ -99,6 +96,8 @@ void IoClient::connect(string host, unsigned short port){
 
 			qread();
 
+			io_context.run();
+
 		} catch (std::exception &e) {
 
 			cout << "Error occurred[C" << this->id_client << "]: " << e.what() << endl;
@@ -112,10 +111,8 @@ void IoClient::connect(string host, unsigned short port){
 
 IoClient::~IoClient(){
 
-	this->io_service.stop();
+	this->io_context.stop();
 
-	//usleep(1000000);
-	//Sleep(1000);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	
 }
@@ -127,11 +124,12 @@ int IoClient::get_state(){
 }
 
 void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt)> _cb){
-	//colas!!!!!
+	
 	if(this->busy){
 		this->pkg_queue.push({pkg, _cb});
 		return;
 	}
+
 	this->busy = true;
 
 	auto handler = boost::bind(&IoClient::handle_qsent_content, this,
@@ -156,28 +154,19 @@ void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt
 	}
 
 	asio::async_write(socket, asio::buffer(pkg), handler);
-	//socket.async_write_some(asio::buffer(pkg), handler);
-	if(io_service.stopped()){
-		io_service.restart();
-		boost::thread(boost::bind(&asio::io_service::run, &io_service));
-	}
+	
 	pkgs_sent ++;
-	//std::cout << " S:" << pkgs_sent << endl;
-	//std::cout << " Sending: " << pkg << endl;
 
 }
 
 void IoClient::qread(){
+
 	auto handler = boost::bind(&IoClient::handle_qread_content, this,
 							   asio::placeholders::error(),
 							   asio::placeholders::bytes_transferred());
 
 	socket.async_read_some(asio::buffer(read_buffer, 1024), handler);
 
-	if(io_service.stopped()){
-		io_service.restart();
-		boost::thread(boost::bind(&asio::io_service::run, &io_service));
-	}
 }
 
 void IoClient::handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred){
@@ -185,31 +174,29 @@ void IoClient::handle_qsent_content(const boost::system::error_code& error, std:
 	this->busy = false;
 
 	if(error){
-		//cout << "Error occurred! S[C" << this->id_client << "]: " << error << endl;
-		this->connection_state = CONNECTION_STATE_DISCONNECTED;
-		return;
+		
+		throw std::runtime_error(error.message());
+
 	}
+
 	if(!this->pkg_queue.empty()){
 		this->qsend(this->pkg_queue.front().pkg, this->pkg_queue.front()._cb);
 		this->pkg_queue.pop();
 	}
-	//pkgs_sent ++;
-	//std::cout << " S:" << pkgs_sent << endl;
+
 }
 
 
 void IoClient::handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred){
 
 	if(error){
-		cout << "Error occurred R[C" << this->id_client << "]: " << error << endl;
-		this->connection_state = CONNECTION_STATE_DISCONNECTED;
-		return;
+		
+		throw std::runtime_error(error.message());
+
 	}
 
-	//std::cout << "Data received[C" << this->id_client << "]: " ;
-
 	std::string data((char*)read_buffer, bytes_transferred );
-	//cout << data << endl;
+	
 	data = read_remainder + data;
 	std::string pkg;
 

@@ -42,7 +42,7 @@ class IoClient{
 	std::queue<qsend_item> pkg_queue;
 	std::vector<callb> cbs;
 
-	boost::asio::io_service io_service;
+	boost::asio::io_context io_context;
 	
 	boost::asio::ip::tcp::socket socket;
 
