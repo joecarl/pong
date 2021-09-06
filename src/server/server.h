@@ -27,11 +27,7 @@ class Server{
 
 	void remove_client(int idx);
 	
-	//bool is_full();
-	
 	void start_listening();
-	
-	//void stop_listening();
 
 public:
 

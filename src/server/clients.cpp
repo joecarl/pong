@@ -17,7 +17,6 @@ Client::Client(boost::asio::ip::tcp::socket _socket):
 {
 
 	this->id_client = count_instances++;
-	this->connected = true;
 
 }
 
@@ -26,7 +25,6 @@ Client::~Client(){
 
 	this->socket.cancel();
 	this->socket.close();
-	cout << "BYE BYE" << endl;
 
 }
 
@@ -146,10 +144,6 @@ bool Client::is_dead(){
 	return this->dead;
 }
 
-
-bool Client::is_connected(){
-	return this->connected;
-}
 
 
 void Client::async_wait_for_data(){

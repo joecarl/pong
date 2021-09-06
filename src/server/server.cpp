@@ -26,20 +26,6 @@ Server::Server(int _port): io_context(), acceptor(io_context){
 
 }
 
-/*
-bool Server::is_full(){
-
-	for(int i = 0; i < this->max_connections; i++){
-		if(clients[i] == nullptr){
-			return false;
-		}
-		else if(clients[i]->is_dead() || !clients[i]->is_connected()){
-			return false;
-		}
-	}
-	return true;
-}
-*/
 
 void Server::remove_client(int idx){
 
@@ -65,22 +51,6 @@ void Server::start_listening(){
 	}
 }
 
-/*
-void Server::stop_listening(){
-
-	boost::system::error_code ec;
-
-	if(this->acceptor.is_open()){
-		cout << "Stopping acceptor" << endl;
-		this->acceptor.cancel(ec);
-		cout << ec << endl;
-		this->acceptor.close(ec);
-		cout << ec << endl;
-
-	}
-}
-*/
-
 
 void Server::on_new_connection(tcp::socket socket){
 
@@ -89,7 +59,6 @@ void Server::on_new_connection(tcp::socket socket){
 		cout << "Testing " << i << ": " << (clients[i] == nullptr ? "available!" : "busy") << endl;
 
 		if(clients[i] == nullptr){
-			//sockets[i] = new
 
 			clients[i] = new Client(std::move(socket));
 			
@@ -120,6 +89,7 @@ void Server::remove_dead_connections(){
 
 }
 
+
 void Server::wait_for_connection(){
 
 	this->remove_dead_connections();
@@ -138,7 +108,6 @@ void Server::wait_for_connection(){
 	});
 		
 }
-
 
 
 void Server::run(){

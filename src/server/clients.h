@@ -15,33 +15,38 @@ struct EventListener{
 
 class Client{
 
-	//game vars
+	static int count_instances;
+
 	int pkgs_recv = 0;
+
 	int pkgs_sent = 0;
 
-	std::vector<EventListener> evtListeners;
-	//conn vars
-	std::queue<std::string> pkg_queue;
-	std::string pending_data = "";
+	int id_client = 0;
+
 	bool busy = false;
 
-	static int count_instances;
-	int id_client = 0;
 	bool dead = false;
-	bool connected = false;
+
 	boost::asio::ip::tcp::socket socket;
+
+	std::vector<EventListener> evtListeners;
+	
+	std::queue<std::string> pkg_queue;
+
+	std::string pending_data = "";
 
 	unsigned char read_buffer[1024];
 
 	std::string read_remainder = "";
 
 	void handle_read_content( const boost::system::error_code& error, std::size_t bytes_transferred);
-	void handle_qsent_content( const boost::system::error_code& error, std::size_t bytes_transferred);
 
+	void handle_qsent_content( const boost::system::error_code& error, std::size_t bytes_transferred);
 
 public:
 
 	Client(boost::asio::ip::tcp::socket socket);
+	
 	~Client();
 
 	void async_wait_for_data();
@@ -53,8 +58,6 @@ public:
 	void qsend(std::string pkg, bool ignore_busy = false);
 
 	bool is_dead();
-
-	bool is_connected();
 
 	void process_request(std::string request);
 	
