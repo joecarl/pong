@@ -58,8 +58,6 @@ public:
 
 	uint_fast32_t seed;
 
-	//int bonus_time[2] = {-1, -1};
-
 	unsigned int controlMode = CONTROLMODE_NONE;
 
 	bool paused = false, finished = false;
@@ -118,7 +116,7 @@ class Element{
 
 public:
 
-	int stat;
+	int stat = 0;
 
 	double x, y, x00, y00, radius;
 	

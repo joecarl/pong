@@ -36,10 +36,6 @@ void GameHandler::makeNewPongGame(int_fast32_t seed){
 
 	pongGame->controlMode = this->controlMode;
 
-	if(this->playMode == PLAYMODE_ONLINE){
-		pongGame->controlMode = CONTROLMODE_TWO_PLAYERS;
-	}
-	
 }
 
 void GameHandler::cleanup(){
@@ -105,7 +101,7 @@ MainMenuStage::MainMenuStage(HGameEngine* _engine):Stage(_engine){
 
 void MainMenuStage::onTick(){
 
-	if(easteregg++ == 1000) PlayExorcista();
+	if(easteregg++ == 5000) PlayExorcista();
 
 }
 	
