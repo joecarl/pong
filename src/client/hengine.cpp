@@ -169,11 +169,28 @@ void Stage::onEnterStage(){
 
 HGameEngine::HGameEngine(){
 
-	boost::json::value cfgV = boost::json::parse(file_get_contents("cfg.json"));
+	string customCfgFilePath = "cfg.json";
+	string defaultCfgFilePath = "resources/defaultCfg.json";
+	
+	if(file_exists(customCfgFilePath)){
 
-	if(cfgV.is_object()){
+		boost::json::value cfgV = boost::json::parse(file_get_contents(customCfgFilePath));
 
-		this->cfg = cfgV.get_object();
+		if(cfgV.is_object()){
+
+			this->cfg = cfgV.get_object();
+
+		}
+
+	} else if(file_exists(defaultCfgFilePath)){
+
+		boost::json::value cfgV = boost::json::parse(file_get_contents(defaultCfgFilePath));
+
+		if(cfgV.is_object()){
+
+			this->cfg = cfgV.get_object();
+
+		}
 
 	} else {
 
