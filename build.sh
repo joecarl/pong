@@ -43,7 +43,7 @@ done
 
 #ADDL_LINK_OPTS=""
 
-if [ $1 == "win" ]; then
+if [ "$1" == "win" ]; then
 	echo "Compiling Windows resources ..."
 	for RCFILE in $SRC_DIR/windres/*.rc; do 
 		bname=$(basename $RCFILE);
