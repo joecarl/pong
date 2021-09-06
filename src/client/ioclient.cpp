@@ -115,8 +115,9 @@ IoClient::~IoClient(){
 	this->io_service.stop();
 
 	//usleep(1000000);
-	Sleep(1000);
-
+	//Sleep(1000);
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	
 }
 
 int IoClient::get_state(){
