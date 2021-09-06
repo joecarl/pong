@@ -174,8 +174,10 @@ void PongGame::processTick(){
 
 		if(ball->getX() < -15){
 			this->giveScore(players[1], 1);
+			cout << "T " << this->tick << " | P2 score: " << players[1]->score << endl;
 		} else {
 			this->giveScore(players[0], 1);
+			cout << "T " << this->tick << " | P1 score: " << players[0]->score << endl;
 		}
 
 		this->addMessage("scored");

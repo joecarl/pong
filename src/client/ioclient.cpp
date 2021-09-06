@@ -228,7 +228,6 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 
 		} else {
 */
-			//bool parse_ok = parse_json(pkg, pt);
 			pt = boost::json::parse(pkg);
 
 			if( pt.is_object() ){
@@ -241,6 +240,8 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 					this->wait_for_binary_pt = pt;
 				}
 				*/
+
+				/*
 				boost::json::value resp = obj["response"];
 				if(!resp.is_null()){ //as string
 					std::string response_name = resp.get_string().c_str();//.get<std::string>("response");
@@ -259,7 +260,7 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 					}
 
 				}
-
+				*/
 
 				if( obj["type"].is_string() ){
 
