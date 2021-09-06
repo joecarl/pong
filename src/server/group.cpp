@@ -26,7 +26,7 @@ void Group::newGame(){
 
 	this->game->iniciarPunto(1);
 
-	cout << "New game created, tick: " << this->game->tick << endl;
+	//cout << "New game created, tick: " << this->game->tick << endl;
 
 	this->players_ready[0] = false;
 	this->players_ready[1] = false;
@@ -146,7 +146,6 @@ void Group::startGame(){
 
 	this->sendToAll(boost::json::serialize(pkg));
 
-	//io.run();
 	boost::thread(boost::bind(&boost::asio::io_context::run, io));
 
 }
