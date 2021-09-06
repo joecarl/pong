@@ -8,15 +8,11 @@ pacman -S --noconfirm mingw64/mingw-w64-x86_64-boost
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-freetype
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-allegro 
 
-#allegro-deps
-
+#allegro-deps(most of them will already be installed)
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-freeimage
-
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-cmake
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-dumb
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-flac
-pacman -S --noconfirm mingw64/mingw-w64-x86_64-freetype
-pacman -S --noconfirm mingw64/mingw-w64-x86_64-gcc
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-libjpeg-turbo
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-libpng
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-libvorbis
