@@ -1,7 +1,13 @@
 # pong
 
-Pong recreation with online playing option.
-Allego5 based.
+Recreación del clásico juego PONG desarrollado en C++, además incluye opción de juego online. El objetivo de este proyecto es aprender los pricipios básicos de la programación de videojuegos, así como del desarrollo de aplicaciones online cliente/servidor.
+
+El proyecto intenta mantener la mayor simpleza posible pero con una infraestructura principal que pueda servir como base para proyectos más grandes.
+
+Este proyecto tiene dos dependencias principales:
+
+- Allego v5.2.6+ (sólo para el cliente)
+- Boost v1.75+
 
 ## Para compilar el proyecto en windows es necesario preparar la siguiente configuración:
 
@@ -22,55 +28,54 @@ Allego5 based.
 ### Compilación
 1. Ir a la carpeta del repositorio.
 
-    Si aun no tenemos el repositorio en nuestro sistema:
+	Si aun no tenemos el repositorio en nuestro sistema:
 
-    ```
-    git clone https://github.com/joecarl/pong.git
-    cd pong
-    ```
+	```
+	git clone https://github.com/joecarl/pong.git
+	cd pong
+	```
 
-    Si ya tenemos el repositorio en nuestro sistema simplemente, navegamos a él y lo actualizamos con: 
+	Si ya tenemos el repositorio en nuestro sistema simplemente, navegamos a él y lo actualizamos con: 
 
-    ```
-    git pull
-    ```
+	```
+	git pull
+	```
 
 1. Finalmente  ejecutar :
 
-    ```
-    bash ./build-server.sh
-    ```
+	```
+	bash ./build-server.sh
+	```
 
 ## Ejecutar el servidor en Linux
 
-1. El servidor se compila en la carpeta `./build/server`, por tanto:
+1. El servidor se compila en la carpeta `./build/server`, podemos navegar a esa carpeta y ejecutar:
 
-    ```
-    cd build/server
-    ./PONGSERVER -p DESIRED_PORT
-    ```
+	```
+	./PONGSERVER -p DESIRED_PORT
+	```
 
 ---
 
 ## Indicaciones para CentOS 7
 
 - Para instalar el compilador de C++ se puede hacer con:
-    ```
-    yum install devtoolset-7-gcc-c++ --enablerepo='centos-sclo-rh'
-    ```
+	```
+	yum install devtoolset-7-gcc-c++ --enablerepo='centos-sclo-rh'
+	```
 
 - Siempre que abramos una nueva sesión de consola será necesario ejecutar:
 
-    Para habilitar g++:
+	Para habilitar g++:
 
-    ```
-    scl enable devtoolset-7 'bash'
-    ```
+	```
+	scl enable devtoolset-7 'bash'
+	```
 
-    Para poder ejecutar la aplicación:
+	Para poder ejecutar la aplicación:
 
-    ```
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-    ```
+	```
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+	```
 
-    Cambiando `/usr/local/lib` por el directorio donde se haya instalado boost si es necesario.
+	Cambiando `/usr/local/lib` por el directorio donde se haya instalado boost si es necesario.
