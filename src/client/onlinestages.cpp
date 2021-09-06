@@ -86,8 +86,6 @@ ConnStage::ConnStage(HGameEngine* _engine):Stage(_engine){
 void ConnStage::onEnterStage(){
 
 	input->start();
-	//al_flush_event_queue(event_queue);
-	//connection->Reset();
 
 }
 
