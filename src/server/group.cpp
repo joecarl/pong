@@ -31,9 +31,34 @@ void Group::newGame(){
 
 void Group::addClient(Client* cl){
 
-	int playerID = this->clients.size();
+	int playerID;
 
-	this->clients.push_back(cl);
+	bool mustPush = true;
+
+	for(size_t i = 0; i < this->clients.size(); i++){//} &itCl: this->clients){
+		if (this->clients[i] == nullptr){
+			this->clients[i] = cl;
+			mustPush = false;
+			playerID = i;
+			break;
+		}
+	}
+
+	if(mustPush){
+		playerID = this->clients.size();
+		this->clients.push_back(cl);
+	}
+
+	cl->addEventListener("onDrop", [this, playerID, cl](){
+
+		//cout << "onDrop event callback!!" << endl;
+
+		if (this->clients[playerID] == cl ){
+			this->clients[playerID] = nullptr;
+			cout << "Client #" << playerID << " dropped from group" << endl;
+		}
+		
+	});
 
 	if(playerID < 2 ){
 		
@@ -56,6 +81,15 @@ void Group::addClient(Client* cl){
 			//if(evtType == "set_control_state"){//if scope == game-event
 				cout << pkg << endl;
 
+				unsigned int origTick = pkg["tick"].as_int64();
+
+				unsigned int tickDiff = 0;
+
+				if(origTick < this->game->tick){
+					tickDiff = this->game->tick - origTick;
+					cout << "Tick diff: " << tickDiff << endl;
+				}
+
 				pkg["playerKey"] = playerID;
 				pkg["tick"] = this->game->tick + 4;
 
@@ -68,15 +102,7 @@ void Group::addClient(Client* cl){
 		};
 
 	}
-/*
-	auto numClients = this->clients.size();
 
-	if(numClients == 2){
-		
-		this->startGame();
-
-	}
-*/
 }
 
 void Group::process_event(boost::json::object &evt){

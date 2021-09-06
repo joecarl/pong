@@ -6,6 +6,12 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <queue>
+#include <vector>
+
+struct EventListener{
+	std::string evtName;
+	std::function<void()> cb;
+};
 
 class Client{
 
@@ -13,6 +19,7 @@ class Client{
 	int pkgs_recv = 0;
 	int pkgs_sent = 0;
 
+	std::vector<EventListener> evtListeners;
 	//conn vars
 	std::queue<std::string> pkg_queue;
 	std::string pending_data = "";
@@ -40,6 +47,10 @@ public:
 	~Client();
 
 	void async_wait_for_data();
+
+	void addEventListener(const std::string &evtName, const std::function<void()> &fn);
+	
+	void triggerEvent(std::string evtName);
 	
 	void qsend(std::string pkg, bool ignore_busy = false);
 

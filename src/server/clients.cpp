@@ -41,6 +41,23 @@ Client::~Client(){
 }
 
 
+
+void Client::addEventListener(const std::string &evtName, const std::function<void()> &fn){
+	
+	this->evtListeners.push_back({evtName, fn});
+
+}
+
+void Client::triggerEvent(std::string evtName){
+	
+	for(auto &ev: this->evtListeners){
+		if(ev.evtName == evtName){
+			ev.cb();
+		}
+	}
+
+}
+
 void Client::process_request(std::string request){
 	
 	boost::json::value q = boost::json::parse( request );
@@ -113,6 +130,7 @@ void Client::handle_qsent_content( const boost::system::error_code& error, std::
 	if(error){
 		cout << "Error occurred (SEND)[C" << this->id_client << "]: " << error << endl;
 		this->dead = true;
+		this->triggerEvent("onDrop");
 		return;
 	}
 
@@ -161,6 +179,7 @@ void Client::handle_read_content(const boost::system::error_code& error, std::si
 
 		cout << "Error occurred (READ)[C" << this->id_client << "]: " << error << endl;
 		this->dead = true;
+		this->triggerEvent("onDrop");
 		return;
 	}
 	//std::cout << "Data received[C" << this->id_client << "]: ";
