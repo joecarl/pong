@@ -55,7 +55,7 @@ void AllegroHandler::createComponents(){
 		al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	}
 
-	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_REQUIRE);
+	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
 
 	//ALLEGRO_DISPLAY_MODE disp_data;
 		
