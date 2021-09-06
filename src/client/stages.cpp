@@ -274,15 +274,16 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 
 		if(gameHandler.playMode == PLAYMODE_ONLINE){
 				
-			boost::json::value inputEvt;
-			//inputEvt.emplace_null();
-			
 			if(controlP1 != CONTROL_NONE){
 
+				boost::json::value inputEvt;
+				//inputEvt.emplace_null();
+			
 				inputEvt = {
 					{"type", "set_control_state"},
 					{"state", newSt},
-					{"control", controlP1}
+					{"control", controlP1},
+					{"tick", gameHandler.pongGame->tick}
 				};
 
 				cout << "Sending: " << inputEvt << endl;
@@ -333,11 +334,16 @@ void GameStage::onTick(){
 		return;
 	}
 
-	//if(keys[ALLEGRO_KEY_G]) players[0]->medlen += 1;//DEBUG
 	if(gameHandler.playMode == PLAYMODE_ONLINE){
 
 		controller.onTick();
 	
+	} else {
+
+		if(this->engine->keys[ALLEGRO_KEY_G]) {
+			//gameHandler.pongGame->players[0]->medlen += 1;//DEBUG
+		}
+
 	}
 
 	gameHandler.pongGame->processTick();
