@@ -12,7 +12,7 @@
 #define LOGO_DIR "../Resources/pong.bmp"
 #define FONT_DIR "../Resources/font.ttf"
 
-#elif defined _WIN32 || defined _WIN64
+#else //if defined _WIN32 || defined _WIN64
 #define LONG_DIR "resources/long.bmp"
 #define BALL_DIR "resources/ball.bmp"
 #define LOGO_DIR "resources/pong.bmp"
