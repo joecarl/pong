@@ -306,7 +306,7 @@ void Element::processColliding(){
 	//CHOQUE CON LA PALA IZDA
 	if(x <= (radius + GROSOR)){
 
-		if(fabs(y-players[0]->getY()) < (players[0]->medlen + radius) && x > (GROSOR)){
+		if(fabs(y - players[0]->getY()) < (players[0]->medlen + radius + 2) && x > (GROSOR)){
 
 			 this->onPlayerHit(players[0]);
 			
@@ -315,10 +315,9 @@ void Element::processColliding(){
 	}
 
 	//CHOQUE CON LA PALA DCHA
-	
 	if(x >= (320 - radius - GROSOR)){
 
-		if(fabs(y - players[1]->getY()) < (players[1]->medlen + radius) && x < (320 - GROSOR)){
+		if(fabs(y - players[1]->getY()) < (players[1]->medlen + radius + 2) && x < (320 - GROSOR)){
 
 			this->onPlayerHit(players[1]);
 			
