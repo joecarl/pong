@@ -62,21 +62,37 @@ int main(int argc, char **argv){
 
 	try{
 
-		string readBuffer;
+		if(argc > 1){
 
-		perform_request("https://copinstar.com/pong/version/", &readBuffer);
-		
-		cout << "Last version: " << readBuffer << endl;
+			if( strcmp(argv[1], "checkout") == 0 ){
 
-		
-		cout << "Downloading ..." << endl;
+				string readBuffer;
 
-		FILE *fp = fopen("newpong.exe", "wb");
-		perform_request("https://copinstar.com/pong/asdf.zip", fp, READ_TO_FILE);
-		fclose(fp);
+				perform_request("https://copinstar.com/pong/version/", &readBuffer);
+				
+				cout << readBuffer << endl;
+			
+			}
 
-		cout << "Finished" << endl;
-		
+			else if( strcmp(argv[1], "update") == 0 ){
+				
+				cout << "Downloading ..." << endl;
+
+				FILE *fp = fopen("newpong.exe", "wb");
+				perform_request("https://copinstar.com/pong/asdf.zip", fp, READ_TO_FILE);
+				fclose(fp);
+
+				cout << "Finished" << endl;
+			}
+
+		} else {
+
+			cout << "Testing updater..." << endl;
+
+			Sleep(1000 * 10);
+
+		}
+
 		return 0;
 
 	} catch (exception &e) {
