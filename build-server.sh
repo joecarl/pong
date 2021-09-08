@@ -5,12 +5,12 @@
 
 SRC_DIR=./src/server
 BUILD_DIR=./build/server
+OBJ_DIR=./obj/server
 
 GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR -IC:/msys64/mingw64/include/freetype2"
 
-mkdir ./build > /dev/null 2>&1
-mkdir $BUILD_DIR > /dev/null 2>&1
-mkdir $BUILD_DIR/obj > /dev/null 2>&1
+mkdir -p $BUILD_DIR > /dev/null 2>&1
+mkdir -p $OBJ_DIR > /dev/null 2>&1
 
 scripts=()
 scripts+=(/../ponggame)
@@ -25,7 +25,7 @@ for SCRIPT in ${scripts[@]}; do
 
 	basename=${SCRIPT##*/}
 	source_file=$SRC_DIR/$SCRIPT.cpp
-	target_file=$BUILD_DIR/obj/$basename.o
+	target_file=$OBJ_DIR/$basename.o
 
 	if [ "$source_file" -nt "$target_file" ]; then
 		echo "Compiling "$SCRIPT" -> "$basename".o ..."
@@ -52,7 +52,7 @@ else
 	EXECNAME="PONGSERVER"
 fi
 
-g++ -o $BUILD_DIR/$EXECNAME $BUILD_DIR/obj/* $LINKERLIBS
+g++ -o $BUILD_DIR/$EXECNAME $OBJ_DIR/* $LINKERLIBS
 
 if [ $? -ne 0 ]; then
 	echo "Linking ERROR! Exiting...";
