@@ -33,6 +33,7 @@
 
 #build-dir
 build/
+obj/
 
 #vscode config
 .vscode/
