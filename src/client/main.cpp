@@ -3,13 +3,27 @@
 #include <stdexcept>
 
 #include "hengine.h"
+#include "../utils.h"
+
+#define CURR_VERSION "1.2"
 
 using namespace std;
 
 int main(int argc, char **argv){
 
 	try{
-		
+
+		string v = trim(exec("updater checkout"));
+
+		cout << "Version checkout: " << v << "(" << v.length() << ")" << endl;
+
+		if(v.length() > 0 && v != CURR_VERSION){
+
+			//system("updater &");
+			//here should open updater process
+			return 0;
+		}
+
 		HGameEngine gameEngine;
 		
 		gameEngine.setStage(MENU);
