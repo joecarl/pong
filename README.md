@@ -7,16 +7,18 @@ El proyecto intenta mantener la mayor simpleza posible pero con una infraestruct
 Este proyecto tiene dos dependencias principales:
 
 - Allego v5.2.6+ (sólo para el cliente)
-- Boost v1.75+
+- Boost v1.75+ (utilizado principalmente para la comunicación entre sockets TCP/IP)
 
-## Para compilar el proyecto en windows es necesario preparar la siguiente configuración:
+## Para compilar el proyecto en Windows es necesario preparar la siguiente configuración:
 
 1. Instalar GIT for windows (no es totalmente necesario pero recomendable si se va a participar en el desarrollo).
 1. Instalar MSYS2 de 64 bits descargado de https://www.msys2.org/ *[1]
 1. Desde MSYS2-MSYS actualizar los paquetes con `pacman -Syuu` hasta que no se pueda más (mirar el tutorial de instalación por si acaso).
 1. Desde MSYS2-MSYS navegar al directorio del proyecto y ejecutar `bash installdeps.sh`.
 1. Ejecutar `bash win-build.sh` (esto se puede hacer desde Git Bash).
-1. Para lanzar la aplicación utilizar `bash win-run.sh`. Este comando incluye en el PATH la carpeta `bin` de mingw64. Por ahora para distribuir la aplicación sería necesario copiar una gran cantidad de DLLs de dicha carpeta. 
+1. Para lanzar la aplicación utilizar `bash win-run.sh` (también se puede hacer desde Git Bash).
+
+Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella nos dará error por falta de DLLs. Este último comando incluye en el PATH la carpeta `bin` de mingw64, lo que soluciona este problema. Por ahora, para distribuir la aplicación sería necesario copiar una gran cantidad de DLLs de dicha carpeta. 
 
 
 ## Compilar el servidor en Linux
