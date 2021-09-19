@@ -87,6 +87,11 @@ void ConnStage::onEnterStage(){
 
 	input->start();
 
+	this->engine->touchKeys.clearButtons();
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_ENTER, "Enter");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_ESCAPE, "Esc");
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
+
 }
 
 void ConnStage::onEvent(ALLEGRO_EVENT event){
@@ -99,21 +104,6 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 
 				input->processKey(event.keyboard.unichar, event.keyboard.keycode);
 
-			} else {
-
-				input->finish();
-				server = input->getValue();
-
-				if (server == ""){
-
-					server = this->engine->cfg["defaultServer"].as_string().c_str();
-
-				}
-
-				unsigned short port = (unsigned short) this->engine->cfg["defaultPort"].as_int64();
-							
-				this->engine->connection.connect(server, port);
-				
 			}
 
 		}
@@ -124,9 +114,27 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 		int keycode = event.keyboard.keycode;
 
 		if(keycode == ALLEGRO_KEY_ESCAPE){//ESC (SALIR)
+
 			al_rest(0.2);
 			input->active = false;
 			this->engine->setStage(MENU);
+
+		}
+		else if (keycode == ALLEGRO_KEY_ENTER) {
+
+			input->finish();
+			server = input->getValue();
+
+			if (server == ""){
+
+				server = this->engine->cfg["defaultServer"].as_string().c_str();
+
+			}
+
+			unsigned short port = (unsigned short) this->engine->cfg["defaultPort"].as_int64();
+						
+			this->engine->connection.connect(server, port);
+			
 		}
 
 	}
@@ -170,12 +178,13 @@ void ConnStage::draw(){
 				
 		} else if(connState == CONNECTION_STATE_DISCONNECTED) {
 			
-			al_draw_text(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
+			//al_draw_text(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
+			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Error: could not connect to %s", server.c_str());
 			
 		} else if (connState == CONNECTION_STATE_CONNECTED) {
 
 			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
-			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Wait please %s", pts.c_str());
+			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Please wait %s", pts.c_str());
 		
 		}
 
@@ -197,6 +206,12 @@ LobbyStage::LobbyStage(HGameEngine* _engine):Stage(_engine){
 
 
 void LobbyStage::onEnterStage(){
+
+	
+	this->engine->touchKeys.clearButtons();
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_ENTER, "Enter");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_ESCAPE, "Esc");
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
 
 	this->ready = false;
 

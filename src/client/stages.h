@@ -63,6 +63,8 @@ class MainMenuStage: public Stage{
 public:
 
 	MainMenuStage(HGameEngine* _engine);
+	
+	void onEnterStage();
 
 	void onTick();
 

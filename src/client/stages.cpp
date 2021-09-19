@@ -19,7 +19,6 @@
 using namespace std;
 
 
-
 void GameHandler::setup(int _playMode, int _controlMode){
 
 	this->playMode = _playMode;
@@ -92,11 +91,26 @@ GameHandler gameHandler;
 
 MainMenuStage::MainMenuStage(HGameEngine* _engine):Stage(_engine){
 	
-	this->logo = al_load_bitmap(LOGO_DIR);
+	this->logo = load_bitmap(LOGO_DIR);
 
 	//std::cout << "MainMenuStage init" << std::endl;
 
 }
+
+
+void MainMenuStage::onEnterStage(){
+
+	this->engine->touchKeys.clearButtons();
+
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_1, "1");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_2, "2");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_3, "3");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_4, "4");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_ESCAPE, "ESC");
+
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
+}
+
 
 void MainMenuStage::onTick(){
 
@@ -159,10 +173,10 @@ void MainMenuStage::draw(){
 	ALLEGRO_FONT* font = this->engine->font;
 
 	al_draw_bitmap(this->logo, (sc - 1) * DEF_W / 2, (sc - 1) * 50, 0);
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 110, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 140, ALLEGRO_ALIGN_CENTER, "1:One Player  2:Two Players");
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 150, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 165, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
+	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
+	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 130, ALLEGRO_ALIGN_CENTER, "1:One Player  2:Two Players");
+	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 140, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
+	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 155, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
 
 	////al_draw_textf(font,WHITE,20, 75, ALLEGRO_ALIGN_LEFT,"%f", sin(x)*sin(x));
 	
@@ -214,6 +228,14 @@ void GameStage::drawScores(){
 }
 
 void GameStage::onEnterStage(){
+	
+	this->engine->touchKeys.clearButtons();
+
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_UP, "");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_DOWN, "");
+
+	this->engine->touchKeys.fitButtons(FIT_VERTICAL);
+
 
 	if(gameHandler.playMode == PLAYMODE_ONLINE){
 
@@ -566,6 +588,13 @@ void Tracer::drawPlayer(PlayerP *pl, int scale){
 
 
 void GameOverStage::onEnterStage(){
+
+	this->engine->touchKeys.clearButtons();
+
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_Y, "Y");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_N, "N");
+
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
 	
 }
 
