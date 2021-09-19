@@ -73,19 +73,19 @@ bool file_exists(const std::string& name) {
 
 string exec(const char* cmd) {
 
-    array<char, 128> buffer;
-    string result;
-    unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+	array<char, 128> buffer;
+	string result;
+	unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
 
-    if (!pipe) {
-        throw runtime_error("popen() failed!");
-    }
+	if (!pipe) {
+		throw runtime_error("popen() failed!");
+	}
 
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
+	while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+		result += buffer.data();
+	}
 
-    return result;
+	return result;
 
 }
 
@@ -94,9 +94,9 @@ string exec(const char* cmd) {
 // trim from start (in place)
 string ltrim(string s) {
 
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }));
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	}));
 
 	return s;
 
@@ -105,9 +105,9 @@ string ltrim(string s) {
 // trim from end (in place)
 string rtrim(string s) {
 
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
+	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+		return !std::isspace(ch);
+	}).base(), s.end());
 
 	return s;
 
@@ -116,8 +116,8 @@ string rtrim(string s) {
 // trim from both ends (in place)
 string trim(string s) {
 
-    s = ltrim(s);
-    s = rtrim(s);
+	s = ltrim(s);
+	s = rtrim(s);
 
 	return s;
 
