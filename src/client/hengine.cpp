@@ -9,6 +9,9 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#ifdef ALLEGRO_ANDROID
+#include <allegro5/allegro_android.h> /* al_android_set_apk_file_interface */
+#endif
 
 #include <iostream>
 
@@ -42,6 +45,13 @@ void AllegroHandler::initializeResources(){
 	if (!al_install_keyboard()) {
 		throw std::runtime_error("could not init keyboard!");
 	}
+	if (!al_install_touch_input()) {
+		throw std::runtime_error("could not init touch input!");
+	}
+	
+	#ifdef ALLEGRO_ANDROID
+	al_android_set_apk_file_interface();
+	#endif
 
 	cout << "Allegro initialized" << endl;
 
@@ -55,6 +65,7 @@ void AllegroHandler::createComponents(){
 		al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 	}
 
+	//al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
 	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
 
 	//ALLEGRO_DISPLAY_MODE disp_data;
@@ -68,23 +79,10 @@ void AllegroHandler::createComponents(){
 	if(!display){
 		throw std::runtime_error("failed to create display!");
 	}
-	
-	int windowWidth = al_get_display_width(display);
-	int windowHeight = al_get_display_height(display);
-	
+
 	this->buffer = al_create_bitmap(screenWidth, screenHeight);
 
-	// calculate scaling factor
-	float sx = float(windowWidth) / screenWidth;
-	float sy = float(windowHeight) / screenHeight;
-
-	float scaled = std::min(sx, sy);
-
-	// calculate how much the buffer should be scaled
-	this->scaleW = screenWidth * scaled;
-	this->scaleH = screenHeight * scaled;
-	this->scaleX = (windowWidth - scaleW) / 2;
-	this->scaleY = (windowHeight - scaleH) / 2;
+	this->fitDisplay();
 
 	if(!windowed){
 		al_hide_mouse_cursor(display);
@@ -103,6 +101,7 @@ void AllegroHandler::createComponents(){
 	this->timer = al_create_timer(1.0 / TICKS_PER_SECOND);
 	this->event_queue = al_create_event_queue();
 
+	al_register_event_source(event_queue, al_get_touch_input_event_source());
 	al_register_event_source(event_queue, al_get_display_event_source(display));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
@@ -110,6 +109,37 @@ void AllegroHandler::createComponents(){
 	al_start_timer(timer);
 	
 }
+
+
+void AllegroHandler::fitDisplay(){
+
+	int windowWidth = al_get_display_width(display);
+	int windowHeight = al_get_display_height(display);
+
+	// calculate scaling factor
+	float sx = float(windowWidth) / screenWidth;
+	float sy = float(windowHeight) / screenHeight;
+
+	this->scaled = std::min(sx, sy);
+
+	// calculate how much the buffer should be scaled
+	this->scaleW = screenWidth * scaled;
+	this->scaleH = screenHeight * scaled;
+	this->scaleX = (windowWidth - scaleW) / 2;
+	this->scaleY = (windowHeight - scaleH) / 2;
+
+}
+
+
+Point AllegroHandler::getMappedCoordinates(int realX, int realY){
+
+	return {
+		(int)((realX - scaleX) / scaled),
+		(int)((realY - scaleY) / scaled)	
+	};
+
+}
+
 
 void AllegroHandler::startDrawing(){
 
@@ -167,7 +197,7 @@ void Stage::onEnterStage(){
 //-----------------------------------------------------------------------------
 //----------------------------- [HGameEngine] ---------------------------------
 
-HGameEngine::HGameEngine(){
+HGameEngine::HGameEngine():touchKeys(this){
 
 	string customCfgFilePath = "cfg.json";
 	string defaultCfgFilePath = "resources/defaultCfg.json";
@@ -228,6 +258,8 @@ void HGameEngine::run(){
 	cout << "Main loop starts" << endl;
 
 	ALLEGRO_EVENT event;
+
+	bool drawingHalted = false;
 	
 	do{
 
@@ -235,8 +267,18 @@ void HGameEngine::run(){
 		if(
 			event.type == ALLEGRO_EVENT_KEY_CHAR || 
 			event.type == ALLEGRO_EVENT_KEY_DOWN ||
-			event.type == ALLEGRO_EVENT_KEY_UP
+			event.type == ALLEGRO_EVENT_KEY_UP ||
+			event.type == ALLEGRO_EVENT_TOUCH_BEGIN ||
+			event.type == ALLEGRO_EVENT_TOUCH_END ||
+			event.type == ALLEGRO_EVENT_TOUCH_MOVE
 		){
+			
+			this->touchKeys.redefineTouchEvent(event);
+
+			if(event.keyboard.keycode == ALLEGRO_KEY_BACK){
+				//Bind back button to Escape key
+				event.keyboard.keycode = ALLEGRO_KEY_ESCAPE;
+			}
 			this->onEvent(event);
 		}
 
@@ -244,16 +286,31 @@ void HGameEngine::run(){
 			break;
 		}
 
+		else if(event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING) {
+			drawingHalted = true;
+			al_acknowledge_drawing_halt(event.display.source);
+		}
+
+		else if(event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING) {
+			drawingHalted = false;
+			al_acknowledge_drawing_resume(event.display.source);
+		}
+
+		else if(event.type == ALLEGRO_EVENT_DISPLAY_RESIZE){
+			al_acknowledge_resize(event.display.source);
+			this->allegroHnd->fitDisplay();
+		}
+
 		else if(event.type == ALLEGRO_EVENT_TIMER){
 
 			this->runTick();
 
-			if(al_event_queue_is_empty(this->allegroHnd->event_queue)){
+			if(!drawingHalted && al_event_queue_is_empty(this->allegroHnd->event_queue)){
 				
 				this->allegroHnd->startDrawing();
 				
 				this->draw();
-
+				
 				this->allegroHnd->finishDrawing();
 
 			}
@@ -320,6 +377,12 @@ void HGameEngine::draw(){
 	Stage* activeStage = (Stage*) this->stages[this->activeStageID];
 
 	activeStage->draw();
+
+	#ifdef ALLEGRO_ANDROID
+	this->touchKeys.draw();
+    #endif
+
+	//al_draw_text(font, al_map_rgb(255, 255, 0), 5, 20, ALLEGRO_ALIGN_LEFT, this->debugTxt.c_str());
 
 	//std::cout << "done!" << std::endl;
 

@@ -2,6 +2,7 @@
 #define HENGINE_H
 
 #include "ioclient.h"
+#include "touchkeys.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
@@ -20,6 +21,9 @@ enum {
 	MAX_SCREENS
 };
 
+struct Point{
+	int x, y;
+};
 
 class AllegroHandler{
 	
@@ -35,6 +39,8 @@ class AllegroHandler{
 	// how much the buffer should be scaled
 	int scaleW, scaleH, scaleX, scaleY;
 
+	float scaled;
+
 public:
 	
 	ALLEGRO_EVENT_QUEUE *event_queue;
@@ -44,6 +50,10 @@ public:
 	void initializeResources();
 
 	void createComponents();
+
+	Point getMappedCoordinates(int realX, int realY);
+
+	void fitDisplay();
 
 	void startDrawing();
 
@@ -79,9 +89,13 @@ class HGameEngine{
 
 	bool mustRunOnEnterStage = false;
 
+public:
+
+	std::string debugTxt = "";
+
 	AllegroHandler* allegroHnd;
 
-public:
+	TouchKeys touchKeys;
 
 	IoClient connection;
 	
