@@ -12,8 +12,6 @@
 #include <boost/thread.hpp>
 #include <boost/json.hpp>
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <chrono>
 #include <queue>
 
