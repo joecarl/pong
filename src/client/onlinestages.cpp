@@ -90,7 +90,7 @@ void ConnStage::onEnterStage(){
 	this->engine->touchKeys.clearButtons();
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_ENTER, "Enter");
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_ESCAPE, "Esc");
-	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 10);
 
 }
 
@@ -211,7 +211,7 @@ void LobbyStage::onEnterStage(){
 	this->engine->touchKeys.clearButtons();
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_ENTER, "Enter");
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_ESCAPE, "Esc");
-	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 10);
 
 	this->ready = false;
 

@@ -108,7 +108,7 @@ void MainMenuStage::onEnterStage(){
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_4, "4");
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_ESCAPE, "ESC");
 
-	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 10);
 }
 
 
@@ -231,10 +231,10 @@ void GameStage::onEnterStage(){
 	
 	this->engine->touchKeys.clearButtons();
 
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_UP, "");
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_DOWN, "");
+	this->engine->touchKeys.addButton(ALLEGRO_KEY_UP, "");
 
-	this->engine->touchKeys.fitButtons(FIT_VERTICAL);
+	this->engine->touchKeys.fitButtons(FIT_HORIZONTAL);
 
 
 	if(gameHandler.playMode == PLAYMODE_ONLINE){
@@ -594,7 +594,7 @@ void GameOverStage::onEnterStage(){
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_Y, "Y");
 	this->engine->touchKeys.addButton(ALLEGRO_KEY_N, "N");
 
-	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 22);
+	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 10);
 	
 }
 
