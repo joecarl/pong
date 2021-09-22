@@ -88,7 +88,8 @@ public:
 
 	//void addEventListener(std::string &evtName, std::function<void>& fn);
 
-	void addMessage(std::string evtMsg);
+	//void addMessage(std::string evtMsg);
+	void addMessage(const std::string& evtMsg);
 	
 
 	/**

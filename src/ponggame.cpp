@@ -1,14 +1,28 @@
 #include "ponggame.h"
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <iostream>
-
+#include <sstream>
+/*
+#ifdef __ANDROID__
+#include <android/log.h>
+#define APPNAME "Ponggame"
+#endif 
+*/
 #define INIX 160
 #define INIY 100
 
 using namespace std;
-
+/*
+void log(const string& txt){
+	#ifdef ANDROID
+	__android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", txt.c_str());
+	#else 
+	cout << txt;
+	#endif
+}
+*/
 PongGame::PongGame(uint_fast32_t _seed){
 
 	this->seed = _seed;
@@ -27,18 +41,24 @@ PongGame::PongGame(uint_fast32_t _seed){
 
 }
 
+uint32_t countR = 0;
+
 double PongGame::random(double min, double max, bool rand_sign, bool include_max){
 
-	double real_max = (double)this->mt->max() + (include_max ? 0 : 1);
+	double real_max = (double)mt19937::max() + (include_max ? 0 : 1);
 
 	double rnd_factor = (double)(*this->mt)() / real_max;
 	//cout << "max: " << real_max << " | rnd_factor: " << rnd_factor << endl;
 	double num = min + rnd_factor * (max - min);
 	
-	if(rand_sign && (*this->mt)() > this->mt->max() / 2){
+	if(rand_sign && (*this->mt)() > mt19937::max() / 2){
 		num = -num;
 	}
-
+	/*
+	std::stringstream logg;
+	logg << "R" << countR++ << ": "<< num << endl;
+	log(logg.str());
+	*/
 	return num;
 }
 
@@ -52,10 +72,14 @@ int PongGame::intRandom(int min, int max, bool rand_sign){
 	//cout << "[" << min << ", " << max << "] --> " << res << endl;
 	res += min;
 
-	if(rand_sign && (*mt)() > mt->max() / 2){
+	if(rand_sign && (*mt)() > mt19937::max() / 2){
 		res = -res;
 	}
-
+	/*
+	std::stringstream logg;
+	logg << "R" << countR++ << ": "<< res << endl;
+	log(logg.str());
+	*/
 	return res;
 
 }
@@ -89,11 +113,10 @@ void PongGame::iniciarPunto(int first){
 		tvx = (int)ball->getvX();
 	}
 	
-	for(int i = 0; i < 2; i++){
-		players[i]->medlen = MEDLEN; 
+	for(auto & player: players){
+		player->medlen = MEDLEN; 
 		for(int j = 0; j < BONUS_MAX; j++){
-			players[i]->bonus_timers[j] = 0;
-
+			player->bonus_timers[j] = 0;
 		}
 	}
 
@@ -105,10 +128,9 @@ void PongGame::iniciarPunto(int first){
 
 void PongGame::giveScore(PlayerP* pl, int score){
 
-	for(unsigned int i = 0; i < 2; i++){
-		PlayerP* iterPl = this->players[i];
-		if(iterPl != pl){
-			iterPl->racha = 0;
+	for(auto & player: players){
+		if(player != pl){
+			player->racha = 0;
 		}
 	}
 	
@@ -131,7 +153,7 @@ void PongGame::addEventListener(string &evtName, function<void>& fn){
 }
 */
 
-void PongGame::addMessage(std::string evtMsg){
+void PongGame::addMessage(const std::string& evtMsg){
 
 	this->messages.push(evtMsg);
 
@@ -196,9 +218,7 @@ void PongGame::processTick(){
 
 	ball->process();
 
-	for(int i = 0; i < 2; i++){
-
-		PlayerP* pl = this->players[i];
+	for(auto & pl: players){
 
 		for(int j = 0; j < BONUS_MAX; j++){
 			if(pl->bonus_timers[j] > 0){
@@ -208,23 +228,27 @@ void PongGame::processTick(){
 
 	}
 
-	for(int i = 0; i < 2; i++){
-
-		Bonus *b = bonus[i];
+	for(auto & b: bonus){
 
 		if( b->getStat() == 0 ){
 
-			if( b->cooldown == 0 && this->intRandom(0, 100) == 0 ){
+			if( b->cooldown == 0 ){
 
-				b->setParameters(
-					this->random(100, 240), 
-					this->random(70, 130), 
-					this->random(1.5, 2.0, true), 
-					this->random(1.5, 2.0, true)
-				);
-				b->cooldown = 1000;
+				/**
+				 * random generation order must be well defined so we cannot call directly 
+				 * in the function call since parameter parsing order is undefined
+				 */
 
-			} else if(b->cooldown > 0) {
+				double p1 = this->random(100, 240);
+				double p2 = this->random(70, 130);
+				double p3 =	this->random(1.5, 2.0, true);
+				double p4 =	this->random(1.5, 2.0, true);
+
+				b->setParameters( p1, p2, p3, p4 );
+
+				b->cooldown = 1000 + this->intRandom(0, 1000);
+
+			} else {
 
 				b->cooldown--;
 
