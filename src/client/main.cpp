@@ -5,7 +5,7 @@
 #include "hengine.h"
 #include "../utils.h"
 
-#define CURR_VERSION "1.2"
+#define CURR_VERSION "1.3"
 
 using namespace std;
 
