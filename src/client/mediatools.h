@@ -22,7 +22,7 @@ void  PlaySound(int nota, float time, int octava = 4);
 
 //void  ShowKeyBoardMatrix();
 
-ALLEGRO_BITMAP* load_bitmap(std::string filename);
+ALLEGRO_BITMAP* load_bitmap(const std::string& filename);
 
 void PlayAudio(float volumen = 1.0, ALLEGRO_PLAYMODE mode = ALLEGRO_PLAYMODE_ONCE);
 

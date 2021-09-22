@@ -45,7 +45,7 @@ void Controller::onTick(){
 	while(this->evt_queue.size() > 0){
 
 		auto evt = this->evt_queue.front();
-		unsigned int evtTick = (unsigned int)evt["tick"].as_int64();
+		auto evtTick = (unsigned int)evt["tick"].as_int64();
 
 		if(evtTick == this->game->tick){
 
@@ -125,13 +125,13 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 			input->finish();
 			server = input->getValue();
 
-			if (server == ""){
+			if (server.empty()){
 
 				server = this->engine->cfg["defaultServer"].as_string().c_str();
 
 			}
 
-			unsigned short port = (unsigned short) this->engine->cfg["defaultPort"].as_int64();
+			auto port = (unsigned short) this->engine->cfg["defaultPort"].as_int64();
 						
 			this->engine->connection.connect(server, port);
 			

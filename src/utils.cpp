@@ -45,7 +45,7 @@ std::string extract_pkg(std::string& raw){
 
 }
 
-std::string file_get_contents(std::string filepath){
+std::string file_get_contents(const std::string& filepath){
 
 	std::ifstream ifs(filepath);
 	std::string content;

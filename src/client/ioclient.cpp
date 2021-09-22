@@ -28,7 +28,7 @@ int64_t time_ms(){
 
 }
 
-void IoClient::connect(string host, unsigned short port){
+void IoClient::connect(const string& host, unsigned short port){
 
 	this->connection_state = CONNECTION_STATE_CONNECTING;
 	
@@ -123,7 +123,7 @@ int IoClient::get_state(){
 
 }
 
-void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt)> _cb){
+void IoClient::qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb){
 	
 	if(this->busy){
 		this->pkg_queue.push({pkg, _cb});
@@ -131,11 +131,11 @@ void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt
 	}
 
 	this->busy = true;
-
+/*
 	auto handler = boost::bind(&IoClient::handle_qsent_content, this,
 							   asio::placeholders::error(),
 							   asio::placeholders::bytes_transferred());
-
+*/
 	pkg += "\r\n\r\n";
 
 	if(_cb != nullptr){
@@ -153,6 +153,10 @@ void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt
 		}
 	}
 
+	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred){
+		this->handle_qsent_content(error, bytes_transferred);
+	};
+
 	asio::async_write(socket, asio::buffer(pkg), handler);
 	
 	pkgs_sent ++;
@@ -160,10 +164,14 @@ void IoClient::qsend(std::string pkg, std::function<void(boost::json::object& pt
 }
 
 void IoClient::qread(){
-
+/*
 	auto handler = boost::bind(&IoClient::handle_qread_content, this,
 							   asio::placeholders::error(),
 							   asio::placeholders::bytes_transferred());
+*/
+	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred){
+		this->handle_qread_content(error, bytes_transferred);
+	};
 
 	socket.async_read_some(asio::buffer(read_buffer, 1024), handler);
 

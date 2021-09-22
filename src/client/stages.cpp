@@ -14,7 +14,7 @@
 #include <allegro5/allegro_audio.h>
 #include <boost/json.hpp>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

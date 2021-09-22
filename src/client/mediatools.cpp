@@ -2,7 +2,7 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-#include <math.h>
+#include <cmath>
 #include <string>
 #include <cstdlib>
 #include <iostream>
@@ -35,9 +35,9 @@ void PlaySound(int nota, float time, int octava) {
 void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode){
 
 	al_stop_samples();
-	ALLEGRO_SAMPLE *beep = NULL;
+	ALLEGRO_SAMPLE *beep = nullptr;
 
-	uint16_t* buff = (uint16_t*)al_malloc(last_pos*sizeof(uint16_t));
+	auto buff = (uint16_t*)al_malloc(last_pos*sizeof(uint16_t));
 	if (volumen > 1) volumen = 1;
 	else if (volumen < 0) volumen = 0;
 	for (int i = 0; i < last_pos; i++) {
@@ -46,10 +46,10 @@ void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode){
 
 	beep = al_create_sample (buff, last_pos, FREC_MUESTREO, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_1, true);
    
-	if(beep != NULL){
+	if(beep != nullptr){
 		//printf("construyendo sample...\n");
 		
-		al_play_sample(beep, 1.0, 0, 1.0, mode, NULL);
+		al_play_sample(beep, 1.0, 0, 1.0, mode, nullptr);
 		//al_rest(last_pos/FREC_MUESTREO);
 		//al_stop_sample(&sampleid);
 		//al_destroy_sample(beep);
@@ -83,7 +83,7 @@ void PlayExorcista(){
 }
 
 
-ALLEGRO_BITMAP* load_bitmap(string filename){
+ALLEGRO_BITMAP* load_bitmap(const string& filename){
 
 	cout << "Loading bitmap: " << filename << endl;
 

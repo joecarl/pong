@@ -75,13 +75,13 @@ public:
 
 	~IoClient();
 
-	void connect(std::string addr, unsigned short port);
+	void connect(const std::string& addr, unsigned short port);
 
 	int get_state();
 
 	//void send(std::string pkg, std::function<void(std::string& res)> _cb);
 
-	void qsend(std::string pkg, std::function<void(boost::json::object& pt)> _cb = nullptr);
+	void qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb = nullptr);
 
 	void qread();
 
