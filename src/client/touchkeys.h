@@ -31,7 +31,7 @@ class Button{
 	bool pressed;
 
 	TouchKeys* touchKeys;
-	
+
 public:
 
 	Button(TouchKeys * tKeys, unsigned int keycode, std::string txt);
@@ -63,6 +63,10 @@ class TouchKeys{
 
 	HGameEngine* engine;
 
+	
+	unsigned int side; 
+	unsigned int size;
+
 public:
 
 	TouchKeys(HGameEngine* engine);
@@ -72,6 +76,8 @@ public:
 	void addButton(unsigned int keycode, std::string txt);
 
 	void fitButtons(unsigned int side, unsigned int size = 0);
+
+	void reArrange();
 
 	void redefineTouchEvent(ALLEGRO_EVENT &evt);
 

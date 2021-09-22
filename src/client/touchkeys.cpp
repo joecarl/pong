@@ -69,21 +69,21 @@ bool Button::inArea(int px, int py){
 
 void Button::draw(){
 
-	if(text == ""){
+	if(text.empty()){
 		return;
 	}
 
-	al_draw_rounded_rectangle(x, y, x + w, y + h, 3, 3, al_map_rgb(255, 255, 255), 2);
+	al_draw_rectangle(x + 1, y, x + w, y + h - 1, al_map_rgb(255, 255, 255), 1);
 	
 	if(pressed){
-		al_draw_filled_rounded_rectangle(x, y, x + w, y + h, 3, 3, al_map_rgb(200, 125, 155));
+		al_draw_filled_rectangle(x + 1, y + 1, x + w, y + h - 1, al_map_rgb(200, 125, 155));
 	}
 
 	al_draw_text(
 		this->touchKeys->getEngine()->font, 
 		al_map_rgb(255, 255, 255), 
 		x + w / 2, 
-		y + h / 2 - 5, 
+		y + h / 2 - 8, 
 		ALLEGRO_ALIGN_CENTER,
 		text.c_str()
 	);
@@ -137,7 +137,7 @@ void TouchKeys::addButton(unsigned int keycode, string txt){
 
 }
 
-
+/*
 void TouchKeys::fitButtons(unsigned int side, unsigned int size){
 
 	unsigned int width, height;
@@ -172,7 +172,55 @@ void TouchKeys::fitButtons(unsigned int side, unsigned int size){
 	}
 
 }
+*/
 
+
+void TouchKeys::fitButtons(unsigned int side, unsigned int size){
+
+	this->side = side;
+	this->size = size;
+
+	this->reArrange();
+
+}
+
+void TouchKeys::reArrange(){
+
+	int windowW = this->engine->allegroHnd->getWindowWidth() / this->engine->allegroHnd->getScaled();
+	int windowH = this->engine->allegroHnd->getWindowHeight() / this->engine->allegroHnd->getScaled();
+
+	unsigned int width, height;
+
+	if(side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL){
+		width = windowW / buttons.size();
+		height = side == FIT_HORIZONTAL ? windowH : windowH * size / 100;
+	}
+	else if(side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL){
+		height = windowH / buttons.size();
+		width = side == FIT_VERTICAL ? windowW : windowW * size / 100;
+	}
+
+	unsigned int i = 0;
+
+	for(auto &btn: buttons){
+
+		if(side == FIT_TOP || side == FIT_HORIZONTAL){
+			btn.setDimensions(i * width, 0, width, height);
+		}
+		else if(side == FIT_RIGHT){
+			btn.setDimensions(windowW - width, i * height, width, height);
+		}
+		else if(side == FIT_BOTTOM){
+			btn.setDimensions(i * width, windowH - height, width, height);
+		}
+		else if(side == FIT_LEFT || side == FIT_VERTICAL){
+			btn.setDimensions(0, i * height, width, height);
+		}
+
+		i++;
+	}
+
+}
 
 void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt){
 
@@ -182,11 +230,13 @@ void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt){
 			{
 				int touchID = evt.touch.id;
 				this->engine->debugTxt = "ID BEGIN: " + to_string(touchID);
-				auto mappedPt = this->engine->allegroHnd->getMappedCoordinates(evt.touch.x, evt.touch.y);
+				//auto mappedPt = this->engine->allegroHnd->getMappedCoordinates(evt.touch.x, evt.touch.y);
+				float scaled = this->engine->allegroHnd->getScaled();
 
 				for(auto& btn: buttons){
 
-					if(btn.inArea(mappedPt.x, mappedPt.y)){
+					//if(btn.inArea(mappedPt.x, mappedPt.y)){
+					if(btn.inArea(evt.touch.x / scaled, evt.touch.y / scaled)){
 						evt.type = ALLEGRO_EVENT_KEY_DOWN;
 						evt.keyboard.keycode = btn.getKeycode();
 						btn.setPressed(touchID);
