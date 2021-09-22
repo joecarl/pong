@@ -81,6 +81,7 @@ void AllegroHandler::createComponents(){
 	}
 
 	this->buffer = al_create_bitmap(screenWidth, screenHeight);
+	this->secBuffer = nullptr;
 
 	this->fitDisplay();
 
@@ -111,10 +112,24 @@ void AllegroHandler::createComponents(){
 }
 
 
+int AllegroHandler::getWindowWidth(){
+	
+	return al_get_display_width(display);
+
+}
+
+int AllegroHandler::getWindowHeight(){
+	
+	return al_get_display_height(display);
+	
+}
+
+
+
 void AllegroHandler::fitDisplay(){
 
-	int windowWidth = al_get_display_width(display);
-	int windowHeight = al_get_display_height(display);
+	this->windowWidth = al_get_display_width(display);
+	this->windowHeight = al_get_display_height(display);
 
 	// calculate scaling factor
 	float sx = float(windowWidth) / screenWidth;
@@ -122,11 +137,24 @@ void AllegroHandler::fitDisplay(){
 
 	this->scaled = std::min(sx, sy);
 
+	#ifdef __ANDROID__
+	if(screenHeight * scaled > 0.85 * this->windowHeight){
+		this->scaled *= 0.85;
+	}
+	#endif
+
 	// calculate how much the buffer should be scaled
 	this->scaleW = screenWidth * scaled;
 	this->scaleH = screenHeight * scaled;
 	this->scaleX = (windowWidth - scaleW) / 2;
 	this->scaleY = (windowHeight - scaleH) / 2;
+
+	if(this->secBuffer){
+		al_destroy_bitmap(this->secBuffer);
+	}
+
+	this->secBuffer = al_create_bitmap(windowWidth / this->scaled, windowHeight / this->scaled);
+	
 
 }
 
@@ -140,21 +168,49 @@ Point AllegroHandler::getMappedCoordinates(int realX, int realY){
 
 }
 
-
 void AllegroHandler::startDrawing(){
 
-	al_set_target_bitmap(buffer);
+	al_set_target_backbuffer(display);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
+
+}
+
+void AllegroHandler::prepareMainSurface(){
+
+	al_set_target_bitmap(buffer);
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+}
+
+void AllegroHandler::drawMainSurface(){
+
+	al_set_target_backbuffer(display);
+	al_draw_scaled_bitmap(buffer, 0, 0, screenWidth, screenHeight, scaleX, scaleY, scaleW, scaleH, 0);
+
+}
+
+void AllegroHandler::prepareSecSurface(){
+
+	al_set_target_bitmap(secBuffer);
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+}
+
+void AllegroHandler::drawSecSurface(){
+
+	al_set_target_backbuffer(display);
+	al_draw_scaled_bitmap(secBuffer, 0, 0, windowWidth / this->scaled, windowHeight / this->scaled, 0, 0, this->windowWidth, this->windowHeight, 0);
+
 }
 
 void AllegroHandler::finishDrawing(){
-	
-	al_set_target_backbuffer(display);
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	al_draw_scaled_bitmap(buffer, 0, 0, screenWidth, screenHeight, scaleX, scaleY, scaleW, scaleH, 0);
-	
+
 	al_wait_for_vsync();
 	al_flip_display();
+
+}
+
+float AllegroHandler::getScaled(){
+
+	return this->scaled;
 
 }
 
@@ -226,7 +282,7 @@ HGameEngine::HGameEngine():touchKeys(this){
 
 		this->cfg["windowed"] = false;
 		this->cfg["defaultServer"] = "copinstar.com";
-		this->cfg["defaultPort"] = 28090;
+		this->cfg["defaultPort"] = 51009;
 
 	}
 
@@ -239,7 +295,7 @@ HGameEngine::HGameEngine():touchKeys(this){
 	this->allegroHnd->createComponents();
 
 	for (unsigned int i = 0; i < sizeof(keys); i++){
-		keys[i] = 0;
+		keys[i] = false;
 	}
 
 	font = al_load_ttf_font(FONT_DIR, scale * 10, ALLEGRO_TTF_MONOCHROME);
@@ -299,6 +355,7 @@ void HGameEngine::run(){
 		else if(event.type == ALLEGRO_EVENT_DISPLAY_RESIZE){
 			al_acknowledge_resize(event.display.source);
 			this->allegroHnd->fitDisplay();
+			this->touchKeys.reArrange();
 		}
 
 		else if(event.type == ALLEGRO_EVENT_TIMER){
@@ -306,12 +363,8 @@ void HGameEngine::run(){
 			this->runTick();
 
 			if(!drawingHalted && al_event_queue_is_empty(this->allegroHnd->event_queue)){
-				
-				this->allegroHnd->startDrawing();
-				
+
 				this->draw();
-				
-				this->allegroHnd->finishDrawing();
 
 			}
 
@@ -319,10 +372,11 @@ void HGameEngine::run(){
 
 	} while(!this->finish);
 
-	cout << "Execution finished by user" << endl;
-	al_rest(0.5);
-
+	cout << "Cleaning up..." << endl;
+	
 	this->allegroHnd->cleanup();
+
+	cout << "Execution finished correctly." << endl;
 
 }
 
@@ -355,7 +409,7 @@ void HGameEngine::runTick(){
 
 	//std::cout << "runTick... ";
 
-	Stage* activeStage = (Stage*) this->stages[this->activeStageID];
+	auto activeStage = (Stage*) this->stages[this->activeStageID];
 
 	if(this->mustRunOnEnterStage){
 		activeStage->onEnterStage();
@@ -369,20 +423,30 @@ void HGameEngine::runTick(){
 }
 
 void HGameEngine::draw(){
-	
+
+	this->allegroHnd->startDrawing();
 	//std::cout << "drawing... ";
+	this->allegroHnd->prepareMainSurface();
 
 	this->calcFPS();
-	
-	Stage* activeStage = (Stage*) this->stages[this->activeStageID];
+
+	auto activeStage = (Stage*) this->stages[this->activeStageID];
 
 	activeStage->draw();
 
+	//al_draw_text(font, al_map_rgb(255, 255, 0), 5, 20, ALLEGRO_ALIGN_LEFT, this->debugTxt.c_str());
+
+	this->allegroHnd->drawMainSurface();
+	
+	this->allegroHnd->prepareSecSurface();
+	
 	#ifdef ALLEGRO_ANDROID
 	this->touchKeys.draw();
-    #endif
+	#endif
+	
+	this->allegroHnd->drawSecSurface();
 
-	//al_draw_text(font, al_map_rgb(255, 255, 0), 5, 20, ALLEGRO_ALIGN_LEFT, this->debugTxt.c_str());
+	this->allegroHnd->finishDrawing();
 
 	//std::cout << "done!" << std::endl;
 
@@ -390,7 +454,7 @@ void HGameEngine::draw(){
 
 void HGameEngine::onEvent(ALLEGRO_EVENT event){
 
-	Stage* activeStage = (Stage*) this->stages[this->activeStageID];
+	auto activeStage = (Stage*) this->stages[this->activeStageID];
 
 	if(event.type == ALLEGRO_EVENT_KEY_DOWN){
 		

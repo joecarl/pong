@@ -36,8 +36,11 @@ class AllegroHandler{
 	int screenWidth, screenHeight;
 
 	ALLEGRO_BITMAP *buffer;
+	ALLEGRO_BITMAP *secBuffer;
 	// how much the buffer should be scaled
 	int scaleW, scaleH, scaleX, scaleY;
+
+	int windowWidth, windowHeight;
 
 	float scaled;
 
@@ -55,9 +58,23 @@ public:
 
 	void fitDisplay();
 
+	int getWindowWidth();
+
+	int getWindowHeight();
+
 	void startDrawing();
 
+	void prepareMainSurface();
+
+	void drawMainSurface();
+
+	void prepareSecSurface();
+
+	void drawSecSurface();
+
 	void finishDrawing();
+
+	float getScaled();
 
 	void cleanup();
 
