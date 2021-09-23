@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include <curl/curl.h>
+#include "../../utils.h"
 
 using namespace std;
 
@@ -57,40 +58,39 @@ CURLcode perform_request(const char* url, void *readBuffer, int readType = READ_
 
 }
 
+string get_remote_version_num(){
+
+	string readBuffer;
+
+	perform_request("https://copinstar.com/pong/version/", &readBuffer);
+	
+	return readBuffer;
+
+}
+
+void download_remote_version(){
+	
+	cout << "Downloading ..." << endl;
+
+	FILE *fp = fopen("newpong.exe", "wb");
+	perform_request("https://copinstar.com/pong/asdf.zip", fp, READ_TO_FILE);
+	fclose(fp);
+
+	cout << "Finished" << endl;
+}
+
 
 int main(int argc, char **argv){
 
 	try{
 
-		if(argc > 1){
+		string v = trim(exec("PONG --version"));
+		string rv = get_remote_version_num();
 
-			if( strcmp(argv[1], "checkout") == 0 ){
-
-				string readBuffer;
-
-				perform_request("https://copinstar.com/pong/version/", &readBuffer);
-				
-				cout << readBuffer << endl;
-			
-			}
-
-			else if( strcmp(argv[1], "update") == 0 ){
-				
-				cout << "Downloading ..." << endl;
-
-				FILE *fp = fopen("newpong.exe", "wb");
-				perform_request("https://copinstar.com/pong/asdf.zip", fp, READ_TO_FILE);
-				fclose(fp);
-
-				cout << "Finished" << endl;
-			}
-
+		if(v != rv){
+			cout << "New version available " << rv << endl;
 		} else {
-
-			cout << "Testing updater..." << endl;
-
-			Sleep(1000 * 10);
-
+			cout << "Already up to date" << endl;
 		}
 
 		return 0;

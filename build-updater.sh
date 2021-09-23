@@ -14,6 +14,7 @@ mkdir -p $BUILD_DIR > /dev/null 2>&1
 
 scripts=()
 scripts+=(main)
+scripts+=(../../utils)
 
 for SCRIPT in ${scripts[@]}; do
 

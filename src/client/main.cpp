@@ -13,6 +13,11 @@ int main(int argc, char **argv){
 
 	try{
 
+		if(argc == 2 && strcmp(argv[1], "--version") == 0){
+			cout << CURR_VERSION;
+			return 0;
+		}
+		/*
 		string v = trim(exec("updater checkout"));
 
 		cout << "Version checkout: " << v << "(" << v.length() << ")" << endl;
@@ -23,7 +28,7 @@ int main(int argc, char **argv){
 			//here should open updater process
 			return 0;
 		}
-
+		*/
 		HGameEngine gameEngine;
 		
 		gameEngine.setStage(MENU);
