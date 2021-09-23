@@ -3,6 +3,7 @@
 
 #include <random>
 #include <queue>
+#include <ctime>
 
 #define GROSOR  3
 #define MEDLEN  9
@@ -74,7 +75,7 @@ public:
 
 	std::queue<std::string> messages;
 	
-	PongGame(uint_fast32_t _seed = time(nullptr));
+	PongGame(uint_fast32_t _seed = std::time(nullptr));
 
 	void restart();
 
