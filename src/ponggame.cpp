@@ -290,7 +290,7 @@ void Element::process(){
 		this->processColliding();
 		
 		if(x < -80 || x > DEF_W + 50){
-			stat = 0;
+			stat = false;
 		}
 
 	}

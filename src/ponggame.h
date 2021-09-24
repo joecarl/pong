@@ -118,7 +118,7 @@ class Element{
 
 public:
 
-	int stat = 0;
+	bool stat = false;
 
 	double x, y, x00, y00, radius;
 	
