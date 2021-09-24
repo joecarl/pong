@@ -38,9 +38,7 @@ void GameHandler::makeNewPongGame(int_fast32_t seed){
 
 void GameHandler::cleanup(){
 
-	if(pongGame != nullptr){
-		delete pongGame;
-	}
+	delete pongGame;
 
 }
 
@@ -241,8 +239,7 @@ void GameStage::onEnterStage(){
 
 		this->engine->connection.process_actions_fn = [&](boost::json::object& evt){
 
-			cout << "QUEUED: " << evt << endl;
-			controller.evt_queue.push(evt);
+			controller.push_event(evt);
 			
 		};
 
@@ -275,8 +272,14 @@ void GameStage::onEvent(ALLEGRO_EVENT evt){
 		}
 
 		else if(kCode == ALLEGRO_KEY_P){//P (PAUSA)
-			
-			gameHandler.pongGame->togglePause();
+
+			if(gameHandler.playMode == PLAYMODE_ONLINE){
+
+			} else {
+
+				gameHandler.pongGame->togglePause();
+
+			}
 
 		}
 
@@ -353,8 +356,18 @@ void GameStage::onTick(){
 
 	if(gameHandler.playMode == PLAYMODE_ONLINE){
 
-		controller.onTick();
-	
+		try{
+
+			controller.onTick();
+
+		} catch (std::exception& e){
+
+			boost::json::object pkg = {{"type", "desync"}}; //play_again
+			
+			this->engine->connection.qsend(boost::json::serialize(pkg));
+
+		}
+
 	} else {
 
 		if(this->engine->keys[ALLEGRO_KEY_G]) {
