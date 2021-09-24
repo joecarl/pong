@@ -75,9 +75,15 @@ void Button::draw(){
 
 	al_draw_rectangle(x + 1, y, x + w, y + h - 1, al_map_rgb(255, 255, 255), 1);
 	
+	ALLEGRO_COLOR bgcolor;
+
 	if(pressed){
-		al_draw_filled_rectangle(x + 1, y + 1, x + w, y + h - 1, al_map_rgb(200, 125, 155));
+		bgcolor = al_map_rgb(200, 125, 155);
+	} else {
+		bgcolor = al_map_rgb(50, 50, 50);
 	}
+
+	al_draw_filled_rectangle(x + 1, y + 1, x + w - 1, y + h - 1, bgcolor);
 
 	al_draw_text(
 		this->touchKeys->getEngine()->font, 
