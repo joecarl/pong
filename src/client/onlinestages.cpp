@@ -7,6 +7,35 @@
 
 using namespace std;
 
+void Controller::push_event(boost::json::object &evt){
+
+	auto evtType = evt["type"].as_string();
+
+	if(evtType == "sync"){
+
+		
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+		cout << "SYNCING: " << evt << endl;
+
+		try{
+
+			this->syncGame(evt["gamevars"].as_object());
+
+		} catch (std::invalid_argument& e){
+			
+			cerr << "SYNC ERROR:  " <<  e.what() << endl;
+
+		}
+
+	} else {
+			
+		//cout << "QUEUED: " << evt << endl;
+
+		this->evt_queue.push(evt);
+
+	}
+	
+}
 
 void Controller::process_event(boost::json::object &evt){
 
@@ -22,11 +51,91 @@ void Controller::process_event(boost::json::object &evt){
 		
 		this->game->players[playerID]->controls[control] = newState;
 
+	} else if(evtType == "set_paused_state"){
+
+		bool newState = evt["state"].as_bool();
+		this->game->paused = newState;
+
 	} else {
+
 		cerr << "Unknown event type: " << evtType << endl;
+
 	}
 
 }
+
+
+void syncPlayer(PlayerP* p, boost::json::object& vars){
+
+	p->x = vars["x"].as_int64();
+	p->y = vars["y"].as_int64();
+	p->comTxtY = vars["comTxtY"].as_int64();
+
+	//std::string comTxt;
+
+	p->score = vars["score"].as_int64();
+	p->medlen = vars["medlen"].as_int64();
+	p->racha = vars["racha"].as_int64();
+
+	unsigned int i;
+	i = 0;
+	for(auto &v: vars["bonus_timers"].as_array()){
+		p->bonus_timers[i++] = boost::json::value_to<unsigned int>(v);
+	}
+
+	i = 0;
+	for(auto &v: vars["controls"].as_array()){
+		p->controls[i++] = v.as_bool();
+	}
+	
+}
+
+void syncElement(Element* e, boost::json::object& vars){
+
+	e->stat = vars["stat"].as_bool();
+	e->x = vars["x"].as_double();
+	e->y = vars["y"].as_double();
+	e->x00 = vars["x00"].as_double();
+	e->y00 = vars["y00"].as_double();
+	e->radius = vars["radius"].as_double();
+	e->vX = vars["vX"].as_double();
+	e->vY = vars["vY"].as_double();
+	e->t = vars["t"].as_double();
+
+}
+
+void syncBall(Ball* b, boost::json::object& vars){
+	
+	syncElement((Element*) b, vars);
+	
+}
+
+void syncBonus(Bonus* b, boost::json::object& vars){
+
+	syncElement((Element*) b, vars);
+	b->cooldown = vars["cooldown"].as_int64();
+	
+}
+
+
+void Controller::syncGame(boost::json::object& vars){
+
+	this->game->tick = boost::json::value_to<unsigned int>(vars["tick"]);
+	this->game->paused = vars["paused"].as_bool();
+
+	cout << "sync players ..." << endl;
+	syncPlayer(this->game->players[0], vars["p0vars"].as_object());
+	syncPlayer(this->game->players[1], vars["p1vars"].as_object());
+	
+	cout << "sync bonus ..." << endl;
+	syncBonus(this->game->bonus[0], vars["bonus0vars"].as_object());
+	syncBonus(this->game->bonus[1], vars["bonus1vars"].as_object());
+
+	cout << "sync ball ..." << endl;
+	syncBall(this->game->ball, vars["ballvars"].as_object());
+
+}
+
 
 
 void Controller::setup(PongGame *game){
@@ -55,8 +164,10 @@ void Controller::onTick(){
 
 		} else if (evtTick < this->game->tick){
 
-			cerr << "evtTick: " << evtTick << " | gameTick: " << this->game->tick << endl;
+			cerr << "DESYNC! evtTick: " << evtTick << " | gameTick: " << this->game->tick << endl;
 
+			this->evt_queue.pop();
+		
 			throw std::runtime_error("Evento perdido");
 
 		} else {

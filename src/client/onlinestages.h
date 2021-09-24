@@ -14,7 +14,11 @@ class Controller{ //GameTickSync (only for PLAYMODE_ONLINE)
 
 	void process_event(boost::json::object &evt);
 
+	void syncGame(boost::json::object& evt);
+
 public:
+
+	void push_event(boost::json::object &evt);
 
 	std::queue<boost::json::object> evt_queue;
 
