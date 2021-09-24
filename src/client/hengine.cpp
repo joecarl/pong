@@ -362,7 +362,7 @@ void HGameEngine::run(){
 
 			this->runTick();
 
-			if(!drawingHalted && al_event_queue_is_empty(this->allegroHnd->event_queue)){
+			if(!drawingHalted && al_is_event_queue_empty(this->allegroHnd->event_queue)){
 
 				this->draw();
 
