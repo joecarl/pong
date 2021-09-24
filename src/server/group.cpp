@@ -2,6 +2,90 @@
 
 using namespace std;
 
+
+boost::json::object exportPlayer(PlayerP* p){
+
+	boost::json::object o;
+
+	o["x"] = p->x;
+	o["y"] = p->y;
+	o["comTxtY"] = p->comTxtY;
+	o["score"] = p->score;
+	o["medlen"] = p->medlen;
+	o["racha"] = p->racha;
+
+	boost::json::array arr1;
+	for(auto &v: p->bonus_timers){
+		arr1.push_back(v);
+	}
+	o["bonus_timers"] = arr1;
+
+	boost::json::array arr2;
+	for(auto &v: p->controls){
+		arr2.push_back(v);
+	}
+	o["controls"] = arr2;
+	
+	return o;
+
+}
+
+boost::json::object exportElement(Element* e){
+
+	boost::json::object o;
+
+	o = {
+		{"stat", e->stat},
+		{"x", e->x},
+		{"y", e->y},
+		{"x00", e->x00},
+		{"y00", e->y00},
+		{"radius", e->radius},
+		{"vX", e->vX},
+		{"vY", e->vY},
+		{"t", e->t}
+	};
+
+	return o;
+
+}
+
+boost::json::object exportBall(Ball* b){
+	
+	return exportElement((Element*) b);
+	
+}
+
+boost::json::object exportBonus(Bonus* b){
+
+	boost::json::object o = exportElement((Element*) b);
+	o["cooldown"] = b->cooldown;
+	
+	return o;
+
+}
+
+
+boost::json::object exportGame(PongGame* g){
+
+	boost::json::object o;
+
+	o = {
+		{"tick", g->tick},
+		{"paused", g->paused},
+		{"p0vars", exportPlayer(g->players[0])},
+		{"p1vars", exportPlayer(g->players[1])},
+		{"bonus0vars", exportBonus(g->bonus[0])},
+		{"bonus1vars", exportBonus(g->bonus[1])},
+		{"ballvars", exportBall(g->ball)}
+	};
+
+	return o;
+
+}
+
+
+
 Group::Group(){
 
 	this->newGame();
@@ -80,6 +164,15 @@ void Group::addClient(Client* cl){
 					this->startGame();
 				}
 
+			} else if(evtType == "desync"){
+
+				boost::json::object o = {
+					{"type", "sync"},
+					{"gamevars", exportGame(this->game)}
+				};
+
+				this->clients[playerID]->qsend(boost::json::serialize(o));
+
 			} else {
 
 			//if(evtType == "set_control_state"){//if scope == game-event
@@ -95,7 +188,7 @@ void Group::addClient(Client* cl){
 				}
 
 				pkg["playerKey"] = playerID;
-				pkg["tick"] = this->game->tick + 4;
+				pkg["tick"] = this->game->tick + 0;//4;
 
 				this->evt_queue.push(pkg);
 
