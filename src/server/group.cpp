@@ -188,7 +188,7 @@ void Group::addClient(Client* cl){
 				}
 
 				pkg["playerKey"] = playerID;
-				pkg["tick"] = this->game->tick + 0;//4;
+				pkg["tick"] = this->game->tick + 3; //TODO: auto calc tick delay based on clients connection?
 
 				this->evt_queue.push(pkg);
 
