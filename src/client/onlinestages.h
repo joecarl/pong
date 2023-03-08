@@ -8,7 +8,7 @@
 #include <boost/json.hpp>
 
 
-class Controller{ //GameTickSync (only for PLAYMODE_ONLINE)
+class Controller { //GameTickSync (only for PLAYMODE_ONLINE)
 
 	PongGame *game;
 
@@ -30,7 +30,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class ConnStage: public Stage{
+class ConnStage: public Stage {
 
 	JC_TEXTINPUT* input;
 
@@ -54,7 +54,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class LobbyStage: public Stage{
+class LobbyStage: public Stage {
 
 	JC_TEXTINPUT* input;
 

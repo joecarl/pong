@@ -13,21 +13,21 @@ using namespace std;
 
 Group group;
 
-Server::Server(int _port): io_context(), acceptor(io_context){
+Server::Server(int _port): io_context(), acceptor(io_context) {
 
 	this->port = _port;
 	this->endpoint = tcp::endpoint(tcp::v4(), port);
 
 	this->start_listening();
 
-	for(int i = 0; i < this->max_connections; i++){
+	for (int i = 0; i < this->max_connections; i++) {
 		clients[i] = nullptr;
 	}
 
 }
 
 
-void Server::remove_client(int idx){
+void Server::remove_client(int idx) {
 
 	delete clients[idx];
 
@@ -35,11 +35,11 @@ void Server::remove_client(int idx){
 
 }
 
-void Server::start_listening(){
+void Server::start_listening() {
 
 	boost::system::error_code ec;
 
-	if(!this->acceptor.is_open()){
+	if (!this->acceptor.is_open()) {
 		cout << "Opening acceptor " << this->endpoint << endl;
 
 		this->acceptor.open(this->endpoint.protocol());
@@ -53,13 +53,13 @@ void Server::start_listening(){
 }
 
 
-void Server::on_new_connection(tcp::socket socket){
+void Server::on_new_connection(tcp::socket socket) {
 
-	for(int i = 0; i < this->max_connections; i++){
+	for (int i = 0; i < this->max_connections; i++) {
 
 		cout << "Testing " << i << ": " << (clients[i] == nullptr ? "available!" : "busy") << endl;
 
-		if(clients[i] == nullptr){
+		if (clients[i] == nullptr) {
 
 			clients[i] = new Client(std::move(socket));
 			
@@ -78,11 +78,11 @@ void Server::on_new_connection(tcp::socket socket){
 }
 
 
-void Server::remove_dead_connections(){
+void Server::remove_dead_connections() {
 
-	for(int i = 0; i < this->max_connections; i++){
+	for (int i = 0; i < this->max_connections; i++) {
 
-		if(clients[i] != nullptr && clients[i]->is_dead()) {
+		if (clients[i] != nullptr && clients[i]->is_dead()) {
 			//get rid of dead connections
 			this->remove_client(i);
 		}
@@ -91,7 +91,7 @@ void Server::remove_dead_connections(){
 }
 
 
-void Server::wait_for_connection(){
+void Server::wait_for_connection() {
 
 	this->remove_dead_connections();
 
@@ -112,7 +112,7 @@ void Server::wait_for_connection(){
 }
 
 
-void Server::run(){
+void Server::run() {
 	
 	this->wait_for_connection();
 	

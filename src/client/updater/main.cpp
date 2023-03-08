@@ -7,7 +7,7 @@
 
 using namespace std;
 
-static size_t readToString(void *contents, size_t size, size_t nmemb, void *userp){
+static size_t readToString(void *contents, size_t size, size_t nmemb, void *userp) {
 
 	((string*)userp)->append((char*)contents, size * nmemb);
 
@@ -23,26 +23,26 @@ size_t readToFile(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 
 }
 
-enum{
+enum {
 	READ_TO_STRING = 0,
 	READ_TO_FILE
 };
 
-CURLcode perform_request(const char* url, void *readBuffer, int readType = READ_TO_STRING){
+CURLcode perform_request(const char* url, void *readBuffer, int readType = READ_TO_STRING) {
 
 	CURL *curl;
 	CURLcode res;
 	
 	curl = curl_easy_init();
 	
-	if(curl) {
+	if (curl) {
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 
-		if(readType == READ_TO_STRING){
+		if (readType == READ_TO_STRING) {
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, readToString);
-		} else if(readType == READ_TO_FILE){
+		} else if (readType == READ_TO_FILE) {
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, readToFile);
 		} else {
 			throw runtime_error("readType no valido");
@@ -58,7 +58,7 @@ CURLcode perform_request(const char* url, void *readBuffer, int readType = READ_
 
 }
 
-string get_remote_version_num(){
+string get_remote_version_num() {
 
 	string readBuffer;
 
@@ -68,7 +68,7 @@ string get_remote_version_num(){
 
 }
 
-void download_remote_version(){
+void download_remote_version() {
 	
 	cout << "Downloading ..." << endl;
 
@@ -80,14 +80,14 @@ void download_remote_version(){
 }
 
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
-	try{
+	try {
 
 		string v = trim(exec("PONG --version"));
 		string rv = get_remote_version_num();
 
-		if(v != rv){
+		if (v != rv) {
 			cout << "New version available " << rv << endl;
 		} else {
 			cout << "Already up to date" << endl;

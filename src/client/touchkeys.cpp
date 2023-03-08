@@ -20,45 +20,45 @@ touchKeys(tKeys)
 
 }
 
-void Button::setDimensions(int x, int y, int w, int h){
+void Button::setDimensions(int x, int y, int w, int h) {
 	this->x = x;
 	this->y = y;
 	this->w = w;
 	this->h = h;
 }
 
-void Button::setPressed(int newTouchID){
+void Button::setPressed(int newTouchID) {
 	
 	this->id = newTouchID;
 	this->pressed = true;
 
 }
 
-void Button::setReleased(){
+void Button::setReleased() {
 	
 	this->pressed = false;
 
 }
 
-int Button::getID(){
+int Button::getID() {
 
 	return this->id;
 
 }
 
-int Button::getKeycode(){
+int Button::getKeycode() {
 
 	return this->keycode;
 
 }
 
-bool Button::isPressed(){
+bool Button::isPressed() {
 
 	return this->pressed;
 
 }
 
-bool Button::inArea(int px, int py){
+bool Button::inArea(int px, int py) {
 
 	return
 		x < px && px < x + w &&
@@ -67,9 +67,9 @@ bool Button::inArea(int px, int py){
 
 }
 
-void Button::draw(){
+void Button::draw() {
 
-	if(text.empty()){
+	if (text.empty()) {
 		return;
 	}
 
@@ -77,7 +77,7 @@ void Button::draw(){
 	
 	ALLEGRO_COLOR bgcolor;
 
-	if(pressed){
+	if (pressed) {
 		bgcolor = al_map_rgb(200, 125, 155);
 	} else {
 		bgcolor = al_map_rgb(50, 50, 50);
@@ -100,23 +100,23 @@ void Button::draw(){
 //-------------------------------- TouchKeys ----------------------------------
 
 TouchKeys::TouchKeys(HGameEngine* engine):
-engine(engine){
+engine(engine) {
 
 }
 
 
-void TouchKeys::clearButtons(){
+void TouchKeys::clearButtons() {
 
 	vector<Button>().swap(buttons);
 
 }
 
 
-Button* TouchKeys::getPressedBtnByID(int id){
+Button* TouchKeys::getPressedBtnByID(int id) {
 	
-	for(auto &btn: buttons){
+	for (auto &btn: buttons) {
 		this->engine->debugTxt += " [btn" + to_string(btn.getID()) + "]"+(btn.isPressed() ? "P " : "NP ");
-		if(btn.isPressed() && btn.getID() == id){
+		if (btn.isPressed() && btn.getID() == id) {
 			return &btn;
 		}
 	}
@@ -126,16 +126,16 @@ Button* TouchKeys::getPressedBtnByID(int id){
 }
 
 
-void TouchKeys::draw(){
+void TouchKeys::draw() {
 	
-	for(auto& btn: buttons){
+	for (auto& btn: buttons) {
 		btn.draw();
 	}
 
 }
 
 
-void TouchKeys::addButton(unsigned int keycode, string txt){
+void TouchKeys::addButton(unsigned int keycode, string txt) {
 	
 	Button btn(this, keycode, txt);
 
@@ -144,33 +144,33 @@ void TouchKeys::addButton(unsigned int keycode, string txt){
 }
 
 /*
-void TouchKeys::fitButtons(unsigned int side, unsigned int size){
+void TouchKeys::fitButtons(unsigned int side, unsigned int size) {
 
 	unsigned int width, height;
 
-	if(side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL){
+	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
 		width = this->engine->resX / buttons.size();
 		height = side == FIT_HORIZONTAL ? this->engine->resY : size;
 	}
-	else if(side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL){
+	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
 		height = this->engine->resY / buttons.size();
 		width = side == FIT_VERTICAL ? this->engine->resX : size;
 	}
 
 	unsigned int i = 0;
 
-	for(auto &btn: buttons){
+	for (auto &btn: buttons) {
 
-		if(side == FIT_TOP || side == FIT_HORIZONTAL){
+		if (side == FIT_TOP || side == FIT_HORIZONTAL) {
 			btn.setDimensions(i * width, 0, width, height);
 		}
-		else if(side == FIT_RIGHT){
+		else if (side == FIT_RIGHT) {
 			btn.setDimensions(this->engine->resX - width, i * height, width, height);
 		}
-		else if(side == FIT_BOTTOM){
+		else if (side == FIT_BOTTOM) {
 			btn.setDimensions(i * width, this->engine->resY - height, width, height);
 		}
-		else if(side == FIT_LEFT || side == FIT_VERTICAL){
+		else if (side == FIT_LEFT || side == FIT_VERTICAL) {
 			btn.setDimensions(0, i * height, width, height);
 		}
 
@@ -181,7 +181,7 @@ void TouchKeys::fitButtons(unsigned int side, unsigned int size){
 */
 
 
-void TouchKeys::fitButtons(unsigned int side, unsigned int size){
+void TouchKeys::fitButtons(unsigned int side, unsigned int size) {
 
 	this->side = side;
 	this->size = size;
@@ -190,36 +190,36 @@ void TouchKeys::fitButtons(unsigned int side, unsigned int size){
 
 }
 
-void TouchKeys::reArrange(){
+void TouchKeys::reArrange() {
 
 	int windowW = this->engine->allegroHnd->getWindowWidth() / this->engine->allegroHnd->getScaled();
 	int windowH = this->engine->allegroHnd->getWindowHeight() / this->engine->allegroHnd->getScaled();
 
 	unsigned int width, height;
 
-	if(side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL){
+	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
 		width = windowW / buttons.size();
 		height = side == FIT_HORIZONTAL ? windowH : windowH * size / 100;
 	}
-	else if(side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL){
+	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
 		height = windowH / buttons.size();
 		width = side == FIT_VERTICAL ? windowW : windowW * size / 100;
 	}
 
 	unsigned int i = 0;
 
-	for(auto &btn: buttons){
+	for (auto &btn: buttons) {
 
-		if(side == FIT_TOP || side == FIT_HORIZONTAL){
+		if (side == FIT_TOP || side == FIT_HORIZONTAL) {
 			btn.setDimensions(i * width, 0, width, height);
 		}
-		else if(side == FIT_RIGHT){
+		else if (side == FIT_RIGHT) {
 			btn.setDimensions(windowW - width, i * height, width, height);
 		}
-		else if(side == FIT_BOTTOM){
+		else if (side == FIT_BOTTOM) {
 			btn.setDimensions(i * width, windowH - height, width, height);
 		}
-		else if(side == FIT_LEFT || side == FIT_VERTICAL){
+		else if (side == FIT_LEFT || side == FIT_VERTICAL) {
 			btn.setDimensions(0, i * height, width, height);
 		}
 
@@ -228,7 +228,7 @@ void TouchKeys::reArrange(){
 
 }
 
-void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt){
+void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt) {
 
 	switch (evt.type) {
 
@@ -239,10 +239,10 @@ void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt){
 				//auto mappedPt = this->engine->allegroHnd->getMappedCoordinates(evt.touch.x, evt.touch.y);
 				float scaled = this->engine->allegroHnd->getScaled();
 
-				for(auto& btn: buttons){
+				for (auto& btn: buttons) {
 
-					//if(btn.inArea(mappedPt.x, mappedPt.y)){
-					if(btn.inArea(evt.touch.x / scaled, evt.touch.y / scaled)){
+					//if (btn.inArea(mappedPt.x, mappedPt.y)) {
+					if (btn.inArea(evt.touch.x / scaled, evt.touch.y / scaled)) {
 						evt.type = ALLEGRO_EVENT_KEY_DOWN;
 						evt.keyboard.keycode = btn.getKeycode();
 						btn.setPressed(touchID);
@@ -257,7 +257,7 @@ void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt){
 				this->engine->debugTxt = "ID END: " + to_string(evt.touch.id);
 				Button *btn = this->getPressedBtnByID(evt.touch.id);
 
-				if(btn != nullptr){
+				if (btn != nullptr) {
 					evt.type = ALLEGRO_EVENT_KEY_UP;
 					evt.keyboard.keycode = btn->getKeycode();
 					btn->setReleased();

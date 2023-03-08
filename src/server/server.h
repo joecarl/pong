@@ -7,7 +7,7 @@
 
 #include "clients.h"
 
-class Server{
+class Server {
 
 	int port;
 

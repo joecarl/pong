@@ -9,7 +9,7 @@ class TouchKeys;
 
 class HGameEngine;
 
-enum{
+enum {
 	FIT_TOP = 1,
 	FIT_RIGHT,
 	FIT_BOTTOM,
@@ -18,7 +18,7 @@ enum{
 	FIT_HORIZONTAL
 };
 
-class Button{
+class Button {
 
 	int id;
 
@@ -55,7 +55,7 @@ public:
 };
 
 
-class TouchKeys{
+class TouchKeys {
 
 	std::vector<Button> buttons;
 
@@ -83,7 +83,7 @@ public:
 
 	void draw();
 
-	HGameEngine* getEngine(){
+	HGameEngine* getEngine() {
 		return this->engine;
 	}
 

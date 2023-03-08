@@ -22,18 +22,18 @@ enum {
 };
 
 
-struct callb{
+struct callb {
 	std::string name;
 	std::function<void(boost::json::object& pt)> cb;
 	std::chrono::time_point<std::chrono::high_resolution_clock> c_s;
 };
 
-struct qsend_item{
+struct qsend_item {
 	std::string pkg;
 	std::function<void(boost::json::object& pt)> _cb;
 };
 
-class IoClient{
+class IoClient {
 
 	int pkgs_sent = 0, pkgs_recv = 0;
 

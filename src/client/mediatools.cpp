@@ -22,7 +22,7 @@ void PlaySound(int nota, float time, int octava) {
 	time = float(ciclos) / frec;
 	unsigned int samples = FREC_MUESTREO * time / 1000.0;
 	
-	for(unsigned int i = 0; i < samples; i++){
+	for (unsigned int i = 0; i < samples; i++) {
 
 		audio[last_pos + i] = 30000 * sin(frec * 2 * 3.14 * i / FREC_MUESTREO) * sin(3.14 * i / samples);
 	
@@ -32,7 +32,7 @@ void PlaySound(int nota, float time, int octava) {
 	
 }
 
-void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode){
+void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode) {
 
 	al_stop_samples();
 	ALLEGRO_SAMPLE *beep = nullptr;
@@ -46,7 +46,7 @@ void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode){
 
 	beep = al_create_sample (buff, last_pos, FREC_MUESTREO, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_1, true);
    
-	if(beep != nullptr){
+	if (beep != nullptr) {
 		//printf("construyendo sample...\n");
 		
 		al_play_sample(beep, 1.0, 0, 1.0, mode, nullptr);
@@ -60,7 +60,7 @@ void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode){
 }
 
 #define o 3
-void PlayExorcista(){
+void PlayExorcista() {
 
 	PlaySound(Mi, 100, o);
 	PlaySound(La, 200, o);
@@ -83,14 +83,14 @@ void PlayExorcista(){
 }
 
 
-ALLEGRO_BITMAP* load_bitmap(const string& filename){
+ALLEGRO_BITMAP* load_bitmap(const string& filename) {
 
 	cout << "Loading bitmap: " << filename << endl;
 
 	ALLEGRO_BITMAP* sprite = al_load_bitmap(filename.c_str());
 	al_convert_mask_to_alpha(sprite, ALPHA_COLOR);
 
-	if(!sprite){
+	if (!sprite) {
 		throw std::runtime_error("error loading bitmap");
 	}
 
@@ -99,15 +99,15 @@ ALLEGRO_BITMAP* load_bitmap(const string& filename){
 }
 
 /*
-void ShowKeyBoardMatrix(){
+void ShowKeyBoardMatrix() {
 	int i,j;
 	acquire_screen();
 	clear_keybuf();
-	for(i=0;i<3;i++){
-		for(j=0;j<10;j++){
+	for (i=0;i<3;i++) {
+		for (j=0;j<10;j++) {
 			char a[2];
 			a[1]='\0';
-			if(key[KEY_A+i*10+j])a[0]='1';
+			if (key[KEY_A+i*10+j])a[0]='1';
 			else a[0]='0';
 
 			textout_ex(screen,font,a,(j+1)*10,(i+1)*10,makecol(255,255,255),makecol(0,0,0));
@@ -117,14 +117,14 @@ void ShowKeyBoardMatrix(){
 }
 */
 
-JC_TEXTINPUT::JC_TEXTINPUT(ALLEGRO_FONT* fuente){
+JC_TEXTINPUT::JC_TEXTINPUT(ALLEGRO_FONT* fuente) {
 	
 	font = fuente;//al_load_ttf_font("font.ttf", 2*9, 0);
 	reset();
 
 }
 
-void JC_TEXTINPUT::reset(){
+void JC_TEXTINPUT::reset() {
 
 	edittext = "";
 	iter = edittext.begin();
@@ -137,10 +137,10 @@ void JC_TEXTINPUT::reset(){
 
 void  JC_TEXTINPUT::processKey(wchar_t ASCII, int control_key) {
 
-	if(ASCII >= 32 && ASCII <= 126) {
+	if (ASCII >= 32 && ASCII <= 126) {
 		
 		// add the new char, inserting or replacing as need be
-		if(insert || iter == edittext.end())
+		if (insert || iter == edittext.end())
 			iter = edittext.insert(iter, ASCII);
 		else
 			edittext.replace(caret, 1, 1, ASCII);
@@ -152,14 +152,14 @@ void  JC_TEXTINPUT::processKey(wchar_t ASCII, int control_key) {
 	}
 
 	// some other, "special" key was pressed; handle it here
-	else switch(control_key){
+	else switch(control_key) {
 
 		case ALLEGRO_KEY_DELETE://delete
-			if(iter != edittext.end()) iter = edittext.erase(iter);
+			if (iter != edittext.end()) iter = edittext.erase(iter);
 			break;
 			
 		case ALLEGRO_KEY_BACKSPACE://backspace
-			if(iter != edittext.begin())
+			if (iter != edittext.begin())
 			{
 				caret--;
 				iter--;
@@ -168,11 +168,11 @@ void  JC_TEXTINPUT::processKey(wchar_t ASCII, int control_key) {
 			break;
 			
 		case ALLEGRO_KEY_RIGHT:
-			if(iter != edittext.end())   caret++, iter++;
+			if (iter != edittext.end())   caret++, iter++;
 			break;
 			
 		case ALLEGRO_KEY_LEFT:
-			if(iter != edittext.begin()) caret--, iter--;
+			if (iter != edittext.begin()) caret--, iter--;
 			break;
 			
 		case ALLEGRO_KEY_INSERT:
@@ -185,7 +185,7 @@ void  JC_TEXTINPUT::processKey(wchar_t ASCII, int control_key) {
 
 }
 
-void  JC_TEXTINPUT::draw(int x, int y){
+void  JC_TEXTINPUT::draw(int x, int y) {
 
 	al_draw_text(font, WHITE, x, y, ALLEGRO_ALIGN_LEFT, edittext.c_str());
 
@@ -213,20 +213,20 @@ void  JC_TEXTINPUT::draw(int x, int y){
 
 }
 
-void JC_TEXTINPUT::start(){
+void JC_TEXTINPUT::start() {
 
 	reset();
 	active = true;
 
 }
 
-void  JC_TEXTINPUT::finish(){
+void  JC_TEXTINPUT::finish() {
 
 	active = false;
 
 }
 
-std::string JC_TEXTINPUT::getValue(){
+std::string JC_TEXTINPUT::getValue() {
 
 	return edittext;
 

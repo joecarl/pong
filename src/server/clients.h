@@ -8,12 +8,12 @@
 #include <queue>
 #include <vector>
 
-struct EventListener{
+struct EventListener {
 	std::string evtName;
 	std::function<void()> cb;
 };
 
-class Client{
+class Client {
 
 	static int count_instances;
 

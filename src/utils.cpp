@@ -14,7 +14,7 @@
 
 using namespace std;
 
-string GetWaitString(){
+string GetWaitString() {
 
 	static string pts;
 	static int resize_timer = 0, pts_len = 0;
@@ -22,7 +22,7 @@ string GetWaitString(){
 	resize_timer++;
 	resize_timer = resize_timer % 30;
 	
-	if(resize_timer == 19){
+	if (resize_timer == 19) {
 		pts = "...";
 		pts.resize(++pts_len % 4);
 	}
@@ -30,13 +30,13 @@ string GetWaitString(){
 	return pts;
 }
 
-std::string extract_pkg(std::string& raw){
+std::string extract_pkg(std::string& raw) {
 	
 	std::string pkg = "";
 
 	auto pos = raw.find("\r\n\r\n");
 
-	if(pos != std::string::npos){
+	if (pos != std::string::npos) {
 		pkg = raw.substr(0, pos);
 		raw.erase(0, pos + 4);
 	}
@@ -45,7 +45,7 @@ std::string extract_pkg(std::string& raw){
 
 }
 
-std::string file_get_contents(const std::string& filepath){
+std::string file_get_contents(const std::string& filepath) {
 
 	std::ifstream ifs(filepath);
 	std::string content;
@@ -94,7 +94,7 @@ string exec(const char* cmd) {
 // trim from start (in place)
 string ltrim(string s) {
 
-	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+	s.erase(s.begin(), std::find_if (s.begin(), s.end(), [](unsigned char ch) {
 		return !std::isspace(ch);
 	}));
 
@@ -105,7 +105,7 @@ string ltrim(string s) {
 // trim from end (in place)
 string rtrim(string s) {
 
-	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+	s.erase(std::find_if (s.rbegin(), s.rend(), [](unsigned char ch) {
 		return !std::isspace(ch);
 	}).base(), s.end());
 

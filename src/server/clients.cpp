@@ -21,7 +21,7 @@ Client::Client(boost::asio::ip::tcp::socket _socket):
 }
 
 
-Client::~Client(){
+Client::~Client() {
 
 	this->socket.cancel();
 	this->socket.close();
@@ -29,17 +29,17 @@ Client::~Client(){
 }
 
 
-void Client::addEventListener(const std::string &evtName, const std::function<void()> &fn){
+void Client::addEventListener(const std::string &evtName, const std::function<void()> &fn) {
 	
 	this->evtListeners.push_back({evtName, fn});
 
 }
 
 
-void Client::triggerEvent(std::string evtName){
+void Client::triggerEvent(std::string evtName) {
 	
-	for(auto &ev: this->evtListeners){
-		if(ev.evtName == evtName){
+	for (auto &ev: this->evtListeners) {
+		if (ev.evtName == evtName) {
 			ev.cb();
 		}
 	}
@@ -47,11 +47,11 @@ void Client::triggerEvent(std::string evtName){
 }
 
 
-void Client::process_request(std::string request){
+void Client::process_request(std::string request) {
 	
 	boost::json::value q = boost::json::parse( request );
 
-	if ( !q.is_object() ){
+	if ( !q.is_object() ) {
 
 		cerr << "Not valid JSON" << endl << request << endl;
 		return;
@@ -62,14 +62,14 @@ void Client::process_request(std::string request){
 
 	auto evtType = evt["type"].get_string();
 
-	if(evtType == "ping"){
+	if (evtType == "ping") {
 
 		evt["type"] = "pong";
 		this->qsend(boost::json::serialize(evt));
 
 	} else {
 
-		if( this->on_pkg_received != nullptr){
+		if ( this->on_pkg_received != nullptr) {
 
 			this->on_pkg_received(evt);
 
@@ -80,9 +80,9 @@ void Client::process_request(std::string request){
 }
 
 
-void Client::qsend(std::string pkg, bool ignore_busy){
+void Client::qsend(std::string pkg, bool ignore_busy) {
 
-	if(this->busy && !ignore_busy){
+	if (this->busy && !ignore_busy) {
 		this->pkg_queue.push(pkg);
 		return;
 	}
@@ -94,7 +94,7 @@ void Client::qsend(std::string pkg, bool ignore_busy){
 							boost::asio::placeholders::error(),
 							boost::asio::placeholders::bytes_transferred());
 
-	if(pkg.length() > 1024 * 64){ //max 64kB (me lo estoy inventando a ver si cuela...)
+	if (pkg.length() > 1024 * 64) { //max 64kB (me lo estoy inventando a ver si cuela...)
 
 		this->pending_data = pkg.substr (1024 * 64);
 		pkg = pkg.substr (0, 1024 * 64);
@@ -114,16 +114,16 @@ void Client::qsend(std::string pkg, bool ignore_busy){
 }
 
 
-void Client::handle_qsent_content( const boost::system::error_code& error, std::size_t bytes_transferred){
+void Client::handle_qsent_content( const boost::system::error_code& error, std::size_t bytes_transferred) {
 
-	if(error){
+	if (error) {
 		cout << "Error occurred (SEND)[C" << this->id_client << "]: " << error << endl;
 		this->dead = true;
 		this->triggerEvent("onDrop");
 		return;
 	}
 
-	if (this->pending_data.length() > 0){
+	if (this->pending_data.length() > 0) {
 		cout << "bunch " << bytes_transferred << " (" << this->pending_data.length() << " remaining)"<< endl;
 		this->qsend(this->pending_data, true);
 		return;
@@ -131,7 +131,7 @@ void Client::handle_qsent_content( const boost::system::error_code& error, std::
 
 	this->busy = false;
 
-	if(!this->pkg_queue.empty()){
+	if (!this->pkg_queue.empty()) {
 		this->qsend(this->pkg_queue.front());
 		this->pkg_queue.pop();
 	}
@@ -139,14 +139,14 @@ void Client::handle_qsent_content( const boost::system::error_code& error, std::
 }
 
 
-bool Client::is_dead(){
+bool Client::is_dead() {
 	//return !this->socket.is_open();
 	return this->dead;
 }
 
 
 
-void Client::async_wait_for_data(){
+void Client::async_wait_for_data() {
 
 	auto handler = boost::bind(&Client::handle_read_content, this,
 								boost::asio::placeholders::error(),
@@ -158,9 +158,9 @@ void Client::async_wait_for_data(){
 }
 
 
-void Client::handle_read_content(const boost::system::error_code& error, std::size_t bytes_transferred){
+void Client::handle_read_content(const boost::system::error_code& error, std::size_t bytes_transferred) {
 
-	if(error){
+	if (error) {
 
 		cout << "Error occurred (READ)[C" << this->id_client << "]: " << error << endl;
 		this->dead = true;
@@ -174,7 +174,7 @@ void Client::handle_read_content(const boost::system::error_code& error, std::si
 	data = read_remainder + data;
 
 	string pkg;
-	while((pkg = extract_pkg(data)) != ""){
+	while ((pkg = extract_pkg(data)) != "") {
 		pkgs_recv ++;
 		//std::cout << " R:" << pkgs_recv << endl;
 

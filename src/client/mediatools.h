@@ -28,7 +28,7 @@ void PlayAudio(float volumen = 1.0, ALLEGRO_PLAYMODE mode = ALLEGRO_PLAYMODE_ONC
 
 void PlayExorcista();
 
-class JC_TEXTINPUT{
+class JC_TEXTINPUT {
 	
 	ALLEGRO_FONT* font;
 	std::string  edittext;	   // an empty string for editting
