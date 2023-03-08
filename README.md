@@ -1,4 +1,4 @@
-# pong
+# PONG
 
 Recreación del clásico juego PONG desarrollado en C++, además incluye opción de juego online. El objetivo de este proyecto es aprender los pricipios básicos de la programación de videojuegos, así como del desarrollo de aplicaciones online cliente/servidor.
 
@@ -11,7 +11,7 @@ Este proyecto tiene dos dependencias principales:
 
 ## Compilar en Windows
 
-1. Instalar GIT for windows (solamente si se va a participar en el desarrollo).
+1. Instalar GIT for windows (solamente si se pretende participar en el desarrollo).
 1. Instalar MSYS2 de 64 bits descargado de <https://www.msys2.org/>.
 1. Desde MSYS2-MSYS actualizar los paquetes con `pacman -Syuu` hasta que no se pueda más (mirar el tutorial de instalación por si acaso).
 1. Desde MSYS2-MSYS navegar al directorio del proyecto y ejecutar `bash installdeps.sh`.
