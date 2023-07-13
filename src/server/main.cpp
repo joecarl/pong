@@ -6,17 +6,17 @@
 
 using namespace std;
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
-	try{
+	try {
 
 		string port = "51009";
 
-		for(int i = 0; i < argc; i++){
+		for (int i = 0; i < argc; i++) {
 
 			string arg = argv[i];
 
-			if(arg == "-p" && i + 1 < argc){
+			if (arg == "-p" && i + 1 < argc) {
 				port = argv[++i];
 			}
 			

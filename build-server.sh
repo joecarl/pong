@@ -7,7 +7,7 @@ SRC_DIR=./src/server
 BUILD_DIR=./build/server
 OBJ_DIR=./obj/server
 
-GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR -IC:/msys64/mingw64/include/freetype2"
+GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR"
 
 mkdir -p $BUILD_DIR > /dev/null 2>&1
 mkdir -p $OBJ_DIR > /dev/null 2>&1

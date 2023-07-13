@@ -14,7 +14,7 @@
 #define DEF_W 320
 
 
-enum BonusType{
+enum BonusType {
 	BONUS_NONE = 0,
 	BONUS_LONG,
 	BONUS_IMPA,
@@ -22,7 +22,7 @@ enum BonusType{
 	BONUS_MAX
 };
 
-enum Control{
+enum Control {
 	CONTROL_NONE = 0,
 	CONTROL_MOVE_UP,
 	CONTROL_MOVE_DOWN,
@@ -35,14 +35,14 @@ class Ball;
 class Bonus;
 
 /*
-struct EvtListener{
+struct EvtListener {
 	std::string eventName;
 	std::function<void(void)> fn;
 };
 */
 
 
-enum{
+enum {
 	CONTROLMODE_NONE = 0,
 	CONTROLMODE_SINGLE_PLAYER,
 	CONTROLMODE_TWO_PLAYERS,
@@ -51,7 +51,7 @@ enum{
 };
 
 
-class PongGame{
+class PongGame {
 
 public:
 
@@ -114,7 +114,7 @@ public:
 };
 
 
-class Element{
+class Element {
 
 public:
 
@@ -132,27 +132,27 @@ public:
 	
 	void processColliding();
 
-	virtual void preprocess(){}
+	virtual void preprocess() {}
 
 	void process();//Moves, tests collinding and draws the element
 
-	int getStat(){ return stat; }
+	int getStat() { return stat; }
 
-	void setStat(int st){ stat = st; }
+	void setStat(int st) { stat = st; }
 
-	int getX(){ return x; }
+	int getX() { return x; }
 
-	int getY(){ return y; }
+	int getY() { return y; }
 
-	void setPos(int px, int py){x = x00 = px; y = y00 = py;}
+	void setPos(int px, int py) {x = x00 = px; y = y00 = py;}
 
-	double getvX(){ return vX; }
+	double getvX() { return vX; }
 	
-	virtual void onPlayerHit(PlayerP *pl){}
+	virtual void onPlayerHit(PlayerP *pl) {}
 };
 
 
-class Ball: public Element{
+class Ball: public Element {
 	
 public:
 
@@ -165,7 +165,7 @@ public:
 };
 
 
-class Bonus: public Element{
+class Bonus: public Element {
 	
 	public:
 
@@ -180,7 +180,7 @@ class Bonus: public Element{
 };
 
 
-class PlayerP{
+class PlayerP {
 
 	PongGame *game;	
 
@@ -210,13 +210,13 @@ public:
 
 	void movePerfect();
 
-	void setX(int px){ x = px; }
+	void setX(int px) { x = px; }
 
-	void setY(int py){ y = py; }
+	void setY(int py) { y = py; }
 
-	int getX(){ return x; }
+	int getX() { return x; }
 
-	int getY(){ return y; }
+	int getY() { return y; }
 
 };
 

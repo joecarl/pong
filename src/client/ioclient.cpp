@@ -10,11 +10,11 @@ using namespace std;
 
 namespace asio = boost::asio;
 
-IoClient::IoClient(): socket(io_context){
+IoClient::IoClient(): socket(io_context) {
 
 }
 
-int64_t time_ms(){
+int64_t time_ms() {
 	
 	/*
 	auto now = std::chrono::system_clock::now();
@@ -28,11 +28,11 @@ int64_t time_ms(){
 
 }
 
-void IoClient::connect(const string& host, unsigned short port){
+void IoClient::connect(const string& host, unsigned short port) {
 
 	this->connection_state = CONNECTION_STATE_CONNECTING;
 	
-	boost::thread([=]{
+	boost::thread([=] {
 
 		try {
 
@@ -55,7 +55,7 @@ void IoClient::connect(const string& host, unsigned short port){
 			asio::ip::tcp::resolver::iterator it_end;
 			asio::ip::tcp::endpoint endpoint;
 
-			for(; it != it_end; it++){
+			for (; it != it_end; it++) {
 				endpoint = it->endpoint(); //nos quedaremos con el último
 				cout << "Found " << endpoint << endl;
 			}
@@ -75,9 +75,9 @@ void IoClient::connect(const string& host, unsigned short port){
 
 			cout << "Connected!" << endl;
 
-			boost::thread([=]{
+			boost::thread([=] {
 
-				while(true){
+				while (true) {
 
 					//cout << "milliseconds since epoch: " << time_ms() << endl;
 
@@ -88,7 +88,7 @@ void IoClient::connect(const string& host, unsigned short port){
 
 					this->qsend(boost::json::serialize(pingPkg));
 					
-					std::this_thread::sleep_for(std::chrono::seconds(1));
+					std::this_thread::sleep_for (std::chrono::seconds(1));
 
 				}
 
@@ -109,23 +109,23 @@ void IoClient::connect(const string& host, unsigned short port){
 
 }
 
-IoClient::~IoClient(){
+IoClient::~IoClient() {
 
 	this->io_context.stop();
 
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for (std::chrono::seconds(1));
 	
 }
 
-int IoClient::get_state(){
+int IoClient::get_state() {
 
 	return this->connection_state;
 
 }
 
-void IoClient::qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb){
+void IoClient::qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb) {
 	
-	if(this->busy){
+	if (this->busy) {
 		this->pkg_queue.push({pkg, _cb});
 		return;
 	}
@@ -138,7 +138,7 @@ void IoClient::qsend(std::string pkg, const std::function<void(boost::json::obje
 */
 	pkg += "\r\n\r\n";
 
-	if(_cb != nullptr){
+	if (_cb != nullptr) {
 		
 		boost::json::object obj = boost::json::parse(pkg).get_object();
 
@@ -146,14 +146,14 @@ void IoClient::qsend(std::string pkg, const std::function<void(boost::json::obje
 		//std::string action = obj["action"];
 		std::string action = obj["action"].get_string().c_str();//pt.get<std::string>("action");
 		
-		if(action.length() > 0){
+		if (action.length() > 0) {
 			auto t_start = std::chrono::high_resolution_clock::now();
 
 			cbs.push_back({action, _cb, t_start});
 		}
 	}
 
-	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred){
+	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred) {
 		this->handle_qsent_content(error, bytes_transferred);
 	};
 
@@ -163,13 +163,13 @@ void IoClient::qsend(std::string pkg, const std::function<void(boost::json::obje
 
 }
 
-void IoClient::qread(){
+void IoClient::qread() {
 /*
 	auto handler = boost::bind(&IoClient::handle_qread_content, this,
 							   asio::placeholders::error(),
 							   asio::placeholders::bytes_transferred());
 */
-	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred){
+	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred) {
 		this->handle_qread_content(error, bytes_transferred);
 	};
 
@@ -177,17 +177,17 @@ void IoClient::qread(){
 
 }
 
-void IoClient::handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred){
+void IoClient::handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred) {
 
 	this->busy = false;
 
-	if(error){
+	if (error) {
 		
 		throw std::runtime_error(error.message());
 
 	}
 
-	if(!this->pkg_queue.empty()){
+	if (!this->pkg_queue.empty()) {
 		this->qsend(this->pkg_queue.front().pkg, this->pkg_queue.front()._cb);
 		this->pkg_queue.pop();
 	}
@@ -195,9 +195,9 @@ void IoClient::handle_qsent_content(const boost::system::error_code& error, std:
 }
 
 
-void IoClient::handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred){
+void IoClient::handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred) {
 
-	if(error){
+	if (error) {
 		
 		throw std::runtime_error(error.message());
 
@@ -208,13 +208,13 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 	data = read_remainder + data;
 	std::string pkg;
 
-	while((pkg = extract_pkg(data)) != ""){
+	while ((pkg = extract_pkg(data)) != "") {
 		pkgs_recv ++;
 		//std::cout << " R:" << pkgs_recv << endl;
 
 		boost::json::value pt;
 /*
-		if(this->wait_for_binary){
+		if (this->wait_for_binary) {
 			this->wait_for_binary = false;
 			//pt = this->wait_for_binary_pt;
 			pt["action"] = "binary_transfer";
@@ -226,12 +226,12 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 */
 			pt = boost::json::parse(pkg);
 
-			if( pt.is_object() ){
+			if ( pt.is_object() ) {
 
 				boost::json::object obj = pt.get_object();
 				//cout << pkg << endl;
 				/*
-				if(pt["binary_transfer"]){//as bool
+				if (pt["binary_transfer"]) {//as bool
 					this->wait_for_binary = true;
 					this->wait_for_binary_pt = pt;
 				}
@@ -239,15 +239,15 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 
 				/*
 				boost::json::value resp = obj["response"];
-				if(!resp.is_null()){ //as string
+				if (!resp.is_null()) { //as string
 					std::string response_name = resp.get_string().c_str();//.get<std::string>("response");
 
-					for(std::size_t i = 0; i < cbs.size(); i++){
-						if(cbs[i].name == response_name){ //si hay dos con el mismo nombre que pasa?
+					for (std::size_t i = 0; i < cbs.size(); i++) {
+						if (cbs[i].name == response_name) { //si hay dos con el mismo nombre que pasa?
 							cbs[i].cb(obj);
 
 							cbs.erase(cbs.begin() + i);
-							if(cbs.size() > 0){
+							if (cbs.size() > 0) {
 								cout << "CM remaining: " << cbs.size() << endl;
 							}
 
@@ -258,22 +258,26 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 				}
 				*/
 
-				if( obj["type"].is_string() ){
+				if ( obj["type"].is_string() ) {
 
-					if(obj["type"] == "pong"){
+					if (obj["type"] == "pong") {
 						
 						this->ping_ms = time_ms() - obj["ms"].as_int64();
 						//std::cout << "PING: " << this->ping_ms << "ms" << endl;
-					}
 
-					else if( this->process_actions_fn != nullptr){
+					} else if ( this->process_actions_fn != nullptr) {
+
 						//std::cout << "ACCION!!!" << std::endl;
 						this->process_actions_fn(obj);
+
 					}
+					
 				}
-			}
-			else{
+
+			} else {
+
 				cout << "error parsing: " << pkg << endl;
+
 			}
 //		}
 	}

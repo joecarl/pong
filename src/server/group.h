@@ -13,7 +13,7 @@
 #include <boost/json.hpp>
 #include <boost/chrono.hpp>
 
-class Group{
+class Group {
 
 	PongGame *game = nullptr;
 

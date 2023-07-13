@@ -7,21 +7,21 @@
 
 using namespace std;
 
-void Controller::push_event(boost::json::object &evt){
+void Controller::push_event(boost::json::object &evt) {
 
 	auto evtType = evt["type"].as_string();
 
-	if(evtType == "sync"){
+	if (evtType == "sync") {
 
 		
 		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		cout << "SYNCING: " << evt << endl;
 
-		try{
+		try {
 
 			this->syncGame(evt["gamevars"].as_object());
 
-		} catch (std::invalid_argument& e){
+		} catch (std::invalid_argument& e) {
 			
 			cerr << "SYNC ERROR:  " <<  e.what() << endl;
 
@@ -37,13 +37,13 @@ void Controller::push_event(boost::json::object &evt){
 	
 }
 
-void Controller::process_event(boost::json::object &evt){
+void Controller::process_event(boost::json::object &evt) {
 
 	cout << "Processing evt" << evt << endl;
 
 	auto evtType = evt["type"].as_string();
 		
-	if(evtType == "set_control_state"){
+	if (evtType == "set_control_state") {
 		
 		int control = evt["control"].as_int64();
 		bool newState = evt["state"].as_bool();
@@ -51,7 +51,7 @@ void Controller::process_event(boost::json::object &evt){
 		
 		this->game->players[playerID]->controls[control] = newState;
 
-	} else if(evtType == "set_paused_state"){
+	} else if (evtType == "set_paused_state") {
 
 		bool newState = evt["state"].as_bool();
 		this->game->paused = newState;
@@ -65,7 +65,7 @@ void Controller::process_event(boost::json::object &evt){
 }
 
 
-void syncPlayer(PlayerP* p, boost::json::object& vars){
+void syncPlayer(PlayerP* p, boost::json::object& vars) {
 
 	p->x = vars["x"].as_int64();
 	p->y = vars["y"].as_int64();
@@ -79,18 +79,18 @@ void syncPlayer(PlayerP* p, boost::json::object& vars){
 
 	unsigned int i;
 	i = 0;
-	for(auto &v: vars["bonus_timers"].as_array()){
+	for (auto &v: vars["bonus_timers"].as_array()) {
 		p->bonus_timers[i++] = boost::json::value_to<unsigned int>(v);
 	}
 
 	i = 0;
-	for(auto &v: vars["controls"].as_array()){
+	for (auto &v: vars["controls"].as_array()) {
 		p->controls[i++] = v.as_bool();
 	}
 	
 }
 
-void syncElement(Element* e, boost::json::object& vars){
+void syncElement(Element* e, boost::json::object& vars) {
 
 	e->stat = vars["stat"].as_bool();
 	e->x = vars["x"].as_double();
@@ -104,13 +104,13 @@ void syncElement(Element* e, boost::json::object& vars){
 
 }
 
-void syncBall(Ball* b, boost::json::object& vars){
+void syncBall(Ball* b, boost::json::object& vars) {
 	
 	syncElement((Element*) b, vars);
 	
 }
 
-void syncBonus(Bonus* b, boost::json::object& vars){
+void syncBonus(Bonus* b, boost::json::object& vars) {
 
 	syncElement((Element*) b, vars);
 	b->cooldown = vars["cooldown"].as_int64();
@@ -118,7 +118,7 @@ void syncBonus(Bonus* b, boost::json::object& vars){
 }
 
 
-void Controller::syncGame(boost::json::object& vars){
+void Controller::syncGame(boost::json::object& vars) {
 
 	this->game->tick = boost::json::value_to<unsigned int>(vars["tick"]);
 	this->game->paused = vars["paused"].as_bool();
@@ -138,7 +138,7 @@ void Controller::syncGame(boost::json::object& vars){
 
 
 
-void Controller::setup(PongGame *game){
+void Controller::setup(PongGame *game) {
 	
 	this->game = game;
 	
@@ -149,20 +149,20 @@ void Controller::setup(PongGame *game){
 }
 
 
-void Controller::onTick(){
+void Controller::onTick() {
 
-	while(this->evt_queue.size() > 0){
+	while (this->evt_queue.size() > 0) {
 
 		auto evt = this->evt_queue.front();
 		auto evtTick = (unsigned int)evt["tick"].as_int64();
 
-		if(evtTick == this->game->tick){
+		if (evtTick == this->game->tick) {
 
 			this->process_event(evt);
 
 			this->evt_queue.pop();
 
-		} else if (evtTick < this->game->tick){
+		} else if (evtTick < this->game->tick) {
 
 			cerr << "DESYNC! evtTick: " << evtTick << " | gameTick: " << this->game->tick << endl;
 
@@ -188,13 +188,13 @@ Controller controller;
 //------------------------------- [ ConnStage ] -------------------------------
 
 
-ConnStage::ConnStage(HGameEngine* _engine):Stage(_engine){
+ConnStage::ConnStage(HGameEngine* _engine):Stage(_engine) {
 
 	this->input = new JC_TEXTINPUT(this->engine->font);
 
 }
 
-void ConnStage::onEnterStage(){
+void ConnStage::onEnterStage() {
 
 	input->start();
 
@@ -205,11 +205,11 @@ void ConnStage::onEnterStage(){
 
 }
 
-void ConnStage::onEvent(ALLEGRO_EVENT event){
+void ConnStage::onEvent(ALLEGRO_EVENT event) {
 
-	if(event.type == ALLEGRO_EVENT_KEY_CHAR){
+	if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
 
-		if(input->active){
+		if (input->active) {
 			
 			if (event.keyboard.keycode != ALLEGRO_KEY_ENTER) {
 
@@ -219,24 +219,22 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 
 		}
 
-	}
-	else if(event.type == ALLEGRO_EVENT_KEY_DOWN){
+	} else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
 		int keycode = event.keyboard.keycode;
 
-		if(keycode == ALLEGRO_KEY_ESCAPE){//ESC (SALIR)
+		if (keycode == ALLEGRO_KEY_ESCAPE) {//ESC (SALIR)
 
 			al_rest(0.2);
 			input->active = false;
 			this->engine->setStage(MENU);
 
-		}
-		else if (keycode == ALLEGRO_KEY_ENTER) {
+		} else if (keycode == ALLEGRO_KEY_ENTER) {
 
 			input->finish();
 			server = input->getValue();
 
-			if (server.empty()){
+			if (server.empty()) {
 
 				server = this->engine->cfg["defaultServer"].as_string().c_str();
 
@@ -252,7 +250,7 @@ void ConnStage::onEvent(ALLEGRO_EVENT event){
 
 }
 
-void ConnStage::onTick(){
+void ConnStage::onTick() {
 
 	int connState = this->engine->connection.get_state();
 
@@ -264,7 +262,7 @@ void ConnStage::onTick(){
 
 }
 
-void ConnStage::draw(){
+void ConnStage::draw() {
 
 	ALLEGRO_FONT* font = this->engine->font;
 
@@ -275,7 +273,7 @@ void ConnStage::draw(){
 	al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "ENTER SERVER IP ADDRESS or press ");
 	al_draw_text(font, WHITE, 20, 40, ALLEGRO_ALIGN_LEFT, "enter to connect to default server:");
 
-	if(input->active){
+	if (input->active) {
 
 		input->draw(30, 60);
 
@@ -283,11 +281,11 @@ void ConnStage::draw(){
 
 		int connState = connection->get_state();
 
-		if(connState == CONNECTION_STATE_CONNECTING) {
+		if (connState == CONNECTION_STATE_CONNECTING) {
 
 			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
 				
-		} else if(connState == CONNECTION_STATE_DISCONNECTED) {
+		} else if (connState == CONNECTION_STATE_DISCONNECTED) {
 			
 			//al_draw_text(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
 			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Error: could not connect to %s", server.c_str());
@@ -309,14 +307,14 @@ void ConnStage::draw(){
 //------------------------------- [ LobbyStage ] ------------------------------
 
 
-LobbyStage::LobbyStage(HGameEngine* _engine):Stage(_engine){
+LobbyStage::LobbyStage(HGameEngine* _engine):Stage(_engine) {
 
 	this->input = new JC_TEXTINPUT(this->engine->font);
 
 }
 
 
-void LobbyStage::onEnterStage(){
+void LobbyStage::onEnterStage() {
 
 	
 	this->engine->touchKeys.clearButtons();
@@ -326,10 +324,10 @@ void LobbyStage::onEnterStage(){
 
 	this->ready = false;
 
-	this->engine->connection.process_actions_fn = [&](boost::json::object& evt){
+	this->engine->connection.process_actions_fn = [&](boost::json::object& evt) {
 
 		cout << "RECEIVED: " << evt << endl;
-		if(evt["type"] == "game_start"){
+		if (evt["type"] == "game_start") {
 
 			gameHandler.makeNewPongGame((int_fast32_t)evt["seed"].as_int64());
 
@@ -344,13 +342,13 @@ void LobbyStage::onEnterStage(){
 }
 
 
-void LobbyStage::onEvent(ALLEGRO_EVENT event){
+void LobbyStage::onEvent(ALLEGRO_EVENT event) {
 
-	 if(event.type == ALLEGRO_EVENT_KEY_DOWN){
+	 if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
 		int keycode = event.keyboard.keycode;
 
-		if(keycode == ALLEGRO_KEY_ENTER){
+		if (keycode == ALLEGRO_KEY_ENTER) {
 					
 			boost::json::object pkg = {{"type", "ready_to_play"}}; //play_again
 			
@@ -358,8 +356,7 @@ void LobbyStage::onEvent(ALLEGRO_EVENT event){
 
 			this->ready = true;
 
-		}
-		else if(keycode == ALLEGRO_KEY_ESCAPE){
+		} else if (keycode == ALLEGRO_KEY_ESCAPE) {
 			
 			this->engine->setStage(MENU);
 
@@ -370,12 +367,12 @@ void LobbyStage::onEvent(ALLEGRO_EVENT event){
 }
 
 
-void LobbyStage::onTick(){
+void LobbyStage::onTick() {
 
 }
 
 
-void LobbyStage::draw(){
+void LobbyStage::draw() {
 
 	ALLEGRO_FONT* font = this->engine->font;
 

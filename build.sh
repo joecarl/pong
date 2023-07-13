@@ -7,7 +7,7 @@ SRC_DIR=./src/client
 BUILD_DIR=./build/client
 OBJ_DIR=./obj/client
 
-GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR -IC:/msys64/mingw64/include/freetype2"
+GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR -IC:/msys64/ucrt64/include/freetype2"
 
 mkdir -p $BUILD_DIR > /dev/null 2>&1
 mkdir -p $OBJ_DIR > /dev/null 2>&1

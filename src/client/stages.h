@@ -20,14 +20,14 @@
 #endif
 
 
-enum{
+enum {
 	PLAYMODE_NONE = 0,
 	PLAYMODE_LOCAL,
 	PLAYMODE_ONLINE
 };
 
 
-class GameHandler{
+class GameHandler {
 
 	int controlMode = CONTROLMODE_NONE;
 
@@ -54,7 +54,7 @@ extern GameHandler gameHandler;
 
 //----------------------------------------------------------------------------
 
-class MainMenuStage: public Stage{
+class MainMenuStage: public Stage {
 
 	int easteregg = 0;
 
@@ -77,7 +77,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class Tracer{
+class Tracer {
 
 	HGameEngine* engine;
 
@@ -100,7 +100,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class GameStage: public Stage{
+class GameStage: public Stage {
 
 	void drawCourt();
 
@@ -129,7 +129,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class GameOverStage: public Stage{
+class GameOverStage: public Stage {
 
 public:
 

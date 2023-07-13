@@ -9,11 +9,11 @@
 
 using namespace std;
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
-	try{
+	try {
 
-		if(argc == 2 && strcmp(argv[1], "--version") == 0){
+		if (argc == 2 && strcmp(argv[1], "--version") == 0) {
 			cout << CURR_VERSION;
 			return 0;
 		}
@@ -22,7 +22,7 @@ int main(int argc, char **argv){
 
 		cout << "Version checkout: " << v << "(" << v.length() << ")" << endl;
 
-		if(v.length() > 0 && v != CURR_VERSION){
+		if (v.length() > 0 && v != CURR_VERSION) {
 
 			//system("updater &");
 			//here should open updater process

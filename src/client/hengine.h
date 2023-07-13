@@ -21,11 +21,11 @@ enum {
 	MAX_SCREENS
 };
 
-struct Point{
+struct Point {
 	int x, y;
 };
 
-class AllegroHandler{
+class AllegroHandler {
 	
 	HGameEngine *engine;
 
@@ -80,7 +80,7 @@ public:
 
 };
 
-class Stage{
+class Stage {
 	
 public:
 
@@ -98,7 +98,7 @@ public:
 
 };
 
-class HGameEngine{
+class HGameEngine {
 
 	double old_time = 0;
 	
