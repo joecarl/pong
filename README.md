@@ -59,6 +59,19 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
 
 ---
 
+## Indicaciones para Ubuntu
+
+- Para instalar el compilador de C++ se puede hacer con:
+	```
+	apt install build-essential
+	```
+	
+- En caso de que las dependencias NO se hayan instalado en el directorio por defecto será necesario especificar dónde se han instalado antes de compilar:
+	```
+	export LIBRARY_PATH=/path/to/dep1/lib:/path/to/dep2/lib
+	export CPATH=/path/to/dep1/include:/path/to/dep2/include
+	```
+	
 ## Indicaciones para CentOS 7
 
 - Para instalar el compilador de C++ se puede hacer con:
