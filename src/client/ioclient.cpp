@@ -77,14 +77,11 @@ void IoClient::connect(const string& host, unsigned short port) {
 
 			socket.connect(endpoint);
 
-			
-			cout << "Connected to " << socket.remote_endpoint() << " !" << endl;
-
 			this->connection_state = CONNECTION_STATE_CONNECTED;
 
 			this->current_host = host;
 
-			cout << "Connected!" << endl;
+			cout << "Connected to " << socket.remote_endpoint() << " !" << endl;
 
 			boost::thread([=] {
 
@@ -266,7 +263,7 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 
 	}
 
-	std::string data((char*)read_buffer, bytes_transferred);
+	std::string data((char*) read_buffer, bytes_transferred);
 	
 	data = read_remainder + data;
 	std::string pkg;
