@@ -15,10 +15,13 @@
 #include <chrono>
 #include <queue>
 
+#include "../udpcontroller.h"
+
 enum {
 	CONNECTION_STATE_DISCONNECTED = 0,
 	CONNECTION_STATE_CONNECTING,
-	CONNECTION_STATE_CONNECTED
+	CONNECTION_STATE_CONNECTED,
+	CONNECTION_STATE_CONNECTED_FULL
 };
 
 
@@ -33,6 +36,8 @@ struct qsend_item {
 	std::function<void(boost::json::object& pt)> _cb;
 };
 
+class UdpController;
+
 class IoClient {
 
 	int pkgs_sent = 0, pkgs_recv = 0;
@@ -43,6 +48,10 @@ class IoClient {
 	boost::asio::io_context io_context;
 	
 	boost::asio::ip::tcp::socket socket;
+
+	UdpController* udp_controller;
+
+	UdpChannelController* udp_channel;
 
 	bool busy = false;
 
@@ -60,10 +69,15 @@ class IoClient {
 
 	boost::json::object wait_for_binary_pt;
 
+	void setup_udp(std::string& local_id);
+
 	void handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 	void handle_sent_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 	void handle_read_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 	void handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred);
+	void save_cb(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb);
+
+	std::function<void(boost::json::object& pt)> process_actions_fn;
 
 public:
 
@@ -83,9 +97,11 @@ public:
 
 	void qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb = nullptr);
 
+	void qsend_udp(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb = nullptr);
+
 	void qread();
 
-	std::function<void(boost::json::object& pt)> process_actions_fn;
+	void set_process_actions_fn(const std::function<void(boost::json::object& pt)>& _fn);
 
 };
 

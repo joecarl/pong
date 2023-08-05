@@ -15,7 +15,7 @@ mkdir -p $OBJ_DIR > /dev/null 2>&1
 SCRIPTS=()
 SCRIPTS+=(../ponggame)
 SCRIPTS+=(../utils)
-#SCRIPTS+=(../udpcontroller)
+SCRIPTS+=(../udpcontroller)
 SCRIPTS+=(clients)
 SCRIPTS+=(group)
 SCRIPTS+=(server)

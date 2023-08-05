@@ -20,6 +20,22 @@ Server::Server(int _port): io_context(), acceptor(io_context) {
 
 	this->start_listening();
 
+	udp::endpoint local_endpoint(udp::v4(), _port);
+	
+	this->udp_controller = new UdpController(io_context.get_executor(), local_endpoint, "SERVER");
+	this->udp_controller->on_new_channel = [this] (UdpChannelController& ch) {
+		for (int i = 0; i < this->max_connections; i++) {
+			auto cl = clients[i];
+			if (cl == nullptr) {
+				continue;
+			}
+			auto cl_id = "C" + to_string(cl->get_id());
+			if (cl_id == ch.get_remote_id()) {
+				cl->set_udp_channel(ch);
+			}
+		}
+	};
+
 	for (int i = 0; i < this->max_connections; i++) {
 		clients[i] = nullptr;
 	}
@@ -53,7 +69,7 @@ void Server::start_listening() {
 }
 
 
-void Server::on_new_connection(tcp::socket socket) {
+void Server::on_new_connection(tcp::socket& socket) {
 
 	for (int i = 0; i < this->max_connections; i++) {
 
@@ -61,14 +77,16 @@ void Server::on_new_connection(tcp::socket socket) {
 
 		if (clients[i] == nullptr) {
 
-			clients[i] = new Client(std::move(socket));
+			auto cl = new Client(socket);
+
+			clients[i] = cl;
 			
 			std::cout << "Client " << i << " connected!" << std::endl;
 
-			group.addClient(clients[i]);
+			group.add_client(cl);
 			
-			clients[i]->async_wait_for_data();
-			
+			cl->async_wait_for_data();
+
 			break;
 
 		} 
@@ -97,12 +115,12 @@ void Server::wait_for_connection() {
 
 	cout << "Waiting for connection..." << endl;
 
-	acceptor.async_accept( [this](boost::system::error_code ec, tcp::socket socket) {
+	acceptor.async_accept([this] (boost::system::error_code ec, tcp::socket socket) {
 
 		if (ec) {
 			cout << "Error opening socket: " << ec << endl;
 		} else {
-			this->on_new_connection(std::move(socket));
+			this->on_new_connection(socket);
 		}
 
 		this->wait_for_connection();

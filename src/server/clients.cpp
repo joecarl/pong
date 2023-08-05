@@ -10,13 +10,20 @@ using namespace std;
 using namespace boost::asio::ip;
 
 
-int Client::count_instances = 0;
+uint64_t Client::count_instances = 0;
 
-Client::Client(boost::asio::ip::tcp::socket _socket): 
+Client::Client(boost::asio::ip::tcp::socket& _socket): 
 	socket(std::move(_socket))
 {
 
 	this->id_client = count_instances++;
+
+	boost::json::object setup = {
+		{"type", "set_client_id"},
+		{"client_id", "C" + to_string(this->id_client)}
+	};
+
+	this->qsend(boost::json::serialize(setup));
 
 }
 
@@ -29,17 +36,44 @@ Client::~Client() {
 }
 
 
-void Client::addEventListener(const std::string &evtName, const std::function<void()> &fn) {
+uint64_t Client::get_id() { 
 	
-	this->evtListeners.push_back({evtName, fn});
+	return this->id_client;
 
 }
 
 
-void Client::triggerEvent(std::string evtName) {
+void Client::set_udp_channel(UdpChannelController& ch) {
 	
-	for (auto &ev: this->evtListeners) {
-		if (ev.evtName == evtName) {
+	//cout << "!! Setting UdpChannelController" << endl;
+
+	this->udp_channel = &ch;
+
+	this->udp_channel->process_actions_fn = [this] (boost::json::object obj) {
+
+		if (this->on_pkg_received != nullptr) {
+
+			this->on_pkg_received(obj);
+
+		}
+
+	};
+
+
+}
+
+
+void Client::add_event_listener(const string &evt_name, const std::function<void()> &fn) {
+	
+	this->evt_listeners.push_back({evt_name, fn});
+
+}
+
+
+void Client::trigger_event(const string& evt_name) {
+	
+	for (auto &ev: this->evt_listeners) {
+		if (ev.evt_name == evt_name) {
 			ev.cb();
 		}
 	}
@@ -47,11 +81,11 @@ void Client::triggerEvent(std::string evtName) {
 }
 
 
-void Client::process_request(std::string request) {
+void Client::process_request(const string& request) {
 	
-	boost::json::value q = boost::json::parse( request );
+	boost::json::value q = boost::json::parse(request);
 
-	if ( !q.is_object() ) {
+	if (!q.is_object()) {
 
 		cerr << "Not valid JSON" << endl << request << endl;
 		return;
@@ -69,7 +103,7 @@ void Client::process_request(std::string request) {
 
 	} else {
 
-		if ( this->on_pkg_received != nullptr) {
+		if (this->on_pkg_received != nullptr) {
 
 			this->on_pkg_received(evt);
 
@@ -80,7 +114,20 @@ void Client::process_request(std::string request) {
 }
 
 
-void Client::qsend(std::string pkg, bool ignore_busy) {
+void Client::qsend_udp(const string& pkg) {
+
+	if (this->udp_channel == nullptr) {
+		cout << "TCP fallback" << endl;
+		this->qsend(pkg);
+		return;
+	}
+	
+	this->udp_channel->send(pkg);
+
+}
+
+
+void Client::qsend(string pkg, bool ignore_busy) {
 
 	if (this->busy && !ignore_busy) {
 		this->pkg_queue.push(pkg);
@@ -90,14 +137,17 @@ void Client::qsend(std::string pkg, bool ignore_busy) {
 	//cout << "sending " << pkg.length() << " bytes" << endl;
 	this->busy = true;
 
-	auto handler = boost::bind(&Client::handle_qsent_content, this,
-							boost::asio::placeholders::error(),
-							boost::asio::placeholders::bytes_transferred());
+	auto handler = boost::bind(
+		&Client::handle_qsent_content, 
+		this,
+		boost::asio::placeholders::error(),
+		boost::asio::placeholders::bytes_transferred()
+	);
 
 	if (pkg.length() > 1024 * 64) { //max 64kB (me lo estoy inventando a ver si cuela...)
 
-		this->pending_data = pkg.substr (1024 * 64);
-		pkg = pkg.substr (0, 1024 * 64);
+		this->pending_data = pkg.substr(1024 * 64);
+		pkg = pkg.substr(0, 1024 * 64);
 
 	} else {
 
@@ -114,17 +164,17 @@ void Client::qsend(std::string pkg, bool ignore_busy) {
 }
 
 
-void Client::handle_qsent_content( const boost::system::error_code& error, std::size_t bytes_transferred) {
+void Client::handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred) {
 
 	if (error) {
 		cout << "Error occurred (SEND)[C" << this->id_client << "]: " << error << endl;
 		this->dead = true;
-		this->triggerEvent("onDrop");
+		this->trigger_event("onDrop");
 		return;
 	}
 
 	if (this->pending_data.length() > 0) {
-		cout << "bunch " << bytes_transferred << " (" << this->pending_data.length() << " remaining)"<< endl;
+		cout << "bunch " << bytes_transferred << " (" << this->pending_data.length() << " remaining)" << endl;
 		this->qsend(this->pending_data, true);
 		return;
 	}
@@ -148,11 +198,14 @@ bool Client::is_dead() {
 
 void Client::async_wait_for_data() {
 
-	auto handler = boost::bind(&Client::handle_read_content, this,
-								boost::asio::placeholders::error(),
-								boost::asio::placeholders::bytes_transferred());
+	auto handler = boost::bind(
+		&Client::handle_read_content, 
+		this,
+		boost::asio::placeholders::error(),
+		boost::asio::placeholders::bytes_transferred()
+	);
 
-	this->socket.async_read_some( boost::asio::buffer(read_buffer, 1024), handler);
+	this->socket.async_read_some(boost::asio::buffer(read_buffer, 1024), handler);
 	//cout << "Waiting for data ... " << endl;
 
 }
@@ -164,13 +217,12 @@ void Client::handle_read_content(const boost::system::error_code& error, std::si
 
 		cout << "Error occurred (READ)[C" << this->id_client << "]: " << error << endl;
 		this->dead = true;
-		this->triggerEvent("onDrop");
+		this->trigger_event("onDrop");
 		return;
 	}
 	//std::cout << "Data received[C" << this->id_client << "]: ";
 
-
-	std::string data((char*)read_buffer, bytes_transferred);
+	string data((char*) read_buffer, bytes_transferred);
 	data = read_remainder + data;
 
 	string pkg;
@@ -178,7 +230,6 @@ void Client::handle_read_content(const boost::system::error_code& error, std::si
 		pkgs_recv ++;
 		//std::cout << " R:" << pkgs_recv << endl;
 
-		//boost::thread(boost::bind(&Client::process_request, this, pkg, req_id));
 		this->process_request(pkg);
 	}
 	

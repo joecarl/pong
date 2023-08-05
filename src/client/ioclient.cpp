@@ -1,5 +1,6 @@
 
 #include "ioclient.h"
+#include "../udpcontroller.h"
 #include "../utils.h"
 
 #include <iostream>
@@ -8,11 +9,17 @@
 
 using namespace std;
 
+using boost::asio::ip::udp;
 namespace asio = boost::asio;
 
-IoClient::IoClient(): socket(io_context) {
+IoClient::IoClient(): 
+	socket(io_context),
+	udp_controller(nullptr),
+	udp_channel(nullptr)
+{
 
 }
+
 
 int64_t time_ms() {
 	
@@ -27,6 +34,7 @@ int64_t time_ms() {
 	).count();
 
 }
+
 
 void IoClient::connect(const string& host, unsigned short port) {
 
@@ -69,6 +77,9 @@ void IoClient::connect(const string& host, unsigned short port) {
 
 			socket.connect(endpoint);
 
+			
+			cout << "Connected to " << socket.remote_endpoint() << " !" << endl;
+
 			this->connection_state = CONNECTION_STATE_CONNECTED;
 
 			this->current_host = host;
@@ -88,7 +99,7 @@ void IoClient::connect(const string& host, unsigned short port) {
 
 					this->qsend(boost::json::serialize(pingPkg));
 					
-					std::this_thread::sleep_for (std::chrono::seconds(1));
+					std::this_thread::sleep_for(std::chrono::seconds(1));
 
 				}
 
@@ -113,7 +124,7 @@ IoClient::~IoClient() {
 
 	this->io_context.stop();
 
-	std::this_thread::sleep_for (std::chrono::seconds(1));
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 	
 }
 
@@ -122,6 +133,58 @@ int IoClient::get_state() {
 	return this->connection_state;
 
 }
+
+
+void IoClient::setup_udp(string& local_id) {
+
+	auto tcp_local_ep = this->socket.local_endpoint();
+	auto tcp_remote_ep = this->socket.remote_endpoint();
+
+	udp::endpoint local_endpoint(tcp_local_ep.address(), tcp_local_ep.port());
+	udp::endpoint remote_endpoint(tcp_remote_ep.address(), tcp_remote_ep.port());
+	this->udp_controller = new UdpController(this->socket.get_executor(), local_endpoint, local_id);
+	this->udp_channel = this->udp_controller->create_channel(remote_endpoint, "SERVER").get();
+
+	this->udp_channel->send_handshake();
+
+	this->connection_state = CONNECTION_STATE_CONNECTED_FULL;
+
+}
+
+
+void IoClient::qsend_udp(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb) {
+	
+	if (this->udp_channel == nullptr) {
+		cerr << "Cannot sent pkg, upd channel not established yet" << endl;
+		return;
+	}
+
+	if (_cb != nullptr) {
+		this->save_cb(pkg, _cb);
+	}
+
+	this->udp_channel->send(pkg);
+
+	pkgs_sent++;
+
+}
+
+
+void IoClient::save_cb(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb) {
+
+	boost::json::object obj = boost::json::parse(pkg).get_object();
+
+	//std::string action = obj["action"];
+	std::string action = obj["action"].get_string().c_str();//pt.get<std::string>("action");
+	
+	if (action.length() > 0) {
+		auto t_start = std::chrono::high_resolution_clock::now();
+
+		cbs.push_back({action, _cb, t_start});
+	}
+
+}
+	
 
 void IoClient::qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb) {
 	
@@ -140,26 +203,17 @@ void IoClient::qsend(std::string pkg, const std::function<void(boost::json::obje
 
 	if (_cb != nullptr) {
 		
-		boost::json::object obj = boost::json::parse(pkg).get_object();
+		this->save_cb(pkg, _cb);
 
-		
-		//std::string action = obj["action"];
-		std::string action = obj["action"].get_string().c_str();//pt.get<std::string>("action");
-		
-		if (action.length() > 0) {
-			auto t_start = std::chrono::high_resolution_clock::now();
-
-			cbs.push_back({action, _cb, t_start});
-		}
 	}
 
-	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred) {
+	auto handler = [this] (const boost::system::error_code& error, std::size_t bytes_transferred) {
 		this->handle_qsent_content(error, bytes_transferred);
 	};
 
 	asio::async_write(socket, asio::buffer(pkg), handler);
 	
-	pkgs_sent ++;
+	pkgs_sent++;
 
 }
 
@@ -169,7 +223,7 @@ void IoClient::qread() {
 							   asio::placeholders::error(),
 							   asio::placeholders::bytes_transferred());
 */
-	auto handler = [this](const boost::system::error_code& error, std::size_t bytes_transferred) {
+	auto handler = [this] (const boost::system::error_code& error, std::size_t bytes_transferred) {
 		this->handle_qread_content(error, bytes_transferred);
 	};
 
@@ -195,6 +249,15 @@ void IoClient::handle_qsent_content(const boost::system::error_code& error, std:
 }
 
 
+void IoClient::set_process_actions_fn(const std::function<void(boost::json::object& pt)>& _fn) {
+	
+	this->process_actions_fn = _fn;
+
+	this->udp_channel->process_actions_fn = _fn;
+
+}
+
+
 void IoClient::handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred) {
 
 	if (error) {
@@ -203,7 +266,7 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 
 	}
 
-	std::string data((char*)read_buffer, bytes_transferred );
+	std::string data((char*)read_buffer, bytes_transferred);
 	
 	data = read_remainder + data;
 	std::string pkg;
@@ -226,7 +289,7 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 */
 			pt = boost::json::parse(pkg);
 
-			if ( pt.is_object() ) {
+			if (pt.is_object()) {
 
 				boost::json::object obj = pt.get_object();
 				//cout << pkg << endl;
@@ -258,14 +321,20 @@ void IoClient::handle_qread_content(const boost::system::error_code& error, std:
 				}
 				*/
 
-				if ( obj["type"].is_string() ) {
+				if (obj["type"].is_string()) {
 
-					if (obj["type"] == "pong") {
+					if (obj["type"] == "set_client_id") {
+						
+						string id = obj["client_id"].as_string().c_str();
+						cout << "SETTING UP UDP. CLIENT ID: " << id << endl;
+						this->setup_udp(id);
+
+					} else if (obj["type"] == "pong") {
 						
 						this->ping_ms = time_ms() - obj["ms"].as_int64();
 						//std::cout << "PING: " << this->ping_ms << "ms" << endl;
 
-					} else if ( this->process_actions_fn != nullptr) {
+					} else if (this->process_actions_fn != nullptr) {
 
 						//std::cout << "ACCION!!!" << std::endl;
 						this->process_actions_fn(obj);

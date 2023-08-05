@@ -2,6 +2,7 @@
 #ifndef clients_hpp
 #define clients_hpp
 
+#include "../udpcontroller.h"
 #include <boost/json.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -9,27 +10,29 @@
 #include <vector>
 
 struct EventListener {
-	std::string evtName;
+	std::string evt_name;
 	std::function<void()> cb;
 };
 
 class Client {
 
-	static int count_instances;
+	static uint64_t count_instances;
 
-	int pkgs_recv = 0;
+	uint64_t pkgs_recv = 0;
 
-	int pkgs_sent = 0;
+	uint64_t pkgs_sent = 0;
 
-	int id_client = 0;
+	uint64_t id_client = 0;
 
 	bool busy = false;
 
 	bool dead = false;
 
+	UdpChannelController* udp_channel;
+
 	boost::asio::ip::tcp::socket socket;
 
-	std::vector<EventListener> evtListeners;
+	std::vector<EventListener> evt_listeners;
 	
 	std::queue<std::string> pkg_queue;
 
@@ -39,27 +42,33 @@ class Client {
 
 	std::string read_remainder = "";
 
-	void handle_read_content( const boost::system::error_code& error, std::size_t bytes_transferred);
+	void handle_read_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 
-	void handle_qsent_content( const boost::system::error_code& error, std::size_t bytes_transferred);
+	void handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 
 public:
 
-	Client(boost::asio::ip::tcp::socket socket);
+	Client(boost::asio::ip::tcp::socket& _socket);
 	
 	~Client();
+	
+	uint64_t get_id();
+
+	void set_udp_channel(UdpChannelController& ch);
 
 	void async_wait_for_data();
 
-	void addEventListener(const std::string &evtName, const std::function<void()> &fn);
+	void add_event_listener(const std::string& evt_name, const std::function<void()> &fn);
 	
-	void triggerEvent(std::string evtName);
+	void trigger_event(const std::string& evt_name);
 	
 	void qsend(std::string pkg, bool ignore_busy = false);
+	
+	void qsend_udp(const std::string& pkg);
 
 	bool is_dead();
 
-	void process_request(std::string request);
+	void process_request(const std::string& request);
 	
 	std::function<void(boost::json::object& pt)> on_pkg_received;
 

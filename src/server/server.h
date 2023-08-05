@@ -1,9 +1,7 @@
 #ifndef server_hpp
 #define server_hpp
 
-#include <stdio.h>
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
 
 #include "clients.h"
 
@@ -13,6 +11,8 @@ class Server {
 
 	int verbose = 0;
 
+	UdpController* udp_controller;
+
 	Client* clients[10];
 
 	const int max_connections = 3;
@@ -21,7 +21,7 @@ class Server {
 
 	void wait_for_connection();
 
-	void on_new_connection(boost::asio::ip::tcp::socket socket);
+	void on_new_connection(boost::asio::ip::tcp::socket& socket);
 	
 	void remove_dead_connections();
 
