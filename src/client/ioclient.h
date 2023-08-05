@@ -93,8 +93,6 @@ public:
 
 	int get_state();
 
-	//void send(std::string pkg, std::function<void(std::string& res)> _cb);
-
 	void qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb = nullptr);
 
 	void qsend_udp(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb = nullptr);
@@ -105,8 +103,5 @@ public:
 
 };
 
-//void read_socket_task(boost::asio::ip::tcp::socket* socket);
-
-//void connection_task();
 
 #endif /* connections_hpp */
