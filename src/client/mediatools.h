@@ -18,15 +18,15 @@ const int Do = 1, DoSos = 2, Re = 3, ReSos = 4, Mi = 5, Fa = 6, FaSos = 7,
 	  Sol=784, SolSos=830, La=880, LaSos=932, Si=988*/
 
 
-void  PlaySound(int nota, float time, int octava = 4);
+void play_sound(int nota, float time, int octava = 4);
 
 //void  ShowKeyBoardMatrix();
 
 ALLEGRO_BITMAP* load_bitmap(const std::string& filename);
 
-void PlayAudio(float volumen = 1.0, ALLEGRO_PLAYMODE mode = ALLEGRO_PLAYMODE_ONCE);
+void play_audio(float volumen = 1.0, ALLEGRO_PLAYMODE mode = ALLEGRO_PLAYMODE_ONCE);
 
-void PlayExorcista();
+void play_exorcista();
 
 class JC_TEXTINPUT {
 	
@@ -45,7 +45,7 @@ public:
 
 	void reset();
 	
-	void processKey(wchar_t ASCII, int control_key);
+	void process_key(wchar_t ASCII, int control_key);
 
 	void draw(int x, int y);
 
@@ -53,7 +53,7 @@ public:
 	
 	void finish();
 	
-	std::string getValue();
+	std::string get_value();
 
 };
 

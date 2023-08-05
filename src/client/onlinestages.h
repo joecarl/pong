@@ -24,7 +24,7 @@ public:
 
 	void setup(PongGame *game);
 
-	void onTick();
+	void on_tick();
 
 };
 
@@ -42,11 +42,11 @@ public:
 
 	ConnStage(HGameEngine* _engine);
 
-	void onEnterStage();
+	void on_enter_stage();
 
-	void onEvent(ALLEGRO_EVENT event);
+	void on_event(ALLEGRO_EVENT event);
 	
-	void onTick();
+	void on_tick();
 
 	void draw();
 
@@ -65,11 +65,11 @@ public:
 
 	LobbyStage(HGameEngine* _engine);
 
-	void onEnterStage();
+	void on_enter_stage();
 
-	void onEvent(ALLEGRO_EVENT event);
+	void on_event(ALLEGRO_EVENT event);
 	
-	void onTick();
+	void on_tick();
 
 	void draw();
 

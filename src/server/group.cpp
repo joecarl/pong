@@ -3,13 +3,13 @@
 using namespace std;
 
 
-boost::json::object exportPlayer(PlayerP* p) {
+boost::json::object export_player(PlayerP* p) {
 
 	boost::json::object o;
 
 	o["x"] = p->x;
 	o["y"] = p->y;
-	o["comTxtY"] = p->comTxtY;
+	o["com_txt_y"] = p->com_txt_y;
 	o["score"] = p->score;
 	o["medlen"] = p->medlen;
 	o["racha"] = p->racha;
@@ -30,7 +30,7 @@ boost::json::object exportPlayer(PlayerP* p) {
 
 }
 
-boost::json::object exportElement(Element* e) {
+boost::json::object export_element(Element* e) {
 
 	boost::json::object o;
 
@@ -41,8 +41,8 @@ boost::json::object exportElement(Element* e) {
 		{"x00", e->x00},
 		{"y00", e->y00},
 		{"radius", e->radius},
-		{"vX", e->vX},
-		{"vY", e->vY},
+		{"vx", e->vx},
+		{"vy", e->vy},
 		{"t", e->t}
 	};
 
@@ -50,15 +50,15 @@ boost::json::object exportElement(Element* e) {
 
 }
 
-boost::json::object exportBall(Ball* b) {
+boost::json::object export_ball(Ball* b) {
 	
-	return exportElement((Element*) b);
+	return export_element((Element*) b);
 	
 }
 
-boost::json::object exportBonus(Bonus* b) {
+boost::json::object export_bonus(Bonus* b) {
 
-	boost::json::object o = exportElement((Element*) b);
+	boost::json::object o = export_element((Element*) b);
 	o["cooldown"] = b->cooldown;
 	
 	return o;
@@ -66,18 +66,18 @@ boost::json::object exportBonus(Bonus* b) {
 }
 
 
-boost::json::object exportGame(PongGame* g) {
+boost::json::object export_game(PongGame* g) {
 
 	boost::json::object o;
 
 	o = {
 		{"tick", g->tick},
 		{"paused", g->paused},
-		{"p0vars", exportPlayer(g->players[0])},
-		{"p1vars", exportPlayer(g->players[1])},
-		{"bonus0vars", exportBonus(g->bonus[0])},
-		{"bonus1vars", exportBonus(g->bonus[1])},
-		{"ballvars", exportBall(g->ball)}
+		{"p0vars", export_player(g->players[0])},
+		{"p1vars", export_player(g->players[1])},
+		{"bonus0vars", export_bonus(g->bonus[0])},
+		{"bonus1vars", export_bonus(g->bonus[1])},
+		{"ballvars", export_ball(g->ball)}
 	};
 
 	return o;
@@ -88,11 +88,11 @@ boost::json::object exportGame(PongGame* g) {
 
 Group::Group() {
 
-	this->newGame();
+	this->new_game();
 
 }
 
-void Group::newGame() {
+void Group::new_game() {
 
 	if (this->game != nullptr) {
 		delete this->game;
@@ -100,15 +100,15 @@ void Group::newGame() {
 
 	//vaciamos la cola de eventos
 	std::queue<boost::json::object> empty;
-	std::swap( this->evt_queue, empty );
+	std::swap(this->evt_queue, empty);
 
 	this->game = new PongGame();
 
-	this->game->controlMode = CONTROLMODE_TWO_PLAYERS;
+	this->game->control_mode = CONTROLMODE_TWO_PLAYERS;
 
 	this->game->restart();
 
-	this->game->iniciarPunto(1);
+	this->game->iniciar_punto(1);
 
 	//cout << "New game created, tick: " << this->game->tick << endl;
 
@@ -117,40 +117,40 @@ void Group::newGame() {
 
 }
 
-void Group::addClient(Client* cl) {
+void Group::add_client(Client* cl) {
 
-	int playerID;
+	int player_id;
 
-	bool mustPush = true;
+	bool must_push = true;
 
 	for (size_t i = 0; i < this->clients.size(); i++) {//} &itCl: this->clients) {
 		if (this->clients[i] == nullptr) {
 			this->clients[i] = cl;
-			mustPush = false;
-			playerID = i;
+			must_push = false;
+			player_id = i;
 			break;
 		}
 	}
 
-	if (mustPush) {
-		playerID = this->clients.size();
+	if (must_push) {
+		player_id = this->clients.size();
 		this->clients.push_back(cl);
 	}
 
-	cl->addEventListener("onDrop", [this, playerID, cl]() {
+	cl->add_event_listener("onDrop", [this, player_id, cl] () {
 
 		//cout << "onDrop event callback!!" << endl;
 
-		if (this->clients[playerID] == cl ) {
-			this->clients[playerID] = nullptr;
-			cout << "Client #" << playerID << " dropped from group" << endl;
+		if (this->clients[player_id] == cl) {
+			this->clients[player_id] = nullptr;
+			cout << "Client #" << player_id << " dropped from group" << endl;
 		}
 		
 	});
 
-	if (playerID < 2 ) {
+	if (player_id < 2) {
 		
-		cl->on_pkg_received = [this, playerID](boost::json::object& pkg) {
+		cl->on_pkg_received = [this, player_id] (boost::json::object& pkg) {
 
 			auto evtType = pkg["type"].as_string();
 		
@@ -158,20 +158,22 @@ void Group::addClient(Client* cl) {
 
 				cout << "Player ready!!" << endl;
 				
-				this->players_ready[playerID] = true;
+				this->players_ready[player_id] = true;
 
 				if (this->players_ready[0] && this->players_ready[1]) {
-					this->startGame();
+					this->start_game();
 				}
 
 			} else if (evtType == "desync") {
 
 				boost::json::object o = {
 					{"type", "sync"},
-					{"gamevars", exportGame(this->game)}
+					{"gamevars", export_game(this->game)}
 				};
 
-				this->clients[playerID]->qsend(boost::json::serialize(o));
+				cerr << "!! RESYNC " << o << endl;
+
+				this->clients[player_id]->qsend(boost::json::serialize(o));
 
 			} else {
 
@@ -187,12 +189,12 @@ void Group::addClient(Client* cl) {
 					cout << "Tick diff: " << tickDiff << endl;
 				}
 
-				pkg["playerKey"] = playerID;
-				pkg["tick"] = this->game->tick + 3; //TODO: auto calc tick delay based on clients connection?
+				pkg["player_key"] = player_id;
+				pkg["tick"] = this->game->tick + 0; //TODO: auto calc tick delay based on clients connection?
 
 				this->evt_queue.push(pkg);
 
-				this->sendToAll(boost::json::serialize(pkg));
+				this->send_to_all(boost::json::serialize(pkg));
 			//}
 			}
 		
@@ -212,9 +214,9 @@ void Group::process_event(boost::json::object &evt) {
 		
 		int control = evt["control"].as_int64();
 		bool newState = evt["state"].as_bool();
-		int playerID = evt["playerKey"].as_int64();
+		int player_id = evt["player_key"].as_int64();
 		
-		this->game->players[playerID]->controls[control] = newState;
+		this->game->players[player_id]->controls[control] = newState;
 
 	} else {
 		cerr << "Unknown event type: " << evtType << endl;
@@ -222,7 +224,7 @@ void Group::process_event(boost::json::object &evt) {
 
 }
 
-void Group::startGame() {
+void Group::start_game() {
 
 	cout << "Starting game in group" << endl;
 
@@ -237,13 +239,13 @@ void Group::startGame() {
 		{"seed", this->game->seed}
 	};
 
-	this->sendToAll(boost::json::serialize(pkg));
+	this->send_to_all(boost::json::serialize(pkg));
 
 	boost::thread(boost::bind(&boost::asio::io_context::run, io));
 
 }
 
-void Group::sendToAll(std::string pkg) {
+void Group::send_to_all(std::string pkg) {
 
 	for (auto& cl : this->clients) {
 		if (cl != nullptr && !cl->is_dead()) {
@@ -286,11 +288,11 @@ void Group::game_main_loop() {
 
 	}
 
-	this->game->processTick();
+	this->game->process_tick();
 
 	if (this->game->finished) {
 		
-		this->newGame();
+		this->new_game();
 
 		return;
 

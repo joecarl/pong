@@ -15,7 +15,7 @@ using namespace std;
 int last_pos = 0;
 int16_t audio[FREC_MUESTREO * 5];//un audio de 5 seg máx...
 
-void PlaySound(int nota, float time, int octava) {
+void play_sound(int nota, float time, int octava) {
 
 	float frec= 440.0 * pow(2.0, (float) (octava - 3.0 + (nota - 10.0) / 12.0));
 	int ciclos = frec * time;//obtenemos un numero de ciclos y lo guardamos como valor entero
@@ -32,7 +32,7 @@ void PlaySound(int nota, float time, int octava) {
 	
 }
 
-void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode) {
+void play_audio(float volumen, ALLEGRO_PLAYMODE mode) {
 
 	al_stop_samples();
 	ALLEGRO_SAMPLE *beep = nullptr;
@@ -44,7 +44,7 @@ void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode) {
 		buff[i] = audio[i] * volumen;//*sin(3.140*i/last_pos);
 	}
 
-	beep = al_create_sample (buff, last_pos, FREC_MUESTREO, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_1, true);
+	beep = al_create_sample(buff, last_pos, FREC_MUESTREO, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_1, true);
    
 	if (beep != nullptr) {
 		//printf("construyendo sample...\n");
@@ -60,25 +60,25 @@ void PlayAudio(float volumen, ALLEGRO_PLAYMODE mode) {
 }
 
 #define o 3
-void PlayExorcista() {
+void play_exorcista() {
 
-	PlaySound(Mi, 100, o);
-	PlaySound(La, 200, o);
-	PlaySound(Mi, 100, o);
-	PlaySound(Si, 200, o);
-	PlaySound(Mi, 100, o);
-	PlaySound(Sol, 200, o);
-	PlaySound(La, 200, o);
-	PlaySound(Mi, 100, o);
-	PlaySound(Do, 200, o + 1);
-	PlaySound(Mi, 100, o);
-	PlaySound(Re, 200, o + 1);
-	PlaySound(Mi, 100, o);
-	PlaySound(Si, 200, o);
-	PlaySound(Do, 200, o + 1);
-	PlaySound(Mi, 100, o);
-	PlaySound(Si, 200, o);
-	PlayAudio(1, ALLEGRO_PLAYMODE_LOOP);
+	play_sound(Mi, 100, o);
+	play_sound(La, 200, o);
+	play_sound(Mi, 100, o);
+	play_sound(Si, 200, o);
+	play_sound(Mi, 100, o);
+	play_sound(Sol, 200, o);
+	play_sound(La, 200, o);
+	play_sound(Mi, 100, o);
+	play_sound(Do, 200, o + 1);
+	play_sound(Mi, 100, o);
+	play_sound(Re, 200, o + 1);
+	play_sound(Mi, 100, o);
+	play_sound(Si, 200, o);
+	play_sound(Do, 200, o + 1);
+	play_sound(Mi, 100, o);
+	play_sound(Si, 200, o);
+	play_audio(1, ALLEGRO_PLAYMODE_LOOP);
 
 }
 
@@ -135,7 +135,7 @@ void JC_TEXTINPUT::reset() {
 
 }
 
-void  JC_TEXTINPUT::processKey(wchar_t ASCII, int control_key) {
+void  JC_TEXTINPUT::process_key(wchar_t ASCII, int control_key) {
 
 	if (ASCII >= 32 && ASCII <= 126) {
 		
@@ -226,7 +226,7 @@ void  JC_TEXTINPUT::finish() {
 
 }
 
-std::string JC_TEXTINPUT::getValue() {
+std::string JC_TEXTINPUT::get_value() {
 
 	return edittext;
 

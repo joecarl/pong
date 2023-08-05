@@ -10,55 +10,58 @@
 using namespace std;
 
 Button::Button(TouchKeys* tKeys, unsigned int keycode, string txt):
-id(-1),
-x(0), y(0), 
-w(20), h(20), 
-keycode(keycode), text(txt),
-pressed(false),
-touchKeys(tKeys)
+	id(-1),
+	x(0), 
+	y(0), 
+	w(20), 
+	h(20), 
+	keycode(keycode), 
+	text(txt),
+	pressed(false),
+	touch_keys(tKeys)
 {
 
 }
 
-void Button::setDimensions(int x, int y, int w, int h) {
+void Button::set_dimensions(int x, int y, int w, int h) {
 	this->x = x;
 	this->y = y;
 	this->w = w;
 	this->h = h;
 }
 
-void Button::setPressed(int newTouchID) {
+void Button::set_pressed(int newTouchID) {
 	
 	this->id = newTouchID;
 	this->pressed = true;
 
 }
 
-void Button::setReleased() {
+void Button::set_released() {
 	
 	this->pressed = false;
 
 }
 
-int Button::getID() {
+int Button::get_id() {
 
 	return this->id;
 
 }
 
-int Button::getKeycode() {
+int Button::get_keycode() {
 
 	return this->keycode;
 
 }
 
-bool Button::isPressed() {
+bool Button::is_pressed() {
 
 	return this->pressed;
 
 }
 
-bool Button::inArea(int px, int py) {
+bool Button::in_area(int px, int py) {
 
 	return
 		x < px && px < x + w &&
@@ -86,7 +89,7 @@ void Button::draw() {
 	al_draw_filled_rectangle(x + 1, y + 1, x + w - 1, y + h - 1, bgcolor);
 
 	al_draw_text(
-		this->touchKeys->getEngine()->font, 
+		this->touch_keys->get_engine()->font, 
 		al_map_rgb(255, 255, 255), 
 		x + w / 2, 
 		y + h / 2 - 8, 
@@ -105,18 +108,18 @@ engine(engine) {
 }
 
 
-void TouchKeys::clearButtons() {
+void TouchKeys::clear_buttons() {
 
 	vector<Button>().swap(buttons);
 
 }
 
 
-Button* TouchKeys::getPressedBtnByID(int id) {
+Button* TouchKeys::get_pressed_btn_by_id(int id) {
 	
 	for (auto &btn: buttons) {
-		this->engine->debugTxt += " [btn" + to_string(btn.getID()) + "]"+(btn.isPressed() ? "P " : "NP ");
-		if (btn.isPressed() && btn.getID() == id) {
+		this->engine->debug_txt += " [btn" + to_string(btn.get_id()) + "]" + (btn.is_pressed() ? "P " : "NP ");
+		if (btn.is_pressed() && btn.get_id() == id) {
 			return &btn;
 		}
 	}
@@ -135,7 +138,7 @@ void TouchKeys::draw() {
 }
 
 
-void TouchKeys::addButton(unsigned int keycode, string txt) {
+void TouchKeys::add_button(unsigned int keycode, string txt) {
 	
 	Button btn(this, keycode, txt);
 
@@ -144,17 +147,17 @@ void TouchKeys::addButton(unsigned int keycode, string txt) {
 }
 
 /*
-void TouchKeys::fitButtons(unsigned int side, unsigned int size) {
+void TouchKeys::fit_buttons(unsigned int side, unsigned int size) {
 
 	unsigned int width, height;
 
 	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
-		width = this->engine->resX / buttons.size();
-		height = side == FIT_HORIZONTAL ? this->engine->resY : size;
+		width = this->engine->res_x / buttons.size();
+		height = side == FIT_HORIZONTAL ? this->engine->res_y : size;
 	}
 	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
-		height = this->engine->resY / buttons.size();
-		width = side == FIT_VERTICAL ? this->engine->resX : size;
+		height = this->engine->res_y / buttons.size();
+		width = side == FIT_VERTICAL ? this->engine->res_x : size;
 	}
 
 	unsigned int i = 0;
@@ -162,16 +165,16 @@ void TouchKeys::fitButtons(unsigned int side, unsigned int size) {
 	for (auto &btn: buttons) {
 
 		if (side == FIT_TOP || side == FIT_HORIZONTAL) {
-			btn.setDimensions(i * width, 0, width, height);
+			btn.set_dimensions(i * width, 0, width, height);
 		}
 		else if (side == FIT_RIGHT) {
-			btn.setDimensions(this->engine->resX - width, i * height, width, height);
+			btn.set_dimensions(this->engine->res_x - width, i * height, width, height);
 		}
 		else if (side == FIT_BOTTOM) {
-			btn.setDimensions(i * width, this->engine->resY - height, width, height);
+			btn.set_dimensions(i * width, this->engine->res_y - height, width, height);
 		}
 		else if (side == FIT_LEFT || side == FIT_VERTICAL) {
-			btn.setDimensions(0, i * height, width, height);
+			btn.set_dimensions(0, i * height, width, height);
 		}
 
 		i++;
@@ -181,29 +184,29 @@ void TouchKeys::fitButtons(unsigned int side, unsigned int size) {
 */
 
 
-void TouchKeys::fitButtons(unsigned int side, unsigned int size) {
+void TouchKeys::fit_buttons(unsigned int side, unsigned int size) {
 
 	this->side = side;
 	this->size = size;
 
-	this->reArrange();
+	this->re_arrange();
 
 }
 
-void TouchKeys::reArrange() {
+void TouchKeys::re_arrange() {
 
-	int windowW = this->engine->allegroHnd->getWindowWidth() / this->engine->allegroHnd->getScaled();
-	int windowH = this->engine->allegroHnd->getWindowHeight() / this->engine->allegroHnd->getScaled();
+	int window_w = this->engine->allegro_hnd->get_window_width() / this->engine->allegro_hnd->get_scaled();
+	int window_h = this->engine->allegro_hnd->get_window_height() / this->engine->allegro_hnd->get_scaled();
 
 	unsigned int width, height;
 
 	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
-		width = windowW / buttons.size();
-		height = side == FIT_HORIZONTAL ? windowH : windowH * size / 100;
+		width = window_w / buttons.size();
+		height = side == FIT_HORIZONTAL ? window_h : window_h * size / 100;
 	}
 	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
-		height = windowH / buttons.size();
-		width = side == FIT_VERTICAL ? windowW : windowW * size / 100;
+		height = window_h / buttons.size();
+		width = side == FIT_VERTICAL ? window_w : window_w * size / 100;
 	}
 
 	unsigned int i = 0;
@@ -211,16 +214,16 @@ void TouchKeys::reArrange() {
 	for (auto &btn: buttons) {
 
 		if (side == FIT_TOP || side == FIT_HORIZONTAL) {
-			btn.setDimensions(i * width, 0, width, height);
+			btn.set_dimensions(i * width, 0, width, height);
 		}
 		else if (side == FIT_RIGHT) {
-			btn.setDimensions(windowW - width, i * height, width, height);
+			btn.set_dimensions(window_w - width, i * height, width, height);
 		}
 		else if (side == FIT_BOTTOM) {
-			btn.setDimensions(i * width, windowH - height, width, height);
+			btn.set_dimensions(i * width, window_h - height, width, height);
 		}
 		else if (side == FIT_LEFT || side == FIT_VERTICAL) {
-			btn.setDimensions(0, i * height, width, height);
+			btn.set_dimensions(0, i * height, width, height);
 		}
 
 		i++;
@@ -228,24 +231,24 @@ void TouchKeys::reArrange() {
 
 }
 
-void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt) {
+void TouchKeys::redefine_touch_event(ALLEGRO_EVENT &evt) {
 
 	switch (evt.type) {
 
 		case ALLEGRO_EVENT_TOUCH_BEGIN:
 			{
-				int touchID = evt.touch.id;
-				this->engine->debugTxt = "ID BEGIN: " + to_string(touchID);
-				//auto mappedPt = this->engine->allegroHnd->getMappedCoordinates(evt.touch.x, evt.touch.y);
-				float scaled = this->engine->allegroHnd->getScaled();
+				int touch_id = evt.touch.id;
+				this->engine->debug_txt = "ID BEGIN: " + to_string(touch_id);
+				//auto mappedPt = this->engine->allegro_hnd->get_mapped_coordinates(evt.touch.x, evt.touch.y);
+				float scaled = this->engine->allegro_hnd->get_scaled();
 
 				for (auto& btn: buttons) {
 
-					//if (btn.inArea(mappedPt.x, mappedPt.y)) {
-					if (btn.inArea(evt.touch.x / scaled, evt.touch.y / scaled)) {
+					//if (btn.in_area(mappedPt.x, mappedPt.y)) {
+					if (btn.in_area(evt.touch.x / scaled, evt.touch.y / scaled)) {
 						evt.type = ALLEGRO_EVENT_KEY_DOWN;
-						evt.keyboard.keycode = btn.getKeycode();
-						btn.setPressed(touchID);
+						evt.keyboard.keycode = btn.get_keycode();
+						btn.set_pressed(touch_id);
 					}
 					//ALLEGRO_DEBUG("touch %i begin", event.touch.id);
 				}
@@ -254,15 +257,15 @@ void TouchKeys::redefineTouchEvent(ALLEGRO_EVENT &evt) {
 
 		case ALLEGRO_EVENT_TOUCH_END:
 			{
-				this->engine->debugTxt = "ID END: " + to_string(evt.touch.id);
-				Button *btn = this->getPressedBtnByID(evt.touch.id);
+				this->engine->debug_txt = "ID END: " + to_string(evt.touch.id);
+				Button *btn = this->get_pressed_btn_by_id(evt.touch.id);
 
 				if (btn != nullptr) {
 					evt.type = ALLEGRO_EVENT_KEY_UP;
-					evt.keyboard.keycode = btn->getKeycode();
-					btn->setReleased();
+					evt.keyboard.keycode = btn->get_keycode();
+					btn->set_released();
 				} else {
-					this->engine->debugTxt += " not found";
+					this->engine->debug_txt += " not found";
 				}
 			}
 			break;

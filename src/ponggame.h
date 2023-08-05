@@ -34,13 +34,6 @@ class Element;
 class Ball;
 class Bonus;
 
-/*
-struct EvtListener {
-	std::string eventName;
-	std::function<void(void)> fn;
-};
-*/
-
 
 enum {
 	CONTROLMODE_NONE = 0,
@@ -59,7 +52,7 @@ public:
 
 	uint_fast32_t seed;
 
-	unsigned int controlMode = CONTROLMODE_NONE;
+	unsigned int control_mode = CONTROLMODE_NONE;
 
 	bool paused = false, finished = false;
 
@@ -71,28 +64,22 @@ public:
 
 	unsigned int tick = 0;
 
-	//std::vector<EvtListener> eventListeners;
-
 	std::queue<std::string> messages;
 	
 	PongGame(uint_fast32_t _seed = std::time(nullptr));
 
 	void restart();
 
-	void togglePause();
+	void toggle_pause();
 
-	void iniciarPunto(int first);
+	void iniciar_punto(int first);
 
-	void giveScore(PlayerP* pl, int score);
+	void give_score(PlayerP* pl, int score);
 
-	void processTick();
+	void process_tick();
 
-	//void addEventListener(std::string &evtName, std::function<void>& fn);
-
-	//void addMessage(std::string evtMsg);
-	void addMessage(const std::string& evtMsg);
+	void add_message(const std::string& evt_msg);
 	
-
 	/**
 	 * Generates a decimal pseudo random number between min and max
 	 * @param min minum retornable value
@@ -108,7 +95,7 @@ public:
 	 * @param max maximum retornable value
 	 * @param rand_sign if true, the returned value sign will be positive or negative at 50/50 chance
 	 */
-	int intRandom(int min, int max, bool rand_sign = false);
+	int int_random(int min, int max, bool rand_sign = false);
 
 
 };
@@ -122,33 +109,33 @@ public:
 
 	double x, y, x00, y00, radius;
 	
-	double vX, vY, t;
+	double vx, vy, t;
 
 	PongGame *game;
 
 	Element(PongGame *game);
 
-	void setParameters(double px, double py, double vx, double vy, int st = 1); //Configures to start a new movement
+	void set_parameters(double px, double py, double vx, double vy, int st = 1); //Configures to start a new movement
 	
-	void processColliding();
+	void process_colliding();
 
 	virtual void preprocess() {}
 
 	void process();//Moves, tests collinding and draws the element
 
-	int getStat() { return stat; }
+	int get_stat() { return stat; }
 
 	void setStat(int st) { stat = st; }
 
-	int getX() { return x; }
+	int get_x() { return x; }
 
-	int getY() { return y; }
+	int get_y() { return y; }
 
-	void setPos(int px, int py) {x = x00 = px; y = y00 = py;}
+	void set_pos(int px, int py) {x = x00 = px; y = y00 = py;}
 
-	double getvX() { return vX; }
+	double get_vx() { return vx; }
 	
-	virtual void onPlayerHit(PlayerP *pl) {}
+	virtual void on_player_hit(PlayerP *pl) {}
 };
 
 
@@ -158,7 +145,7 @@ public:
 
 	Ball(PongGame* game);
 
-	void onPlayerHit(PlayerP *pl);
+	void on_player_hit(PlayerP *pl);
 	
 	void preprocess();
 
@@ -175,7 +162,7 @@ class Bonus: public Element {
 
 	Bonus(PongGame* game, int bonus_type);
 	
-	void onPlayerHit(PlayerP *pl);
+	void on_player_hit(PlayerP *pl);
 	
 };
 
@@ -186,9 +173,9 @@ class PlayerP {
 
 public:
 	
-	int x, y, comTxtY;
+	int x, y, com_txt_y;
 	
-	std::string comTxt;
+	std::string com_txt;
 
 	int score, medlen, racha;
 
@@ -196,27 +183,27 @@ public:
 
 	bool controls[CONTROL_MAX];
 
-	PlayerP(PongGame *pongGame, int px, int py);
+	PlayerP(PongGame *pong_game, int px, int py);
 
-	void giveBonus(int bonus_type);
+	void give_bonus(int bonus_type);
  
-	void lockLimit();
+	void lock_limit();
 	
 	void reset();
 
-	void controlMove();
+	void control_move();
 
-	void moveIA();
+	void move_ia();
 
-	void movePerfect();
+	void move_perfect();
 
 	void setX(int px) { x = px; }
 
 	void setY(int py) { y = py; }
 
-	int getX() { return x; }
+	int get_x() { return x; }
 
-	int getY() { return y; }
+	int get_y() { return y; }
 
 };
 

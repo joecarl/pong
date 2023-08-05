@@ -29,27 +29,27 @@ enum {
 
 class GameHandler {
 
-	int controlMode = CONTROLMODE_NONE;
+	int control_mode = CONTROLMODE_NONE;
 
 public:
 
-	int playMode = PLAYMODE_NONE;
+	int play_mode = PLAYMODE_NONE;
 
-	PongGame* pongGame = nullptr;
+	PongGame* pong_game = nullptr;
 
 	~GameHandler();
 
-	void setup(int playMode, int controlMode);
+	void setup(int play_mode, int control_mode);
 
-	void makeNewPongGame(int_fast32_t seed);
+	void make_new_pong_game(int_fast32_t seed);
 	
-	int getControl(int kCode, int playerID);
+	int get_control(int kCode, int playerID);
 	
 	void cleanup();
 
 };
 
-extern GameHandler gameHandler;
+extern GameHandler game_handler;
 
 
 //----------------------------------------------------------------------------
@@ -64,11 +64,11 @@ public:
 
 	MainMenuStage(HGameEngine* _engine);
 	
-	void onEnterStage();
+	void on_enter_stage();
 
-	void onTick();
+	void on_tick();
 
-	void onEvent(ALLEGRO_EVENT event);
+	void on_event(ALLEGRO_EVENT event);
 
 	void draw();
 
@@ -87,13 +87,13 @@ public:
 
 	Tracer(HGameEngine* _engine);
 
-	ALLEGRO_BITMAP* getSpriteForBonusType(int bonus_type);
+	ALLEGRO_BITMAP* get_sprite_for_bonus_type(int bonus_type);
 
-	void drawBall(Ball *b, float scale);
+	void draw_ball(Ball *b, float scale);
 
-	void drawBonus(Bonus * b, float scale);
+	void draw_bonus(Bonus * b, float scale);
 
-	void drawPlayer(PlayerP *pl, int scale);
+	void draw_player(PlayerP *pl, int scale);
 
 };
 
@@ -114,11 +114,11 @@ public:
 
 	GameStage(HGameEngine* _engine);
 
-	void onEnterStage();
+	void on_enter_stage();
 
-	void onEvent(ALLEGRO_EVENT evt);
+	void on_event(ALLEGRO_EVENT evt);
 
-	void onTick();
+	void on_tick();
 
 	void draw();
 
@@ -135,9 +135,9 @@ public:
 
 	using Stage::Stage;
 
-	void onEnterStage();
+	void on_enter_stage();
 
-	void onEvent(ALLEGRO_EVENT event);
+	void on_event(ALLEGRO_EVENT event);
 
 	void draw();
 

@@ -35,13 +35,13 @@ public:
 
 	Group();
 	
-	void newGame();
+	void new_game();
 
-	void addClient(Client* cl);
+	void add_client(Client* cl);
 
-	void sendToAll(std::string pkg);
+	void send_to_all(std::string pkg);
 
-	void startGame();
+	void start_game();
 
 };
 

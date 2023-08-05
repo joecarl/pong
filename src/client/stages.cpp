@@ -21,24 +21,24 @@ using namespace std;
 
 void GameHandler::setup(int _playMode, int _controlMode) {
 
-	this->playMode = _playMode;
-	this->controlMode = _controlMode;
+	this->play_mode = _playMode;
+	this->control_mode = _controlMode;
 	
 }
 
-void GameHandler::makeNewPongGame(int_fast32_t seed) {
+void GameHandler::make_new_pong_game(int_fast32_t seed) {
 
 	this->cleanup();
 
-	pongGame = new PongGame(seed);
+	pong_game = new PongGame(seed);
 
-	pongGame->controlMode = this->controlMode;
+	pong_game->control_mode = this->control_mode;
 
 }
 
 void GameHandler::cleanup() {
 
-	delete pongGame;
+	delete pong_game;
 
 }
 
@@ -49,28 +49,28 @@ GameHandler::~GameHandler() {
 }
 
 /**
- * Retrieves the game CONTROL_* based on controlMode, keycode and playerID
+ * Retrieves the game CONTROL_* based on control_mode, keycode and player_id
  */
-int GameHandler::getControl(int kCode, int playerID) {
+int GameHandler::get_control(int k_code, int player_id) {
 
-	if (this->pongGame->controlMode == CONTROLMODE_TWO_PLAYERS && this->playMode == PLAYMODE_LOCAL) {
+	if (this->pong_game->control_mode == CONTROLMODE_TWO_PLAYERS && this->play_mode == PLAYMODE_LOCAL) {
 
-		if (playerID == 1) {
+		if (player_id == 1) {
 
-			if (kCode == ALLEGRO_KEY_UP || kCode == ALLEGRO_KEY_I) return CONTROL_MOVE_UP;
-			else if (kCode == ALLEGRO_KEY_DOWN || kCode == ALLEGRO_KEY_K) return CONTROL_MOVE_DOWN;
+			if (k_code == ALLEGRO_KEY_UP || k_code == ALLEGRO_KEY_I) return CONTROL_MOVE_UP;
+			else if (k_code == ALLEGRO_KEY_DOWN || k_code == ALLEGRO_KEY_K) return CONTROL_MOVE_DOWN;
 
-		} else if (playerID == 0) {
+		} else if (player_id == 0) {
 
-			if (kCode == ALLEGRO_KEY_W) return CONTROL_MOVE_UP;
-			else if (kCode == ALLEGRO_KEY_S) return CONTROL_MOVE_DOWN;
+			if (k_code == ALLEGRO_KEY_W) return CONTROL_MOVE_UP;
+			else if (k_code == ALLEGRO_KEY_S) return CONTROL_MOVE_DOWN;
 
 		}
 
 	} else {
 
-		if (kCode == ALLEGRO_KEY_UP) return CONTROL_MOVE_UP;
-		else if (kCode == ALLEGRO_KEY_DOWN) return CONTROL_MOVE_DOWN;
+		if (k_code == ALLEGRO_KEY_UP) return CONTROL_MOVE_UP;
+		else if (k_code == ALLEGRO_KEY_DOWN) return CONTROL_MOVE_DOWN;
 
 	}
 
@@ -80,7 +80,7 @@ int GameHandler::getControl(int kCode, int playerID) {
 
 
 
-GameHandler gameHandler;
+GameHandler game_handler;
 
 
 
@@ -96,48 +96,48 @@ MainMenuStage::MainMenuStage(HGameEngine* _engine):Stage(_engine) {
 }
 
 
-void MainMenuStage::onEnterStage() {
+void MainMenuStage::on_enter_stage() {
 
-	this->engine->touchKeys.clearButtons();
+	this->engine->touch_keys.clear_buttons();
 
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_1, "1");
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_2, "2");
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_3, "3");
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_4, "4");
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_ESCAPE, "ESC");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_1, "1");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_2, "2");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_3, "3");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_4, "4");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "ESC");
 
-	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 10);
+	this->engine->touch_keys.fit_buttons(FIT_BOTTOM, 10);
 }
 
 
-void MainMenuStage::onTick() {
+void MainMenuStage::on_tick() {
 
-	if (easteregg++ == 5000) PlayExorcista();
+	if (easteregg++ == 5000) play_exorcista();
 
 }
 	
 
-void MainMenuStage::onEvent(ALLEGRO_EVENT event) {
+void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 
 	int keycode = event.keyboard.keycode;
 
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 	
 		if (keycode == ALLEGRO_KEY_1) {
-			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_SINGLE_PLAYER);
+			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_SINGLE_PLAYER);
 		} 
 		else if (keycode == ALLEGRO_KEY_2) {
-			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_TWO_PLAYERS);
+			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_TWO_PLAYERS);
 		}
 		else if (keycode == ALLEGRO_KEY_3) {
-			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_TRAINING);
+			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_TRAINING);
 		}
 		else if (keycode == ALLEGRO_KEY_4) {
-			this->engine->setStage(CONN); 
-			gameHandler.setup(PLAYMODE_ONLINE, CONTROLMODE_TWO_PLAYERS);
+			this->engine->set_stage(CONN); 
+			game_handler.setup(PLAYMODE_ONLINE, CONTROLMODE_TWO_PLAYERS);
 		}
 		else if (keycode == ALLEGRO_KEY_5) {
-			gameHandler.setup(PLAYMODE_LOCAL, CONTROLMODE_DEBUG);
+			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_DEBUG);
 		}
 		
 		if (keycode == ALLEGRO_KEY_C) {//CAMBIAR RESOLUCION, bad performance
@@ -146,7 +146,7 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event) {
 			al_destroy_font(font);
 			al_destroy_bitmap(buffer);
 			font = al_load_ttf_font("resources/font.ttf", scale * 9, 0) ;
-			buffer = al_create_bitmap(scale * resX, scale * resY);
+			buffer = al_create_bitmap(scale * res_x, scale * res_y);
 			*/
 		}
 
@@ -156,8 +156,8 @@ void MainMenuStage::onEvent(ALLEGRO_EVENT event) {
 
 		else if (keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3 || keycode == ALLEGRO_KEY_5) {
 
-			gameHandler.makeNewPongGame(time(nullptr)); 
-			this->engine->setStage(GAME);
+			game_handler.make_new_pong_game(time(nullptr)); 
+			this->engine->set_stage(GAME);
 
 		}
 	}
@@ -171,13 +171,11 @@ void MainMenuStage::draw() {
 	ALLEGRO_FONT* font = this->engine->font;
 
 	al_draw_bitmap(this->logo, (sc - 1) * DEF_W / 2, (sc - 1) * 50, 0);
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 130, ALLEGRO_ALIGN_CENTER, "1:One Player  2:Two Players");
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 140, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
-	al_draw_text(font, al_map_rgb( 255, 255, 255), sc * DEF_W / 2, sc * 155, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
+	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
+	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 130, ALLEGRO_ALIGN_CENTER, "1:One Player  2:Two Players");
+	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 140, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
+	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 155, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
 
-	////al_draw_textf(font,WHITE,20, 75, ALLEGRO_ALIGN_LEFT,"%f", sin(x)*sin(x));
-	
 }
 
 
@@ -195,87 +193,115 @@ void GameStage::drawCourt() {
 
 	float scale = this->engine->scale;
 
-	float minCourtY = scale * (LIMIT);
-	float maxCourtY = scale * (MAX_Y - LIMIT);
+	float min_court_y = scale * (LIMIT);
+	float max_court_y = scale * (MAX_Y - LIMIT);
 
-	al_draw_line(0, minCourtY, scale*DEF_W, minCourtY, al_map_rgb( 255, 255, 255),2);
-	al_draw_line(0, maxCourtY,scale*DEF_W, maxCourtY, al_map_rgb( 255, 255, 255),2);
-	al_draw_line(scale*(320/2-1), minCourtY, scale*(320/2-1), maxCourtY, al_map_rgb( 255, 255, 255),2);
-	al_draw_line(scale*(320/2+1), minCourtY, scale*(320/2+1), maxCourtY, al_map_rgb( 255, 255, 255),2);
+	al_draw_line(0, min_court_y, scale * DEF_W, min_court_y, al_map_rgb(255, 255, 255), 2);
+	al_draw_line(0, max_court_y, scale * DEF_W, max_court_y, al_map_rgb(255, 255, 255), 2);
+	al_draw_line(scale * (320 / 2 - 1), min_court_y, scale * (320 / 2 - 1), max_court_y, al_map_rgb(255, 255, 255), 2);
+	al_draw_line(scale * (320 / 2 + 1), min_court_y, scale * (320 / 2 + 1), max_court_y, al_map_rgb(255, 255, 255), 2);
 
-	if (gameHandler.pongGame->controlMode == CONTROLMODE_TRAINING) {
-		
-		al_draw_line(scale*DEF_W, minCourtY, scale*DEF_W, maxCourtY, al_map_rgb( 255, 255, 255), 2);
-
+	if (game_handler.pong_game->control_mode == CONTROLMODE_TRAINING) {
+		al_draw_line(scale * DEF_W, min_court_y, scale * DEF_W, max_court_y, al_map_rgb(255, 255, 255), 2);
 	}
 
 }
+
 
 void GameStage::drawScores() {
 	
 	ALLEGRO_FONT* font = this->engine->font;
 	float scale = this->engine->scale;
 
-	if (gameHandler.pongGame->controlMode != CONTROLMODE_TRAINING) {
-		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*25, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", gameHandler.pongGame->players[0]->score );
-		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*240, scale*186, ALLEGRO_ALIGN_LEFT, "SCORE:%d", gameHandler.pongGame->players[1]->score );
+	if (game_handler.pong_game->control_mode != CONTROLMODE_TRAINING) {
+
+		al_draw_textf(
+			font,
+			al_map_rgb(255, 0, 0),
+			scale * 25,
+			scale * 186,
+			ALLEGRO_ALIGN_LEFT,
+			"SCORE:%d",
+			game_handler.pong_game->players[0]->score
+		);
+
+		al_draw_textf(
+			font,
+			al_map_rgb(255, 0, 0),
+			scale * 240,
+			scale * 186,
+			ALLEGRO_ALIGN_LEFT,
+			"SCORE:%d",
+			game_handler.pong_game->players[1]->score
+		);
+	
 	} else {
-		al_draw_textf( font, al_map_rgb( 255, 0, 0), scale*25, scale*186, ALLEGRO_ALIGN_LEFT, "FAILS:%d", gameHandler.pongGame->players[1]->score );
+
+		al_draw_textf(
+			font,
+			al_map_rgb(255, 0, 0),
+			scale * 25,
+			scale * 186,
+			ALLEGRO_ALIGN_LEFT,
+			"FAILS:%d",
+			game_handler.pong_game->players[1]->score
+		);
+	
 	}
 
 }
 
-void GameStage::onEnterStage() {
+
+void GameStage::on_enter_stage() {
 	
-	this->engine->touchKeys.clearButtons();
+	this->engine->touch_keys.clear_buttons();
 
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_DOWN, "");
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_UP, "");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_UP, "");
 
-	this->engine->touchKeys.fitButtons(FIT_HORIZONTAL);
+	this->engine->touch_keys.fit_buttons(FIT_HORIZONTAL);
 
+	if (game_handler.play_mode == PLAYMODE_ONLINE) {
 
-	if (gameHandler.playMode == PLAYMODE_ONLINE) {
-
-		this->engine->connection.process_actions_fn = [&](boost::json::object& evt) {
+		this->engine->connection.set_process_actions_fn([&] (boost::json::object& evt) {
 
 			controller.push_event(evt);
 			
-		};
+		});
 
 	}
 
-	PlaySound(Do, 400);
-	PlaySound(Re, 200);
-	PlaySound(La, 100);
-	PlaySound(Si, 100);
-	PlayAudio();
+	play_sound(Do, 400);
+	play_sound(Re, 200);
+	play_sound(La, 100);
+	play_sound(Si, 100);
+	play_audio();
 
-	gameHandler.pongGame->restart();
-	gameHandler.pongGame->iniciarPunto(1);
+	game_handler.pong_game->restart();
+	game_handler.pong_game->iniciar_punto(1);
 
 	delayer = 75;
 
 }
 
 
-void GameStage::onEvent(ALLEGRO_EVENT evt) {
+void GameStage::on_event(ALLEGRO_EVENT evt) {
 
-	int kCode = evt.keyboard.keycode;
+	int k_code = evt.keyboard.keycode;
 	
 	if (evt.type == ALLEGRO_EVENT_KEY_DOWN) {
 
-		if (kCode == ALLEGRO_KEY_ESCAPE) {
+		if (k_code == ALLEGRO_KEY_ESCAPE) {
 
-			this->engine->setStage(MENU);
+			this->engine->set_stage(MENU);
 
-		} else if (kCode == ALLEGRO_KEY_P) {//P (PAUSA)
+		} else if (k_code == ALLEGRO_KEY_P) {//P (PAUSA)
 
-			if (gameHandler.playMode == PLAYMODE_ONLINE) {
+			if (game_handler.play_mode == PLAYMODE_ONLINE) {
 
 			} else {
 
-				gameHandler.pongGame->togglePause();
+				game_handler.pong_game->toggle_pause();
 
 			}
 
@@ -287,10 +313,10 @@ void GameStage::onEvent(ALLEGRO_EVENT evt) {
 
 		bool newSt = evt.type == ALLEGRO_EVENT_KEY_DOWN;
 
-		int controlP1 = gameHandler.getControl(kCode, 0);
-		int controlP2 = gameHandler.getControl(kCode, 1);
+		int controlP1 = game_handler.get_control(k_code, 0);
+		int controlP2 = game_handler.get_control(k_code, 1);
 
-		if (gameHandler.playMode == PLAYMODE_ONLINE) {
+		if (game_handler.play_mode == PLAYMODE_ONLINE) {
 				
 			if (controlP1 != CONTROL_NONE) {
 
@@ -301,7 +327,7 @@ void GameStage::onEvent(ALLEGRO_EVENT evt) {
 					{"type", "set_control_state"},
 					{"state", newSt},
 					{"control", controlP1},
-					{"tick", gameHandler.pongGame->tick}
+					{"tick", game_handler.pong_game->tick}
 				};
 
 				cout << "Sending: " << inputEvt << endl;
@@ -311,9 +337,9 @@ void GameStage::onEvent(ALLEGRO_EVENT evt) {
 
 		} else {
 		
-			gameHandler.pongGame->players[0]->controls[controlP1] = newSt;
+			game_handler.pong_game->players[0]->controls[controlP1] = newSt;
 
-			gameHandler.pongGame->players[1]->controls[controlP2] = newSt;
+			game_handler.pong_game->players[1]->controls[controlP2] = newSt;
 			
 		} 
 
@@ -326,36 +352,36 @@ void GameStage::processMessage(string &msg) {
 
 	if (msg == "scored") {
 
-		PlaySound(Re, 130);
-		PlaySound(Do, 250);
-		PlayAudio();
+		play_sound(Re, 130);
+		play_sound(Do, 250);
+		play_audio();
 
 	} else if (msg == "hit") {
 
-		PlaySound(Mi, 40, 4);
-		PlayAudio();
+		play_sound(Mi, 40, 4);
+		play_audio();
 
 	}
 
 }
 
 
-void GameStage::onTick() {
+void GameStage::on_tick() {
 
 	if (delayer > 0) {
 		delayer--;
 		return;
 	} 
 
-	if (gameHandler.pongGame->paused) {
+	if (game_handler.pong_game->paused) {
 		return;
 	}
 
-	if (gameHandler.playMode == PLAYMODE_ONLINE) {
+	if (game_handler.play_mode == PLAYMODE_ONLINE) {
 
 		try {
 
-			controller.onTick();
+			controller.on_tick();
 
 		} catch (std::exception& e) {
 
@@ -368,27 +394,27 @@ void GameStage::onTick() {
 	} else {
 
 		if (this->engine->keys[ALLEGRO_KEY_G]) {
-			//gameHandler.pongGame->players[0]->medlen += 1;//DEBUG
+			//game_handler.pong_game->players[0]->medlen += 1;//DEBUG
 		}
 
 	}
 
-	gameHandler.pongGame->processTick();
+	game_handler.pong_game->process_tick();
 
-	while (!gameHandler.pongGame->messages.empty()) {
-		string msg = gameHandler.pongGame->messages.front();
-		gameHandler.pongGame->messages.pop();
+	while (!game_handler.pong_game->messages.empty()) {
+		string msg = game_handler.pong_game->messages.front();
+		game_handler.pong_game->messages.pop();
 		this->processMessage(msg);
 	}
 
-	if (gameHandler.pongGame->finished) {
+	if (game_handler.pong_game->finished) {
 		
-		this->engine->setStage(OVER);
-		PlaySound(Re, 150, 3);
-		PlaySound(Re, 150, 3);
-		PlaySound(Re, 200, 3);
-		PlaySound(LaSos, 500, 2);
-		PlayAudio();
+		this->engine->set_stage(OVER);
+		play_sound(Re, 150, 3);
+		play_sound(Re, 150, 3);
+		play_sound(Re, 200, 3);
+		play_sound(LaSos, 500, 2);
+		play_audio();
 
 	}
 	
@@ -406,8 +432,8 @@ void GameStage::draw() {
 		al_draw_textf(
 			font, 
 			al_map_rgb(255, 0, 0), 
-			scale * this->engine->resX / 2, 
-			scale * this->engine->resY / 2, 
+			scale * this->engine->res_x / 2, 
+			scale * this->engine->res_y / 2, 
 			ALLEGRO_ALIGN_CENTER, 
 			"%d", 
 			1 + delayer / 25
@@ -415,13 +441,13 @@ void GameStage::draw() {
 		
 	} else {
 
-		if (gameHandler.pongGame->paused) {
+		if (game_handler.pong_game->paused) {
 
 			al_draw_text(
 				font, 
 				al_map_rgb(0, 200, 100), 
-				this->engine->resX * scale / 2, 
-				this->engine->resY * scale / 2 - 5, 
+				this->engine->res_x * scale / 2, 
+				this->engine->res_y * scale / 2 - 5, 
 				ALLEGRO_ALIGN_CENTER, 
 				"PAUSA"
 			);
@@ -430,31 +456,31 @@ void GameStage::draw() {
 
 			//al_draw_text(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
 			
-			int secs = gameHandler.pongGame->tick / 60;
-			int secsD = (secs % 60) / 10;
-			int secsU = secs % 10;
+			int secs = game_handler.pong_game->tick / 60;
+			int secs_d = (secs % 60) / 10;
+			int secs_u = secs % 10;
 			int min = secs / 60;
-			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 1, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secsD, secsU);
+			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 1, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
 				
 			this->drawCourt();
 
 			Tracer *tr = this->tracer;
 
-			tr->drawBall(gameHandler.pongGame->ball, scale);
-			tr->drawBonus(gameHandler.pongGame->bonus[0], scale);
-			tr->drawBonus(gameHandler.pongGame->bonus[1], scale);
+			tr->draw_ball(game_handler.pong_game->ball, scale);
+			tr->draw_bonus(game_handler.pong_game->bonus[0], scale);
+			tr->draw_bonus(game_handler.pong_game->bonus[1], scale);
 
 			this->drawScores();
 
-			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int)(this->engine->fps));
+			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->fps));
 
-			if (gameHandler.playMode == PLAYMODE_ONLINE) {
-				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", (int)(this->engine->connection.ping_ms));
+			if (game_handler.play_mode == PLAYMODE_ONLINE) {
+				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", (int) (this->engine->connection.ping_ms));
 			}
 
-			tr->drawPlayer(gameHandler.pongGame->players[0], scale);
-			if (gameHandler.pongGame->controlMode != CONTROLMODE_TRAINING) {
-				tr->drawPlayer(gameHandler.pongGame->players[1], scale);
+			tr->draw_player(game_handler.pong_game->players[0], scale);
+			if (game_handler.pong_game->control_mode != CONTROLMODE_TRAINING) {
+				tr->draw_player(game_handler.pong_game->players[1], scale);
 			}
 
 		}
@@ -479,7 +505,7 @@ Tracer::Tracer(HGameEngine* _engine) {
 
 }
 
-ALLEGRO_BITMAP* Tracer::getSpriteForBonusType(int bonus_type) {
+ALLEGRO_BITMAP* Tracer::get_sprite_for_bonus_type(int bonus_type) {
 
 	if (bonus_type == BONUS_BALL) {
 
@@ -499,7 +525,7 @@ ALLEGRO_BITMAP* Tracer::getSpriteForBonusType(int bonus_type) {
 
 }
 
-void Tracer::drawBall(Ball *b, float scale) {
+void Tracer::draw_ball(Ball *b, float scale) {
 		
 	if (!b->stat) {
 		return;
@@ -509,13 +535,13 @@ void Tracer::drawBall(Ball *b, float scale) {
 
 }
 
-void Tracer::drawBonus(Bonus * b, float scale) {
+void Tracer::draw_bonus(Bonus * b, float scale) {
 	
 	if (!b->stat) {
 		return;
 	}
 
-	ALLEGRO_BITMAP *spr = this->getSpriteForBonusType(b->bonus_type);
+	ALLEGRO_BITMAP *spr = this->get_sprite_for_bonus_type(b->bonus_type);
 	if (spr != nullptr) {
 		al_draw_bitmap(spr, scale * (b->x - 10), scale * (b->y - 10), 0);
 		// x-sprite->w/2, y-sprite->h/2);
@@ -524,7 +550,7 @@ void Tracer::drawBonus(Bonus * b, float scale) {
 }
 
 
-void Tracer::drawPlayer(PlayerP *pl, int scale) {
+void Tracer::draw_player(PlayerP *pl, int scale) {
 
 	int medln = pl->medlen;
 	
@@ -570,23 +596,23 @@ void Tracer::drawPlayer(PlayerP *pl, int scale) {
 	
 	}
 
-	if (pl->comTxtY >- 40) {
+	if (pl->com_txt_y >- 40) {
 
-		int txtX;
+		int txt_x;
 
-		if (pl->x < 100) txtX = 60;
-		else txtX = 220;
+		if (pl->x < 100) txt_x = 60;
+		else txt_x = 220;
 
 		al_draw_text(
 			this->engine->font, 
-			al_map_rgb(  150 - pl->comTxtY, 150 - pl->comTxtY * 4, 255), 
-			scale * txtX, 
-			scale * pl->comTxtY, 
+			al_map_rgb(150 - pl->com_txt_y, 150 - pl->com_txt_y * 4, 255), 
+			scale * txt_x, 
+			scale * pl->com_txt_y, 
 			ALLEGRO_ALIGN_CENTER, 
-			pl->comTxt.c_str()
+			pl->com_txt.c_str()
 		);
 
-		pl->comTxtY -= 2;
+		pl->com_txt_y -= 2;
 	}
 
 }
@@ -597,35 +623,35 @@ void Tracer::drawPlayer(PlayerP *pl, int scale) {
 //------------------------------- GameOverStage -------------------------------
 
 
-void GameOverStage::onEnterStage() {
+void GameOverStage::on_enter_stage() {
 
-	this->engine->touchKeys.clearButtons();
+	this->engine->touch_keys.clear_buttons();
 
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_Y, "Y");
-	this->engine->touchKeys.addButton(ALLEGRO_KEY_N, "N");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_Y, "Y");
+	this->engine->touch_keys.add_button(ALLEGRO_KEY_N, "N");
 
-	this->engine->touchKeys.fitButtons(FIT_BOTTOM, 10);
+	this->engine->touch_keys.fit_buttons(FIT_BOTTOM, 10);
 	
 }
 
-void GameOverStage::onEvent(ALLEGRO_EVENT event) {
+void GameOverStage::on_event(ALLEGRO_EVENT event) {
 
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
 		int keycode = event.keyboard.keycode;
 
 		if (keycode == ALLEGRO_KEY_Y) {
-			if (gameHandler.playMode == PLAYMODE_ONLINE) {
+			if (game_handler.play_mode == PLAYMODE_ONLINE) {
 
-				this->engine->setStage(LOBBY);
+				this->engine->set_stage(LOBBY);
 
 			} else {
 				
-				this->engine->setStage(GAME);
+				this->engine->set_stage(GAME);
 
 			}
 		} else if (keycode == ALLEGRO_KEY_N) {
-			this->engine->setStage(MENU);
+			this->engine->set_stage(MENU);
 		}
 
 	}
@@ -635,13 +661,13 @@ void GameOverStage::onEvent(ALLEGRO_EVENT event) {
 void GameOverStage::draw() {
 
 	int winner;
-	if (gameHandler.pongGame->players[0]->score > gameHandler.pongGame->players[1]->score) winner = 1;
+	if (game_handler.pong_game->players[0]->score > game_handler.pong_game->players[1]->score) winner = 1;
 	else winner = 2;
 
 	float scale = this->engine->scale;
 	ALLEGRO_FONT *font = this->engine->font;
 
-	al_draw_textf(font, al_map_rgb( 255, 0, 0), scale*320/2, scale*54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
-	al_draw_text (font, al_map_rgb( 255, 0, 0), scale*320/2, scale*70, ALLEGRO_ALIGN_CENTER, "REPLAY? (Y/N)" );
+	al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
+	al_draw_text (font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
 
 }

@@ -5,7 +5,7 @@
 #include "hengine.h"
 #include "../utils.h"
 
-#define CURR_VERSION "1.3"
+#define CURR_VERSION "1.5"
 
 using namespace std;
 
@@ -29,11 +29,11 @@ int main(int argc, char **argv) {
 			return 0;
 		}
 		*/
-		HGameEngine gameEngine;
+		HGameEngine game_engine;
 		
-		gameEngine.setStage(MENU);
+		game_engine.set_stage(MENU);
 
-		gameEngine.run();
+		game_engine.run();
 		
 		return 0;
 

@@ -30,25 +30,25 @@ class Button {
 
 	bool pressed;
 
-	TouchKeys* touchKeys;
+	TouchKeys* touch_keys;
 
 public:
 
-	Button(TouchKeys * tKeys, unsigned int keycode, std::string txt);
+	Button(TouchKeys* t_keys, unsigned int keycode, std::string txt);
 
-	void setDimensions(int x, int y, int w, int h);
+	void set_dimensions(int x, int y, int w, int h);
 
-	void setPressed(int newTouchID);
+	void set_pressed(int new_touch_id);
 	
-	void setReleased();
+	void set_released();
 
-	int getID();
+	int get_id();
 
-	int getKeycode();
+	int get_keycode();
 
-	bool isPressed();
+	bool is_pressed();
 
-	bool inArea(int px, int py);
+	bool in_area(int px, int py);
 
 	void draw();
 
@@ -59,7 +59,7 @@ class TouchKeys {
 
 	std::vector<Button> buttons;
 
-	Button* getPressedBtnByID(int id);
+	Button* get_pressed_btn_by_id(int id);
 
 	HGameEngine* engine;
 
@@ -71,19 +71,19 @@ public:
 
 	TouchKeys(HGameEngine* engine);
 
-	void clearButtons();
+	void clear_buttons();
 
-	void addButton(unsigned int keycode, std::string txt);
+	void add_button(unsigned int keycode, std::string txt);
 
-	void fitButtons(unsigned int side, unsigned int size = 0);
+	void fit_buttons(unsigned int side, unsigned int size = 0);
 
-	void reArrange();
+	void re_arrange();
 
-	void redefineTouchEvent(ALLEGRO_EVENT &evt);
+	void redefine_touch_event(ALLEGRO_EVENT &evt);
 
 	void draw();
 
-	HGameEngine* getEngine() {
+	HGameEngine* get_engine() {
 		return this->engine;
 	}
 

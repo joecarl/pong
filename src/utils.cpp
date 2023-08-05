@@ -14,10 +14,26 @@
 
 using namespace std;
 
-string GetWaitString() {
+/*
+#ifdef __ANDROID__
+#include <android/log.h>
+#define APPNAME "Ponggame"
+#endif 
+
+void log(const string& txt) {
+	#ifdef ANDROID
+	__android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", txt.c_str());
+	#else 
+	cout << txt;
+	#endif
+}
+*/
+
+const string& get_wait_string() {
 
 	static string pts;
-	static int resize_timer = 0, pts_len = 0;
+	static uint8_t resize_timer = 0;
+	static uint8_t pts_len = 0;
 	
 	resize_timer++;
 	resize_timer = resize_timer % 30;
@@ -30,36 +46,36 @@ string GetWaitString() {
 	return pts;
 }
 
-std::string extract_pkg(std::string& raw) {
+string extract_pkg(string& buffer) {
 	
-	std::string pkg = "";
+	string pkg = "";
 
-	auto pos = raw.find("\r\n\r\n");
+	auto pos = buffer.find("\r\n\r\n");
 
-	if (pos != std::string::npos) {
-		pkg = raw.substr(0, pos);
-		raw.erase(0, pos + 4);
+	if (pos != string::npos) {
+		pkg = buffer.substr(0, pos);
+		buffer.erase(0, pos + 4);
 	}
 
 	return pkg;
 
 }
 
-std::string file_get_contents(const std::string& filepath) {
+string file_get_contents(const string& filepath) {
 
-	std::ifstream ifs(filepath);
-	std::string content;
+	ifstream ifs(filepath);
+	string content;
 	
 	content.assign( 
-		(std::istreambuf_iterator<char>(ifs)),
-		(std::istreambuf_iterator<char>()) 
+		(istreambuf_iterator<char>(ifs)),
+		(istreambuf_iterator<char>()) 
 	);
 
 	return content;
 
 }
 
-bool file_exists(const std::string& name) {
+bool file_exists(const string& name) {
 
 	if (FILE *file = fopen(name.c_str(), "r")) {
 		fclose(file);
@@ -94,8 +110,8 @@ string exec(const char* cmd) {
 // trim from start (in place)
 string ltrim(string s) {
 
-	s.erase(s.begin(), std::find_if (s.begin(), s.end(), [](unsigned char ch) {
-		return !std::isspace(ch);
+	s.erase(s.begin(), find_if (s.begin(), s.end(), [] (unsigned char ch) {
+		return !isspace(ch);
 	}));
 
 	return s;
@@ -105,8 +121,8 @@ string ltrim(string s) {
 // trim from end (in place)
 string rtrim(string s) {
 
-	s.erase(std::find_if (s.rbegin(), s.rend(), [](unsigned char ch) {
-		return !std::isspace(ch);
+	s.erase(find_if(s.rbegin(), s.rend(), [] (unsigned char ch) {
+		return !isspace(ch);
 	}).base(), s.end());
 
 	return s;

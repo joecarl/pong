@@ -33,14 +33,14 @@ class AllegroHandler {
 
 	ALLEGRO_DISPLAY *display = NULL;
 
-	int screenWidth, screenHeight;
+	int screen_width, screen_height;
 
 	ALLEGRO_BITMAP *buffer;
-	ALLEGRO_BITMAP *secBuffer;
+	ALLEGRO_BITMAP *sec_buffer;
 	// how much the buffer should be scaled
-	int scaleW, scaleH, scaleX, scaleY;
+	int scale_w, scale_h, scale_x, scale_y;
 
-	int windowWidth, windowHeight;
+	int window_width, window_height;
 
 	float scaled;
 
@@ -50,31 +50,31 @@ public:
 
 	AllegroHandler(HGameEngine *gameEngine);
 
-	void initializeResources();
+	void initialize_resources();
 
-	void createComponents();
+	void create_components();
 
-	Point getMappedCoordinates(int realX, int realY);
+	Point get_mapped_coordinates(int realX, int realY);
 
-	void fitDisplay();
+	void fit_display();
 
-	int getWindowWidth();
+	int get_window_width();
 
-	int getWindowHeight();
+	int get_window_height();
 
-	void startDrawing();
+	void start_drawing();
 
-	void prepareMainSurface();
+	void prepare_main_surface();
 
-	void drawMainSurface();
+	void draw_main_surface();
 
-	void prepareSecSurface();
+	void prepare_sec_surface();
 
-	void drawSecSurface();
+	void draw_sec_surface();
 
-	void finishDrawing();
+	void finish_drawing();
 
-	float getScaled();
+	float get_scaled();
 
 	void cleanup();
 
@@ -88,13 +88,13 @@ public:
 	
 	Stage(HGameEngine* _engine);
 
-	virtual void onEvent(ALLEGRO_EVENT event);
+	virtual void on_event(ALLEGRO_EVENT event);
 
-	virtual void onTick();
+	virtual void on_tick();
 
 	virtual void draw();
 
-	virtual void onEnterStage();
+	virtual void on_enter_stage();
 
 };
 
@@ -104,15 +104,15 @@ class HGameEngine {
 	
 	unsigned int frames_done = 0;
 
-	bool mustRunOnEnterStage = false;
+	bool must_run_on_enter_stage = false;
 
 public:
 
-	std::string debugTxt = "";
+	std::string debug_txt = "";
 
-	AllegroHandler* allegroHnd;
+	AllegroHandler* allegro_hnd;
 
-	TouchKeys touchKeys;
+	TouchKeys touch_keys;
 
 	IoClient connection;
 	
@@ -124,7 +124,7 @@ public:
 	
 	float scale = 1.0;
 
-	unsigned int activeStageID = 0;
+	unsigned int active_stage_id = 0;
 
 	bool finish = false;
 
@@ -132,17 +132,17 @@ public:
 
 	bool keys[300];
 
-	int resX = 320/*DEF_W*/, resY = 200/*DEF_H*/;
+	int res_x = 320/*DEF_W*/, res_y = 200/*DEF_H*/;
 
 	HGameEngine();
 
 	void calcFPS();
 
-	void setStage(unsigned int stageID);
+	void set_stage(unsigned int stage_id);
 
 	void runTick();
 
-	void onEvent(ALLEGRO_EVENT event);
+	void on_event(ALLEGRO_EVENT event);
 
 	void draw();
 
