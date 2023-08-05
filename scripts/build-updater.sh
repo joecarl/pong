@@ -7,24 +7,24 @@ SRC_DIR=./src/client/updater
 BUILD_DIR=./build/client
 OBJ_DIR=./obj/updater
 
-GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -C -I$SRC_DIR "
+GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g"
 
 mkdir -p $OBJ_DIR > /dev/null 2>&1
 mkdir -p $BUILD_DIR > /dev/null 2>&1
 
-scripts=()
-scripts+=(main)
-scripts+=(../../utils)
+SCRIPTS=()
+SCRIPTS+=(main)
+SCRIPTS+=(../../utils)
 
-for SCRIPT in ${scripts[@]}; do
+for SCRIPT in ${SCRIPTS[@]}; do
 
-	basename=${SCRIPT##*/}
-	source_file=$SRC_DIR/$SCRIPT.cpp
-	target_file=$OBJ_DIR/$basename.o
+	BASENAME=${SCRIPT##*/}
+	SRC_FILE=$SRC_DIR/$SCRIPT.cpp
+	OBJ_FILE=$OBJ_DIR/$BASENAME.o
 
-	if [ "$source_file" -nt "$target_file" ]; then
-		echo "Compiling "$SCRIPT" -> "$basename".o ..."
-		g++ $GLOBAL_PARAMS -c $source_file -o $target_file
+	if [ "$SRC_FILE" -nt "$OBJ_FILE" ]; then
+		echo "Compiling "$SCRIPT" -> "$BASENAME".o ..."
+		g++ $GLOBAL_PARAMS -c $SRC_FILE -o $OBJ_FILE
 
 		if [ $? -ne 0 ]; then
 			echo "Compiling ERROR! Press any key to exit...";
@@ -46,11 +46,11 @@ else
 	echo "Linking OK!"
 fi
 
-resources_dir=$SRC_DIR/resources
+RESOURCES_DIR=$SRC_DIR/resources
 
-if [ -d "$resources_dir" ]; then
+if [ -d "$RESOURCES_DIR" ]; then
 	echo "Copying resources..."
-	cp -rv $resources_dir $BUILD_DIR
+	cp -rv $RESOURCES_DIR $BUILD_DIR
 fi
 
 echo "Done!"

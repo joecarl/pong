@@ -2,4 +2,4 @@
 
 cd build/client
 
-./PONG.exe
+./pong.exe

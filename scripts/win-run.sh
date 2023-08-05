@@ -6,4 +6,4 @@
 
 #./PONG.exe
 
-/c/msys64/msys2_shell.cmd -ucrt64 run.sh
+/c/msys64/msys2_shell.cmd -ucrt64 scripts/run.sh
