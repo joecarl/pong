@@ -9,6 +9,11 @@ Este proyecto tiene dos dependencias principales:
 - Allego v5.2.6+ (sólo para el cliente)
 - Boost v1.75+ (utilizado principalmente para la comunicación entre sockets TCP/IP)
 
+## Preparar entorno de desarrollo
+
+Acualmente la forma más sencilla es abrir el proyecto en un devcontainer de VSCode, pues esto configurará todo automaticamente para poder trabajar, compilar y depurar.
+Si se está trabajando bajo windows es necesario instalar WSL + Docker
+
 ## Compilar en Windows
 
 1. Instalar GIT for windows (solamente si se pretende participar en el desarrollo).
@@ -105,7 +110,7 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
 
 1. Compilar Boost (seguir las indicaciones del apartado `Compiling` de este repositorio: <https://github.com/moritz-wundke/Boost-for-Android>). Es posible que haya que ejecutar el script de compilación en Linux.
 
-1. Añadir dos lineas de configuración al `AndroidManifest.xml`:
+1. Añadir los siguientes atributos a `AndroidManifest.xml`:
 
     ```xml
     <manifest ...>
@@ -113,7 +118,7 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
         <application 
             android:isGame="true"
             android:appCategory="game"
-			...>
+            ...>
             <activity
                 android:configChanges="orientation|keyboardHidden|screenLayout|uiMode|screenSize"
                 ...>
@@ -123,7 +128,7 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
     </manifest>
     ```
 
-    La primera es necesaria para poder hacer uso de internet, y la segunda es para que la aplicación no se reinicie al cambiar la orientación del dispositivo.
+    El primero es necesario para poder hacer uso de internet, los dos siguientes sirven para indicar que el tipo de aplicación es un juego y el último es para que la aplicación no se reinicie al cambiar la orientación del dispositivo.
 
 1. Editar el archivo `CMakeLists.txt` para establecer el siguiente contenido:
 
