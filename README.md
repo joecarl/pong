@@ -14,9 +14,9 @@ Este proyecto tiene dos dependencias principales:
 1. Instalar GIT for windows (solamente si se pretende participar en el desarrollo).
 1. Instalar MSYS2 de 64 bits descargado de <https://www.msys2.org/>.
 1. Desde MSYS2-MSYS actualizar los paquetes con `pacman -Syuu` hasta que no se pueda más (mirar el tutorial de instalación por si acaso).
-1. Desde MSYS2-MSYS navegar al directorio del proyecto y ejecutar `bash installdeps.sh`.
-1. Ejecutar `bash win-build.sh` (esto se puede hacer desde Git Bash).
-1. Para lanzar la aplicación utilizar `bash win-run.sh` (también se puede hacer desde Git Bash).
+1. Desde MSYS2-MSYS navegar al directorio del proyecto y ejecutar `bash scripts/installdeps.sh`.
+1. Ejecutar `bash scripts/win-build.sh` (esto se puede hacer desde Git Bash).
+1. Para lanzar la aplicación utilizar `bash scripts/win-run.sh` (también se puede hacer desde Git Bash).
 
 Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella nos dará error por falta de DLLs. Este último comando incluye en el PATH la carpeta `bin` de mingw64, lo que soluciona este problema. Por ahora, para distribuir la aplicación sería necesario copiar una gran cantidad de DLLs de dicha carpeta.
 
@@ -44,10 +44,10 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
     git pull
     ```
 
-1. Finalmente  ejecutar :
+1. Finalmente ejecutar:
 
     ```sh
-    bash ./build-server.sh
+    bash scripts/build-server.sh
     ```
 
 ## Ejecutar el servidor en Linux
@@ -55,7 +55,7 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
 1. El servidor se compila en la carpeta `./build/server`, podemos navegar a esa carpeta y ejecutar:
 
     ```sh
-    ./PONGSERVER -p DESIRED_PORT
+    ./pongserver -p <DESIRED_PORT>
     ```
 
 ---
@@ -110,7 +110,10 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
     ```xml
     <manifest ...>
         <uses-permission android:name="android.permission.INTERNET" />
-        <application ...>
+        <application 
+            android:isGame="true"
+            android:appCategory="game"
+			...>
             <activity
                 android:configChanges="orientation|keyboardHidden|screenLayout|uiMode|screenSize"
                 ...>
