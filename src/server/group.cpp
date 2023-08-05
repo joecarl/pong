@@ -173,7 +173,7 @@ void Group::add_client(Client* cl) {
 
 				cerr << "!! RESYNC " << o << endl;
 
-				this->clients[player_id]->qsend(boost::json::serialize(o));
+				this->clients[player_id]->qsend_udp(boost::json::serialize(o));
 
 			} else {
 
@@ -250,7 +250,7 @@ void Group::send_to_all(std::string pkg) {
 	for (auto& cl : this->clients) {
 		if (cl != nullptr && !cl->is_dead()) {
 			//if (cl->logged || 1) {
-				cl->qsend(pkg);
+				cl->qsend_udp(pkg);
 			//}
 		}
 	}

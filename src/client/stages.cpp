@@ -320,10 +320,7 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 				
 			if (controlP1 != CONTROL_NONE) {
 
-				boost::json::value inputEvt;
-				//inputEvt.emplace_null();
-			
-				inputEvt = {
+				boost::json::value inputEvt = {
 					{"type", "set_control_state"},
 					{"state", newSt},
 					{"control", controlP1},
@@ -331,14 +328,13 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 				};
 
 				cout << "Sending: " << inputEvt << endl;
-				this->engine->connection.qsend(boost::json::serialize(inputEvt));//send inputEvt
+				this->engine->connection.qsend_udp(boost::json::serialize(inputEvt));
 
 			}
 
 		} else {
 		
 			game_handler.pong_game->players[0]->controls[controlP1] = newSt;
-
 			game_handler.pong_game->players[1]->controls[controlP2] = newSt;
 			
 		} 
