@@ -1,0 +1,12 @@
+{
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"runArgs": [
+		"--env", "DISPLAY=:0",
+		"--env", "PULSE_SERVER=${env:PULSE_SERVER}",
+		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+		"--volume=/dev:/dev"
+	]
+	//"postCreateCommand": "sudo bash scripts/installdeps-ubuntu.sh"
+}
