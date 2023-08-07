@@ -7,17 +7,23 @@
 
 class Server {
 
-	int port;
+	uint16_t port;
 
-	int verbose = 0;
+	boost::asio::io_context io_context;
 
-	UdpController* udp_controller;
+	boost::asio::ip::tcp::acceptor acceptor;
+
+	boost::asio::ip::tcp::endpoint tcp_local_endpoint;
+
+	boost::asio::ip::udp::endpoint udp_local_endpoint;
+	
+	UdpController udp_controller;
 
 	Client* clients[10];
 
-	const int max_connections = 3;
-	
-	boost::asio::ip::tcp::endpoint endpoint;
+	uint8_t verbose = 0;
+
+	const uint16_t max_connections = 3;
 
 	void wait_for_connection();
 
@@ -25,16 +31,13 @@ class Server {
 	
 	void remove_dead_connections();
 
-	void remove_client(int idx);
+	void remove_client(uint16_t idx);
 	
 	void start_listening();
 
 public:
 
-	boost::asio::io_context io_context;
-	boost::asio::ip::tcp::acceptor acceptor;
-
-	Server(int _port);
+	Server(uint16_t _port);
 
 	void run();
 

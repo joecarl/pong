@@ -13,17 +13,18 @@ using namespace std;
 
 Group group;
 
-Server::Server(int _port): io_context(), acceptor(io_context) {
-
-	this->port = _port;
-	this->endpoint = tcp::endpoint(tcp::v4(), port);
+Server::Server(uint16_t _port): 
+	port(_port),
+	io_context(), 
+	acceptor(io_context),
+	tcp_local_endpoint(tcp::v4(), port),
+	udp_local_endpoint(udp::v4(), port),
+	udp_controller(io_context.get_executor(), udp_local_endpoint, "SERVER")
+{
 
 	this->start_listening();
 
-	udp::endpoint local_endpoint(udp::v4(), _port);
-	
-	this->udp_controller = new UdpController(io_context.get_executor(), local_endpoint, "SERVER");
-	this->udp_controller->on_new_channel = [this] (UdpChannelController& ch) {
+	this->udp_controller.on_new_channel = [this] (UdpChannelController& ch) {
 		for (int i = 0; i < this->max_connections; i++) {
 			auto cl = clients[i];
 			if (cl == nullptr) {
@@ -43,7 +44,7 @@ Server::Server(int _port): io_context(), acceptor(io_context) {
 }
 
 
-void Server::remove_client(int idx) {
+void Server::remove_client(uint16_t idx) {
 
 	delete clients[idx];
 
@@ -56,13 +57,13 @@ void Server::start_listening() {
 	boost::system::error_code ec;
 
 	if (!this->acceptor.is_open()) {
-		cout << "Opening acceptor " << this->endpoint << endl;
+		cout << "Opening acceptor " << this->tcp_local_endpoint << endl;
 
-		this->acceptor.open(this->endpoint.protocol());
+		this->acceptor.open(this->tcp_local_endpoint.protocol());
 		
 		this->acceptor.set_option(tcp::acceptor::reuse_address(true));
 
-		this->acceptor.bind(this->endpoint);
+		this->acceptor.bind(this->tcp_local_endpoint);
 		
 		this->acceptor.listen();
 	}
