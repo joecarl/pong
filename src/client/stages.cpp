@@ -189,7 +189,7 @@ GameStage::GameStage(HGameEngine* _engine):Stage(_engine) {
 
 }
 
-void GameStage::drawCourt() {
+void GameStage::draw_court() {
 
 	float scale = this->engine->scale;
 
@@ -208,7 +208,7 @@ void GameStage::drawCourt() {
 }
 
 
-void GameStage::drawScores() {
+void GameStage::draw_scores() {
 	
 	ALLEGRO_FONT* font = this->engine->font;
 	float scale = this->engine->scale;
@@ -344,7 +344,7 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 }
 
 
-void GameStage::processMessage(string &msg) {
+void GameStage::process_message(string &msg) {
 
 	if (msg == "scored") {
 
@@ -400,7 +400,7 @@ void GameStage::on_tick() {
 	while (!game_handler.pong_game->messages.empty()) {
 		string msg = game_handler.pong_game->messages.front();
 		game_handler.pong_game->messages.pop();
-		this->processMessage(msg);
+		this->process_message(msg);
 	}
 
 	if (game_handler.pong_game->finished) {
@@ -458,7 +458,7 @@ void GameStage::draw() {
 			int min = secs / 60;
 			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 1, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
 				
-			this->drawCourt();
+			this->draw_court();
 
 			Tracer *tr = this->tracer;
 
@@ -466,7 +466,7 @@ void GameStage::draw() {
 			tr->draw_bonus(game_handler.pong_game->bonus[0], scale);
 			tr->draw_bonus(game_handler.pong_game->bonus[1], scale);
 
-			this->drawScores();
+			this->draw_scores();
 
 			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->fps));
 

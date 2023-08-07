@@ -140,7 +140,7 @@ public:
 
 	void set_stage(unsigned int stage_id);
 
-	void runTick();
+	void run_tick();
 
 	void on_event(ALLEGRO_EVENT event);
 

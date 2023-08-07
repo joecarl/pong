@@ -14,7 +14,7 @@ class Controller { //GameTickSync (only for PLAYMODE_ONLINE)
 
 	void process_event(boost::json::object &evt);
 
-	void syncGame(boost::json::object& evt);
+	void sync_game(boost::json::object& evt);
 
 public:
 

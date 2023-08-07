@@ -102,9 +102,9 @@ public:
 
 class GameStage: public Stage {
 
-	void drawCourt();
+	void draw_court();
 
-	void drawScores();
+	void draw_scores();
 
 	Tracer *tracer;
 
@@ -122,7 +122,7 @@ public:
 
 	void draw();
 
-	void processMessage(std::string &msg);
+	void process_message(std::string &msg);
 
 };
 

@@ -18,7 +18,7 @@ void Controller::push_event(boost::json::object &evt) {
 
 		try {
 
-			this->syncGame(evt["gamevars"].as_object());
+			this->sync_game(evt["gamevars"].as_object());
 
 		} catch (std::invalid_argument& e) {
 			
@@ -115,7 +115,7 @@ void syncBonus(Bonus* b, boost::json::object& vars) {
 }
 
 
-void Controller::syncGame(boost::json::object& vars) {
+void Controller::sync_game(boost::json::object& vars) {
 
 	this->game->tick = boost::json::value_to<unsigned int>(vars["tick"]);
 	this->game->paused = vars["paused"].as_bool();

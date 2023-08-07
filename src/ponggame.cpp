@@ -108,8 +108,8 @@ void PongGame::iniciar_punto(int first) {
 	}
 
 	ball->set_parameters(INIX, INIY, tvx, 0.5 * (this->int_random(-1, 1)));
-	players[0]->setY(40);
-	players[1]->setY(160);
+	players[0]->set_y(40);
+	players[1]->set_y(160);
 
 }
 

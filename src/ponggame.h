@@ -125,7 +125,7 @@ public:
 
 	int get_stat() { return stat; }
 
-	void setStat(int st) { stat = st; }
+	void set_stat(int st) { stat = st; }
 
 	int get_x() { return x; }
 
@@ -197,9 +197,9 @@ public:
 
 	void move_perfect();
 
-	void setX(int px) { x = px; }
+	void set_x(int px) { x = px; }
 
-	void setY(int py) { y = py; }
+	void set_y(int py) { y = py; }
 
 	int get_x() { return x; }
 

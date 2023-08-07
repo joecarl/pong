@@ -370,7 +370,7 @@ void HGameEngine::run() {
 
 		else if (event.type == ALLEGRO_EVENT_TIMER) {
 
-			this->runTick();
+			this->run_tick();
 
 			if (!drawing_halted && al_is_event_queue_empty(this->allegro_hnd->event_queue)) {
 
@@ -415,9 +415,9 @@ void HGameEngine::set_stage(unsigned int stage_id) {
 
 }
 
-void HGameEngine::runTick() {
+void HGameEngine::run_tick() {
 
-	//std::cout << "runTick... ";
+	//std::cout << "run_tick... ";
 
 	auto active_stage = (Stage*) this->stages[this->active_stage_id];
 
