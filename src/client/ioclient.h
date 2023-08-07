@@ -24,16 +24,17 @@ enum {
 	CONNECTION_STATE_CONNECTED_FULL
 };
 
+typedef std::function<void(boost::json::object& pt)> callback_fn_type;
 
 struct callb {
 	std::string name;
-	std::function<void(boost::json::object& pt)> cb;
+	callback_fn_type cb;
 	std::chrono::time_point<std::chrono::high_resolution_clock> c_s;
 };
 
 struct qsend_item {
 	std::string pkg;
-	std::function<void(boost::json::object& pt)> _cb;
+	callback_fn_type _cb;
 };
 
 class UdpController;
@@ -75,9 +76,9 @@ class IoClient {
 	void handle_sent_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 	void handle_read_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 	void handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred);
-	void save_cb(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb);
+	void save_cb(const std::string& pkg, const callback_fn_type& _cb);
 
-	std::function<void(boost::json::object& pt)> process_actions_fn;
+	callback_fn_type process_actions_fn;
 
 public:
 
@@ -93,13 +94,13 @@ public:
 
 	int get_state();
 
-	void qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb = nullptr);
+	void qsend(std::string pkg, const callback_fn_type& _cb = nullptr);
 
-	void qsend_udp(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb = nullptr);
+	void qsend_udp(const std::string& pkg, const callback_fn_type& _cb = nullptr);
 
 	void qread();
 
-	void set_process_actions_fn(const std::function<void(boost::json::object& pt)>& _fn);
+	void set_process_actions_fn(const callback_fn_type& _fn);
 
 };
 
