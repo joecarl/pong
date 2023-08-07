@@ -11,7 +11,7 @@ Este proyecto tiene dos dependencias principales:
 
 ## Preparar entorno de desarrollo
 
-Acualmente la forma más sencilla es abrir el proyecto en un devcontainer de VSCode, pues esto configurará todo automaticamente para poder trabajar, compilar y depurar.
+Actualmente la forma más sencilla es abrir el proyecto en un devcontainer de VSCode, pues esto configurará todo automaticamente para poder trabajar, compilar y depurar.
 Si se está trabajando bajo windows es necesario instalar WSL + Docker
 
 ## Compilar en Windows
