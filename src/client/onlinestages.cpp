@@ -68,7 +68,7 @@ void syncPlayer(PlayerP* p, boost::json::object& vars) {
 
 	p->x = vars["x"].as_int64();
 	p->y = vars["y"].as_int64();
-	p->com_txt_y = vars["com_txt_y"].as_int64();
+	//p->com_txt_y = vars["com_txt_y"].as_int64(); //this var is only processed in the client
 
 	p->score = vars["score"].as_int64();
 	p->medlen = vars["medlen"].as_int64();
@@ -118,7 +118,9 @@ void syncBonus(Bonus* b, boost::json::object& vars) {
 void Controller::sync_game(boost::json::object& vars) {
 
 	this->game->tick = boost::json::value_to<unsigned int>(vars["tick"]);
+	this->game->warmup = boost::json::value_to<uint16_t>(vars["warmup"]);
 	this->game->paused = vars["paused"].as_bool();
+	this->game->rnd.index = vars["rnd_index"].as_int64();
 
 	cout << "sync players ..." << endl;
 	syncPlayer(this->game->players[0], vars["p0vars"].as_object());

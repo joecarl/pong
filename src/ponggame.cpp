@@ -10,13 +10,10 @@
 
 using namespace std;
 
-PongGame::PongGame(uint_fast32_t _seed) {
 
-	this->seed = _seed;
-
-	this->mt = new mt19937(_seed);
-
-	//cout << "TEST:" << (*this->mt)() << endl;
+PongGame::PongGame(uint_fast32_t _seed) :
+	rnd(_seed)
+{
 
 	ball = new Ball(this);
 	players[0] = new PlayerP(this, 1, 50);
@@ -24,52 +21,8 @@ PongGame::PongGame(uint_fast32_t _seed) {
 	bonus[0] = new Bonus(this, BONUS_LONG);
 	bonus[1] = new Bonus(this, BONUS_BALL);
 
-	//cout << "TEST:" << (*this->mt)() << endl;
-
 }
 
-uint32_t count_r = 0;
-
-double PongGame::random(double min, double max, bool rand_sign, bool include_max) {
-
-	double real_max = (double)mt19937::max() + (include_max ? 0 : 1);
-
-	double rnd_factor = (double)(*this->mt)() / real_max;
-	//cout << "max: " << real_max << " | rnd_factor: " << rnd_factor << endl;
-	double num = min + rnd_factor * (max - min);
-	
-	if (rand_sign && (*this->mt)() > mt19937::max() / 2) {
-		num = -num;
-	}
-	/*
-	std::stringstream logg;
-	logg << "R" << count_r++ << ": "<< num << endl;
-	log(logg.str());
-	*/
-	return num;
-}
-
-int PongGame::int_random(int min, int max, bool rand_sign) {
-
-	//int res = (int) this->random(min, max + 1, rand_sign, false);
-	//cout << "[" << min << ", " << max << "] --> " << res << endl;
-	
-
-	int res = (int) random(0, max - min + 1, false, false);
-	//cout << "[" << min << ", " << max << "] --> " << res << endl;
-	res += min;
-
-	if (rand_sign && (*mt)() > mt19937::max() / 2) {
-		res = -res;
-	}
-	/*
-	std::stringstream logg;
-	logg << "R" << count_r++ << ": "<< res << endl;
-	log(logg.str());
-	*/
-	return res;
-
-}
 
 void PongGame::restart() {
 	
@@ -80,13 +33,17 @@ void PongGame::restart() {
 
 }
 
+
 void PongGame::toggle_pause() {
 
 	paused = !paused;
 
 }
 
+
 void PongGame::iniciar_punto(int first) {
+
+	this->warmup = 40;
 
 	int tvx = 0;
 
@@ -94,7 +51,7 @@ void PongGame::iniciar_punto(int first) {
 		players[0]->score = 0; 
 		players[1]->score = 0;
 		while (tvx == 0) {
-			tvx = 2 * (this->int_random(-1, 1));
+			tvx = 2 * (this->rnd.int_random(-1, 1));
 		}
 	} else {
 		tvx = (int) ball->get_vx();
@@ -107,11 +64,12 @@ void PongGame::iniciar_punto(int first) {
 		}
 	}
 
-	ball->set_parameters(INIX, INIY, tvx, 0.5 * (this->int_random(-1, 1)));
+	ball->set_parameters(INIX, INIY, tvx, 0.5 * (this->rnd.int_random(-1, 1)));
 	players[0]->set_y(40);
 	players[1]->set_y(160);
 
 }
+
 
 void PongGame::give_score(PlayerP* pl, int score) {
 
@@ -136,7 +94,8 @@ void PongGame::add_message(const std::string& evt_msg) {
 	this->messages.push(evt_msg);
 
 }
-	
+
+
 void PongGame::process_tick() {
 
 	if (this->paused || this->finished) {
@@ -168,7 +127,7 @@ void PongGame::process_tick() {
 		//no se contempla
 		
 	}
-	
+
 	//COMPROBAMOS QUE LA BOLA ESTÁ FUERA
 	if (ball->get_x() > (320 + 15) || ball->get_x() < -15 ) {
 
@@ -196,7 +155,15 @@ void PongGame::process_tick() {
 
 	}
 
-	ball->process();
+	if (this->warmup > 0) {
+
+		this->warmup--;
+
+	} else {
+
+		ball->process();
+		
+	}
 
 	for (auto & pl: players) {
 
@@ -219,14 +186,16 @@ void PongGame::process_tick() {
 				 * in the function call since parameter parsing order is undefined
 				 */
 
-				double p1 = this->random(100, 240);
-				double p2 = this->random(70, 130);
-				double p3 =	this->random(1.5, 2.0, true);
-				double p4 =	this->random(1.5, 2.0, true);
+				auto& rnd = this->rnd;
+
+				double p1 = rnd.random(100, 240);
+				double p2 = rnd.random(70, 130);
+				double p3 =	rnd.random(1.5, 2.0, true);
+				double p4 =	rnd.random(1.5, 2.0, true);
 
 				b->set_parameters(p1, p2, p3, p4);
 
-				b->cooldown = 1000 + this->int_random(0, 1000);
+				b->cooldown = 1000 + rnd.int_random(0, 1000);
 
 			} else {
 
@@ -440,8 +409,8 @@ void PlayerP::move_ia() {
 
 	//double inc = 1 + 1 + sin((double)this->game->tick / 100.0);
 
-	if (y > ball->get_y()) y -= (1 + this->game->int_random(0, 1));
-	if (y < ball->get_y()) y += (1 + this->game->int_random(0, 1));
+	if (y > ball->get_y()) y -= (1 + this->game->rnd.int_random(0, 1));
+	if (y < ball->get_y()) y += (1 + this->game->rnd.int_random(0, 1));
 	
 	this->lock_limit();
 
@@ -484,3 +453,43 @@ void PlayerP::give_bonus(int bonus_type) {
 	}
 
 }
+
+
+
+
+/*
+// OLD rand implementation:
+uint32_t count_r = 0;
+double PongGame::random(double min, double max, bool rand_sign, bool include_max) {
+
+	double real_max = (double)mt19937::max() + (include_max ? 0 : 1);
+
+	double rnd_factor = (double)(*this->mt)() / real_max;
+	
+	double num = min + rnd_factor * (max - min);
+	
+	if (rand_sign && (*this->mt)() > mt19937::max() / 2) {
+		num = -num;
+	}
+	
+	return num;
+}
+
+int PongGame::int_random(int min, int max, bool rand_sign) {
+
+	//int res = (int) this->random(min, max + 1, rand_sign, false);
+	//cout << "[" << min << ", " << max << "] --> " << res << endl;
+	
+
+	int res = (int) random(0, max - min + 1, false, false);
+	//cout << "[" << min << ", " << max << "] --> " << res << endl;
+	res += min;
+
+	if (rand_sign && (*mt)() > mt19937::max() / 2) {
+		res = -res;
+	}
+	
+	return res;
+
+}
+*/

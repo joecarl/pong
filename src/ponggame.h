@@ -1,7 +1,8 @@
 #ifndef PONGGAME_H
 #define PONGGAME_H
 
-#include <random>
+//#include <random>
+#include "randomgenerator.h"
 #include <queue>
 #include <ctime>
 
@@ -48,13 +49,13 @@ class PongGame {
 
 public:
 
-	std::mt19937 *mt;
-
-	uint_fast32_t seed;
+	RandomGenerator rnd;
 
 	unsigned int control_mode = CONTROLMODE_NONE;
 
 	bool paused = false, finished = false;
+
+	uint16_t warmup = 0;
 
 	PlayerP *players[2];
 
@@ -80,24 +81,6 @@ public:
 
 	void add_message(const std::string& evt_msg);
 	
-	/**
-	 * Generates a decimal pseudo random number between min and max
-	 * @param min minum retornable value
-	 * @param max maximum retornable value
-	 * @param rand_sign if true, the returned value sign will be positive or negative at 50/50 chance
-	 * @param include_max if true, the returned value will be in the range [min, max], otherwise it will be in the range [min, max)
-	 */
-	double random(double min, double max, bool rand_sign = false, bool include_max = true);
-
-	/**
-	 * Generates an integer pseudo random number in the range [min, max]
-	 * @param min minum retornable value
-	 * @param max maximum retornable value
-	 * @param rand_sign if true, the returned value sign will be positive or negative at 50/50 chance
-	 */
-	int int_random(int min, int max, bool rand_sign = false);
-
-
 };
 
 

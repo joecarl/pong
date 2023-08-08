@@ -72,7 +72,9 @@ boost::json::object export_game(PongGame* g) {
 
 	o = {
 		{"tick", g->tick},
+		{"warmup", g->warmup},
 		{"paused", g->paused},
+		{"rnd_index", g->rnd.index},
 		{"p0vars", export_player(g->players[0])},
 		{"p1vars", export_player(g->players[1])},
 		{"bonus0vars", export_bonus(g->bonus[0])},
@@ -236,7 +238,7 @@ void Group::start_game() {
 
 	boost::json::object pkg = {
 		{"type", "game_start"},
-		{"seed", this->game->seed}
+		{"seed", this->game->rnd.get_seed()}
 	};
 
 	this->send_to_all(boost::json::serialize(pkg));
