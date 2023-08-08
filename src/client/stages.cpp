@@ -309,6 +309,10 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 
 			}
 
+		} else if (k_code == ALLEGRO_KEY_D) {
+
+			this->trigger_desync(); //debug
+
 		}
 
 	}
@@ -366,6 +370,15 @@ void GameStage::process_message(string &msg) {
 }
 
 
+void GameStage::trigger_desync() {
+	
+	boost::json::object pkg = {{"type", "desync"}}; //play_again
+	
+	this->engine->get_io_client().qsend(boost::json::serialize(pkg));
+
+}
+
+
 void GameStage::on_tick() {
 
 	if (delayer > 0) {
@@ -385,9 +398,9 @@ void GameStage::on_tick() {
 
 		} catch (std::exception& e) {
 
-			boost::json::object pkg = {{"type", "desync"}}; //play_again
+			cerr << "Error during game: " << e.what() << endl;
 			
-			this->engine->get_io_client().qsend(boost::json::serialize(pkg));
+			this->trigger_desync();
 
 		}
 

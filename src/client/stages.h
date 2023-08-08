@@ -106,6 +106,8 @@ class GameStage: public Stage {
 
 	void draw_scores();
 
+	void trigger_desync();
+
 	Tracer *tracer;
 
 public:
