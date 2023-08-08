@@ -1,5 +1,5 @@
-#ifndef PONGGAMEH
-#define PONGGAMEH
+#ifndef PONGGAME_H
+#define PONGGAME_H
 
 #include <random>
 #include <queue>

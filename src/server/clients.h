@@ -1,6 +1,6 @@
 
-#ifndef clients_hpp
-#define clients_hpp
+#ifndef CLIENTS_H
+#define CLIENTS_H
 
 #include "../udpcontroller.h"
 #include <boost/json.hpp>

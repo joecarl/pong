@@ -1,6 +1,5 @@
-
-#ifndef group_hpp
-#define group_hpp
+#ifndef GROUP_H
+#define GROUP_H
 
 #include "../ponggame.h"
 #include "server.h"

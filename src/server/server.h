@@ -1,5 +1,5 @@
-#ifndef server_hpp
-#define server_hpp
+#ifndef SERVER_H
+#define SERVER_H
 
 #include <boost/asio.hpp>
 
@@ -7,16 +7,36 @@
 
 class Server {
 
+	/**
+	 * The port where the server will listen (used for TCP and UDP).
+	 */
 	uint16_t port;
 
+	/**
+	 * The execution context.
+	 */
 	boost::asio::io_context io_context;
 
+	/**
+	 * The acceptor which will handle incoming TCP connections.
+	 */
 	boost::asio::ip::tcp::acceptor acceptor;
 
+	/**
+	 * The local endpoint used for tcp connections.
+	 */
 	boost::asio::ip::tcp::endpoint tcp_local_endpoint;
 
+	/**
+	 * The local endpoint where the udp socket will receive data.
+	 * When comparing tcp and udp endpoints as strings there should be no 
+	 * difference.
+	 */
 	boost::asio::ip::udp::endpoint udp_local_endpoint;
 	
+	/**
+	 * The controller which will manage udp datagrams
+	 */
 	UdpController udp_controller;
 
 	Client* clients[10];
@@ -42,4 +62,5 @@ public:
 	void run();
 
 };
-#endif /* server_hpp */
+
+#endif

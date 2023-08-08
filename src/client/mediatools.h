@@ -1,5 +1,5 @@
-#ifndef MEDIATOOLS
-#define MEDIATOOLS
+#ifndef MEDIATOOLS_H
+#define MEDIATOOLS_H
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -30,11 +30,33 @@ void play_exorcista();
 
 class JC_TEXTINPUT {
 	
+	/**
+	 * The font used to draw the text
+	 */
 	ALLEGRO_FONT* font;
-	std::string  edittext;	   // an empty string for editting
-	std::string::iterator iter; // string iterator
-	int	caret;		// tracks the text caret
-	bool insert;	// true of should text be inserted
+
+	/**
+	 * An empty string for editting
+	 */
+	std::string  edittext;
+	/**
+	 * String iterator
+	 */
+	std::string::iterator iter;
+
+	/**
+	 * Tracks the text caret
+	 */
+	int	caret;
+
+	/**
+	 * True if should text be inserted
+	 */
+	bool insert;
+	
+	/**
+	 * Caret blinking control
+	 */
 	int caret_time;
 	
 public:

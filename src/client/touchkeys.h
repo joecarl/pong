@@ -1,5 +1,5 @@
-#ifndef TOUCHKEYSH
-#define TOUCHKEYSH
+#ifndef TOUCHKEYS_H
+#define TOUCHKEYS_H
 
 #include <allegro5/allegro.h>
 #include <string>

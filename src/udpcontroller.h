@@ -5,8 +5,8 @@
 //  Created by Joe on 20/07/23.
 //
 
-#ifndef udp_controller_h
-#define udp_controller_h
+#ifndef UDPCONTROLLER_H
+#define UDPCONTROLLER_H
 
 #include <boost/asio.hpp>
 #include <boost/json.hpp>

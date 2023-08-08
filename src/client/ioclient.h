@@ -1,12 +1,12 @@
 //
-//  ioclient.hpp
+//  ioclient.h
 //  pong
 //
 //  Created by Joe on 13/9/18.
 //
 
-#ifndef IOCLIENT_HPP
-#define IOCLIENT_HPP
+#ifndef IOCLIENT_H
+#define IOCLIENT_H
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
