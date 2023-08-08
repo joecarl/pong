@@ -98,15 +98,17 @@ MainMenuStage::MainMenuStage(HGameEngine* _engine):Stage(_engine) {
 
 void MainMenuStage::on_enter_stage() {
 
-	this->engine->touch_keys.clear_buttons();
+	auto& touch_keys = this->engine->get_touch_keys();
 
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_1, "1");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_2, "2");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_3, "3");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_4, "4");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "ESC");
+	touch_keys.clear_buttons();
 
-	this->engine->touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.add_button(ALLEGRO_KEY_1, "1");
+	touch_keys.add_button(ALLEGRO_KEY_2, "2");
+	touch_keys.add_button(ALLEGRO_KEY_3, "3");
+	touch_keys.add_button(ALLEGRO_KEY_4, "4");
+	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "ESC");
+
+	touch_keys.fit_buttons(FIT_BOTTOM, 10);
 }
 
 
@@ -167,8 +169,8 @@ void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 
 void MainMenuStage::draw() {
 
-	float sc = this->engine->scale;
-	ALLEGRO_FONT* font = this->engine->font;
+	float sc = this->engine->get_scale();
+	ALLEGRO_FONT* font = this->engine->get_font();
 
 	al_draw_bitmap(this->logo, (sc - 1) * DEF_W / 2, (sc - 1) * 50, 0);
 	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
@@ -191,7 +193,7 @@ GameStage::GameStage(HGameEngine* _engine):Stage(_engine) {
 
 void GameStage::draw_court() {
 
-	float scale = this->engine->scale;
+	float scale = this->engine->get_scale();
 
 	float min_court_y = scale * (LIMIT);
 	float max_court_y = scale * (MAX_Y - LIMIT);
@@ -210,8 +212,8 @@ void GameStage::draw_court() {
 
 void GameStage::draw_scores() {
 	
-	ALLEGRO_FONT* font = this->engine->font;
-	float scale = this->engine->scale;
+	ALLEGRO_FONT* font = this->engine->get_font();
+	float scale = this->engine->get_scale();
 
 	if (game_handler.pong_game->control_mode != CONTROLMODE_TRAINING) {
 
@@ -254,16 +256,18 @@ void GameStage::draw_scores() {
 
 void GameStage::on_enter_stage() {
 	
-	this->engine->touch_keys.clear_buttons();
+	auto& touch_keys = this->engine->get_touch_keys();
 
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_UP, "");
+	touch_keys.clear_buttons();
 
-	this->engine->touch_keys.fit_buttons(FIT_HORIZONTAL);
+	touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
+	touch_keys.add_button(ALLEGRO_KEY_UP, "");
+
+	touch_keys.fit_buttons(FIT_HORIZONTAL);
 
 	if (game_handler.play_mode == PLAYMODE_ONLINE) {
 
-		this->engine->connection.set_process_actions_fn([&] (boost::json::object& evt) {
+		this->engine->get_io_client().set_process_actions_fn([&] (boost::json::object& evt) {
 
 			controller.push_event(evt);
 			
@@ -328,7 +332,7 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 				};
 
 				cout << "Sending: " << inputEvt << endl;
-				this->engine->connection.qsend_udp(boost::json::serialize(inputEvt));
+				this->engine->get_io_client().qsend_udp(boost::json::serialize(inputEvt));
 
 			}
 
@@ -383,13 +387,13 @@ void GameStage::on_tick() {
 
 			boost::json::object pkg = {{"type", "desync"}}; //play_again
 			
-			this->engine->connection.qsend(boost::json::serialize(pkg));
+			this->engine->get_io_client().qsend(boost::json::serialize(pkg));
 
 		}
 
 	} else {
 
-		if (this->engine->keys[ALLEGRO_KEY_G]) {
+		if (this->engine->get_key(ALLEGRO_KEY_G)) {
 			//game_handler.pong_game->players[0]->medlen += 1;//DEBUG
 		}
 
@@ -419,17 +423,18 @@ void GameStage::on_tick() {
 
 void GameStage::draw() {
 
-	ALLEGRO_FONT* font = this->engine->font;
+	ALLEGRO_FONT* font = this->engine->get_font();
 
-	float scale = this->engine->scale;
+	float scale = this->engine->get_scale();
+	
 	
 	if (delayer > 0) {
 
 		al_draw_textf(
 			font, 
 			al_map_rgb(255, 0, 0), 
-			scale * this->engine->res_x / 2, 
-			scale * this->engine->res_y / 2, 
+			scale * this->engine->get_res_x() / 2, 
+			scale * this->engine->get_res_y() / 2, 
 			ALLEGRO_ALIGN_CENTER, 
 			"%d", 
 			1 + delayer / 25
@@ -442,8 +447,8 @@ void GameStage::draw() {
 			al_draw_text(
 				font, 
 				al_map_rgb(0, 200, 100), 
-				this->engine->res_x * scale / 2, 
-				this->engine->res_y * scale / 2 - 5, 
+				this->engine->get_res_x() * scale / 2, 
+				this->engine->get_res_y() * scale / 2 - 5, 
 				ALLEGRO_ALIGN_CENTER, 
 				"PAUSA"
 			);
@@ -468,10 +473,11 @@ void GameStage::draw() {
 
 			this->draw_scores();
 
-			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->fps));
+			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->get_fps()));
 
 			if (game_handler.play_mode == PLAYMODE_ONLINE) {
-				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", (int) (this->engine->connection.ping_ms));
+				int ping = (int) (this->engine->get_io_client().get_ping_ms());
+				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
 			}
 
 			tr->draw_player(game_handler.pong_game->players[0], scale);
@@ -600,7 +606,7 @@ void Tracer::draw_player(PlayerP *pl, int scale) {
 		else txt_x = 220;
 
 		al_draw_text(
-			this->engine->font, 
+			this->engine->get_font(), 
 			al_map_rgb(150 - pl->com_txt_y, 150 - pl->com_txt_y * 4, 255), 
 			scale * txt_x, 
 			scale * pl->com_txt_y, 
@@ -621,12 +627,14 @@ void Tracer::draw_player(PlayerP *pl, int scale) {
 
 void GameOverStage::on_enter_stage() {
 
-	this->engine->touch_keys.clear_buttons();
+	auto& touch_keys = this->engine->get_touch_keys();
 
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_Y, "Y");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_N, "N");
+	touch_keys.clear_buttons();
 
-	this->engine->touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.add_button(ALLEGRO_KEY_Y, "Y");
+	touch_keys.add_button(ALLEGRO_KEY_N, "N");
+
+	touch_keys.fit_buttons(FIT_BOTTOM, 10);
 	
 }
 
@@ -660,8 +668,8 @@ void GameOverStage::draw() {
 	if (game_handler.pong_game->players[0]->score > game_handler.pong_game->players[1]->score) winner = 1;
 	else winner = 2;
 
-	float scale = this->engine->scale;
-	ALLEGRO_FONT *font = this->engine->font;
+	float scale = this->engine->get_scale();
+	ALLEGRO_FONT *font = this->engine->get_font();
 
 	al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
 	al_draw_text (font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");

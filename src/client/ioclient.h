@@ -1,12 +1,12 @@
 //
-//  connections.hpp
-//  otherside
+//  ioclient.hpp
+//  pong
 //
 //  Created by Joe on 13/9/18.
 //
 
-#ifndef connections_hpp
-#define connections_hpp
+#ifndef IOCLIENT_HPP
+#define IOCLIENT_HPP
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -44,6 +44,7 @@ class IoClient {
 	int pkgs_sent = 0, pkgs_recv = 0;
 
 	std::queue<qsend_item> pkg_queue;
+	
 	std::vector<callb> cbs;
 
 	boost::asio::io_context io_context;
@@ -72,19 +73,21 @@ class IoClient {
 
 	void setup_udp(std::string& local_id);
 
+	void start_ping_thread();
+
 	void handle_qsent_content(const boost::system::error_code& error, std::size_t bytes_transferred);
-	void handle_sent_content(const boost::system::error_code& error, std::size_t bytes_transferred);
-	void handle_read_content(const boost::system::error_code& error, std::size_t bytes_transferred);
+	//void handle_sent_content(const boost::system::error_code& error, std::size_t bytes_transferred);
+	//void handle_read_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 	void handle_qread_content(const boost::system::error_code& error, std::size_t bytes_transferred);
 	void save_cb(const std::string& pkg, const callback_fn_type& _cb);
 
 	callback_fn_type process_actions_fn;
 
-public:
+	int64_t ping_ms = 0;
 
 	std::string current_host;
 
-	int64_t ping_ms = 0;
+public:
 
 	IoClient();
 
@@ -102,7 +105,11 @@ public:
 
 	void set_process_actions_fn(const callback_fn_type& _fn);
 
+	std::string& get_current_host() { return this->current_host; }
+
+	int64_t get_ping_ms() { return this->ping_ms; }
+
 };
 
 
-#endif /* connections_hpp */
+#endif

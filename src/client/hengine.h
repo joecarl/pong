@@ -35,26 +35,40 @@ class AllegroHandler {
 
 	int screen_width, screen_height;
 
+	/**
+	 * Main buffer where all non-UI components will render
+	 */
 	ALLEGRO_BITMAP *buffer;
+
+	/**
+	 * Secondary buffer mainly used to render UI components
+	 */
 	ALLEGRO_BITMAP *sec_buffer;
-	// how much the buffer should be scaled
+
+	ALLEGRO_EVENT_QUEUE *event_queue;
+	/**
+	 * How much the buffer should be scaled
+	 */
 	int scale_w, scale_h, scale_x, scale_y;
 
 	int window_width, window_height;
 
 	float scaled;
 
+	void cleanup();
+
 public:
 	
-	ALLEGRO_EVENT_QUEUE *event_queue;
 
-	AllegroHandler(HGameEngine *gameEngine);
+	AllegroHandler(HGameEngine *game_engine);
+
+	~AllegroHandler();
 
 	void initialize_resources();
 
 	void create_components();
 
-	Point get_mapped_coordinates(int realX, int realY);
+	Point get_mapped_coordinates(int real_x, int real_y);
 
 	void fit_display();
 
@@ -76,7 +90,7 @@ public:
 
 	float get_scaled();
 
-	void cleanup();
+	ALLEGRO_EVENT_QUEUE* get_event_queue() { return this->event_queue; }
 
 };
 
@@ -106,11 +120,7 @@ class HGameEngine {
 
 	bool must_run_on_enter_stage = false;
 
-public:
-
-	std::string debug_txt = "";
-
-	AllegroHandler* allegro_hnd;
+	AllegroHandler allegro_hnd;
 
 	TouchKeys touch_keys;
 
@@ -126,19 +136,13 @@ public:
 
 	unsigned int active_stage_id = 0;
 
-	bool finish = false;
-
 	Stage* stages[MAX_SCREENS];
 
-	bool keys[300];
+	bool keys[ALLEGRO_KEY_MAX];
 
-	int res_x = 320/*DEF_W*/, res_y = 200/*DEF_H*/;
+	uint16_t res_x = 320/*DEF_W*/, res_y = 200/*DEF_H*/;
 
-	HGameEngine();
-
-	void calcFPS();
-
-	void set_stage(unsigned int stage_id);
+	void calc_fps();
 
 	void run_tick();
 
@@ -146,7 +150,37 @@ public:
 
 	void draw();
 
+public:
+
+	std::string debug_txt = "";
+
+	bool finish = false;
+
+	HGameEngine();
+
+	void set_stage(unsigned int stage_id);
+
 	void run();
+
+	TouchKeys& get_touch_keys() { return this->touch_keys; }
+	
+	IoClient& get_io_client() { return this->connection; }
+
+	boost::json::object& get_cfg() { return this->cfg; }
+
+	AllegroHandler& get_allegro_hnd() { return this->allegro_hnd; }
+
+	float get_scale() { return this->scale; }
+
+	float get_fps() { return this->fps; }
+
+	uint16_t get_res_x() { return this->res_x; }
+
+	uint16_t get_res_y() { return this->res_y; }
+	
+	ALLEGRO_FONT* get_font() { return this->font; }
+
+	bool get_key(uint16_t kcode) { return kcode < ALLEGRO_KEY_MAX ? this->keys[kcode]: false; }
 
 };
 

@@ -89,7 +89,7 @@ void Button::draw() {
 	al_draw_filled_rectangle(x + 1, y + 1, x + w - 1, y + h - 1, bgcolor);
 
 	al_draw_text(
-		this->touch_keys->get_engine()->font, 
+		this->touch_keys->get_engine()->get_font(), 
 		al_map_rgb(255, 255, 255), 
 		x + w / 2, 
 		y + h / 2 - 8, 
@@ -195,8 +195,10 @@ void TouchKeys::fit_buttons(unsigned int side, unsigned int size) {
 
 void TouchKeys::re_arrange() {
 
-	int window_w = this->engine->allegro_hnd->get_window_width() / this->engine->allegro_hnd->get_scaled();
-	int window_h = this->engine->allegro_hnd->get_window_height() / this->engine->allegro_hnd->get_scaled();
+	auto& allegro_hnd = this->engine->get_allegro_hnd();
+
+	int window_w = allegro_hnd.get_window_width() / allegro_hnd.get_scaled();
+	int window_h = allegro_hnd.get_window_height() / allegro_hnd.get_scaled();
 
 	unsigned int width, height;
 
@@ -240,7 +242,7 @@ void TouchKeys::redefine_touch_event(ALLEGRO_EVENT &evt) {
 				int touch_id = evt.touch.id;
 				this->engine->debug_txt = "ID BEGIN: " + to_string(touch_id);
 				//auto mappedPt = this->engine->allegro_hnd->get_mapped_coordinates(evt.touch.x, evt.touch.y);
-				float scaled = this->engine->allegro_hnd->get_scaled();
+				float scaled = this->engine->get_allegro_hnd().get_scaled();
 
 				for (auto& btn: buttons) {
 

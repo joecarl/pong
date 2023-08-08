@@ -20,9 +20,15 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //---------------------------- [AllegroHandler] -------------------------------
 
-AllegroHandler::AllegroHandler(HGameEngine *gameEngine) {
-	
-	this->engine = gameEngine;
+AllegroHandler::AllegroHandler(HGameEngine *game_engine) :
+	engine(game_engine)
+{
+
+}
+
+AllegroHandler::~AllegroHandler() {
+
+	this->cleanup();
 
 }
 
@@ -66,7 +72,7 @@ void AllegroHandler::initialize_resources() {
 
 void AllegroHandler::create_components() {
 
-	bool windowed = this->engine->cfg["windowed"].as_bool();
+	bool windowed = this->engine->get_cfg()["windowed"].as_bool();
 	
 	if (!windowed) {
 		al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
@@ -84,8 +90,10 @@ void AllegroHandler::create_components() {
 	*/	
 	//al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
 
-	this->screen_width = this->engine->scale * this->engine->res_x;
-	this->screen_height = this->engine->scale * this->engine->res_y;
+	auto scale = this->engine->get_scale();
+
+	this->screen_width = scale * this->engine->get_res_x();
+	this->screen_height = scale * this->engine->get_res_y();
 
 	display = al_create_display(640, 400);//disp_data.width, disp_data.height);
 	if (!display) {
@@ -261,7 +269,10 @@ void Stage::on_enter_stage() {
 //-----------------------------------------------------------------------------
 //----------------------------- [HGameEngine] ---------------------------------
 
-HGameEngine::HGameEngine(): touch_keys(this) {
+HGameEngine::HGameEngine() : 
+	allegro_hnd(this),
+	touch_keys(this) 
+{
 
 	string custom_cfg_filepath = "cfg.json";
 	string default_cfg_filepath = "resources/defaultCfg.json";
@@ -296,13 +307,13 @@ HGameEngine::HGameEngine(): touch_keys(this) {
 
 	cout << "CFG: " << this->cfg << endl;
 
-	this->allegro_hnd = new AllegroHandler(this); 
+	//this->allegro_hnd = new AllegroHandler(this); 
 	
 	cout << "Initializing resources..." << endl;
-	this->allegro_hnd->initialize_resources();
+	this->allegro_hnd.initialize_resources();
 
 	cout << "Creating components..." << endl;
-	this->allegro_hnd->create_components();
+	this->allegro_hnd.create_components();
 
 	for (unsigned int i = 0; i < sizeof(keys); i++) {
 		keys[i] = false;
@@ -329,7 +340,9 @@ void HGameEngine::run() {
 	
 	do {
 
-		al_wait_for_event(this->allegro_hnd->event_queue, &event);
+		auto evt_queue = this->allegro_hnd.get_event_queue();
+
+		al_wait_for_event(evt_queue, &event);
 		if (
 			event.type == ALLEGRO_EVENT_KEY_CHAR || 
 			event.type == ALLEGRO_EVENT_KEY_DOWN ||
@@ -364,7 +377,7 @@ void HGameEngine::run() {
 
 		else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
 			al_acknowledge_resize(event.display.source);
-			this->allegro_hnd->fit_display();
+			this->allegro_hnd.fit_display();
 			this->touch_keys.re_arrange();
 		}
 
@@ -372,7 +385,7 @@ void HGameEngine::run() {
 
 			this->run_tick();
 
-			if (!drawing_halted && al_is_event_queue_empty(this->allegro_hnd->event_queue)) {
+			if (!drawing_halted && al_is_event_queue_empty(evt_queue)) {
 
 				this->draw();
 
@@ -382,15 +395,11 @@ void HGameEngine::run() {
 
 	} while (!this->finish);
 
-	cout << "Cleaning up..." << endl;
-	
-	this->allegro_hnd->cleanup();
-
-	cout << "Execution finished correctly." << endl;
+	cout << "Exiting..." << endl;
 
 }
 
-void HGameEngine::calcFPS() {
+void HGameEngine::calc_fps() {
 
 	double game_time = al_get_time();
 
@@ -434,11 +443,11 @@ void HGameEngine::run_tick() {
 
 void HGameEngine::draw() {
 
-	this->allegro_hnd->start_drawing();
+	this->allegro_hnd.start_drawing();
 	//std::cout << "drawing... ";
-	this->allegro_hnd->prepare_main_surface();
+	this->allegro_hnd.prepare_main_surface();
 
-	this->calcFPS();
+	this->calc_fps();
 
 	auto active_stage = (Stage*) this->stages[this->active_stage_id];
 
@@ -446,17 +455,17 @@ void HGameEngine::draw() {
 
 	//al_draw_text(font, al_map_rgb(255, 255, 0), 5, 20, ALLEGRO_ALIGN_LEFT, this->debug_txt.c_str());
 
-	this->allegro_hnd->draw_main_surface();
+	this->allegro_hnd.draw_main_surface();
 	
-	this->allegro_hnd->prepare_sec_surface();
+	this->allegro_hnd.prepare_sec_surface();
 	
 	#ifdef ALLEGRO_ANDROID
 	this->touch_keys.draw();
 	#endif
 	
-	this->allegro_hnd->draw_sec_surface();
+	this->allegro_hnd.draw_sec_surface();
 
-	this->allegro_hnd->finish_drawing();
+	this->allegro_hnd.finish_drawing();
 
 	//std::cout << "done!" << std::endl;
 

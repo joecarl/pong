@@ -8,8 +8,8 @@
 #include <thread>
 
 using namespace std;
-
 using boost::asio::ip::udp;
+using boost::asio::ip::tcp;
 namespace asio = boost::asio;
 
 IoClient::IoClient(): 
@@ -36,6 +36,30 @@ int64_t time_ms() {
 }
 
 
+void IoClient::start_ping_thread() {
+
+	boost::thread([=] {
+
+		while (true) {
+
+			//cout << "milliseconds since epoch: " << time_ms() << endl;
+
+			boost::json::object pingPkg = {
+				{"type", "ping"},
+				{"ms", time_ms()}
+			};
+
+			this->qsend(boost::json::serialize(pingPkg));
+			
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+
+		}
+
+	});
+
+}
+
+
 void IoClient::connect(const string& host, unsigned short port) {
 
 	this->connection_state = CONNECTION_STATE_CONNECTING;
@@ -45,66 +69,38 @@ void IoClient::connect(const string& host, unsigned short port) {
 		try {
 
 			// Creating a query.
-			asio::ip::tcp::resolver::query resolver_query(
-				host, to_string(port), 
-				asio::ip::tcp::resolver::query::numeric_service
+			tcp::resolver::query resolver_query(
+				host, 
+				to_string(port), 
+				tcp::resolver::query::numeric_service
 			);
 
 			// Creating a resolver.
-			asio::ip::tcp::resolver resolver(io_context);
+			tcp::resolver resolver(this->io_context);
 
 			// Resolve query
 			cout << "Resolving " << host << " ..." << endl;
-			asio::ip::tcp::resolver::iterator it = resolver.resolve(resolver_query);
+			tcp::resolver::iterator it = resolver.resolve(resolver_query);
 
-			asio::ip::tcp::endpoint endpoint = it->endpoint();
-			/*
-			//Otra forma de hacerlo es iterando sobre todas las resoluciones encontradas
-			asio::ip::tcp::resolver::iterator it_end;
-			asio::ip::tcp::endpoint endpoint;
-
-			for (; it != it_end; it++) {
-				endpoint = it->endpoint(); //nos quedaremos con el último
-				cout << "Found " << endpoint << endl;
-			}
-			*/
-			/*
-			//otra forma también es especificar IP y puerto directamente
-			endpoint.address(asio::ip::make_address(addr));
-			endpoint.port(port);
-			*/
+			// resolver.resolve returns an iterator with all resolutions found,
+			// we will just select the first one:
+			tcp::endpoint endpoint = it->endpoint();
+					
 			cout << "Trying " << endpoint << " ..." << endl;
 
-			socket.connect(endpoint);
+			this->socket.connect(endpoint);
 
 			this->connection_state = CONNECTION_STATE_CONNECTED;
 
 			this->current_host = host;
 
-			cout << "Connected to " << socket.remote_endpoint() << " !" << endl;
+			cout << "Connected to " << this->socket.remote_endpoint() << " !" << endl;
 
-			boost::thread([=] {
+			this->start_ping_thread();
 
-				while (true) {
+			this->qread();
 
-					//cout << "milliseconds since epoch: " << time_ms() << endl;
-
-					boost::json::object pingPkg = {
-						{"type", "ping"},
-						{"ms", time_ms()}
-					};
-
-					this->qsend(boost::json::serialize(pingPkg));
-					
-					std::this_thread::sleep_for(std::chrono::seconds(1));
-
-				}
-
-			});
-
-			qread();
-
-			io_context.run();
+			this->io_context.run();
 
 		} catch (std::exception &e) {
 

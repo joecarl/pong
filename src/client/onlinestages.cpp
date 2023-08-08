@@ -187,7 +187,7 @@ Controller controller;
 
 ConnStage::ConnStage(HGameEngine* _engine): Stage(_engine) {
 
-	this->input = new JC_TEXTINPUT(this->engine->font);
+	this->input = new JC_TEXTINPUT(this->engine->get_font());
 
 }
 
@@ -195,10 +195,12 @@ void ConnStage::on_enter_stage() {
 
 	input->start();
 
-	this->engine->touch_keys.clear_buttons();
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
-	this->engine->touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	auto& touch_keys = this->engine->get_touch_keys();
+
+	touch_keys.clear_buttons();
+	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
+	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
+	touch_keys.fit_buttons(FIT_BOTTOM, 10);
 
 }
 
@@ -220,6 +222,8 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 
 		int keycode = event.keyboard.keycode;
 
+		auto& cfg = this->engine->get_cfg();
+
 		if (keycode == ALLEGRO_KEY_ESCAPE) {//ESC (SALIR)
 
 			al_rest(0.2);
@@ -233,13 +237,13 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 
 			if (server.empty()) {
 
-				server = this->engine->cfg["defaultServer"].as_string().c_str();
+				server = cfg["defaultServer"].as_string().c_str();
 
 			}
 
-			auto port = (unsigned short) this->engine->cfg["defaultPort"].as_int64();
+			auto port = (unsigned short) cfg["defaultPort"].as_int64();
 						
-			this->engine->connection.connect(server, port);
+			this->engine->get_io_client().connect(server, port);
 			
 		}
 
@@ -249,7 +253,7 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 
 void ConnStage::on_tick() {
 
-	int conn_state = this->engine->connection.get_state();
+	int conn_state = this->engine->get_io_client().get_state();
 
 	if (conn_state == CONNECTION_STATE_CONNECTED_FULL) {
 
@@ -261,9 +265,9 @@ void ConnStage::on_tick() {
 
 void ConnStage::draw() {
 
-	ALLEGRO_FONT* font = this->engine->font;
+	ALLEGRO_FONT* font = this->engine->get_font();
 
-	IoClient* connection = &this->engine->connection;
+	auto& connection = this->engine->get_io_client();
 
 	string pts = get_wait_string();
 	
@@ -276,7 +280,7 @@ void ConnStage::draw() {
 
 	} else {
 
-		int conn_state = connection->get_state();
+		int conn_state = connection.get_state();
 
 		if (conn_state == CONNECTION_STATE_CONNECTING) {
 
@@ -306,22 +310,23 @@ void ConnStage::draw() {
 
 LobbyStage::LobbyStage(HGameEngine* _engine): Stage(_engine) {
 
-	this->input = new JC_TEXTINPUT(this->engine->font);
+	this->input = new JC_TEXTINPUT(this->engine->get_font());
 
 }
 
 
 void LobbyStage::on_enter_stage() {
 
+	auto& touch_keys = this->engine->get_touch_keys();
 	
-	this->engine->touch_keys.clear_buttons();
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
-	this->engine->touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
-	this->engine->touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.clear_buttons();
+	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
+	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
+	touch_keys.fit_buttons(FIT_BOTTOM, 10);
 
 	this->ready = false;
 
-	this->engine->connection.set_process_actions_fn([&] (boost::json::object& evt) {
+	this->engine->get_io_client().set_process_actions_fn([&] (boost::json::object& evt) {
 
 		cout << "RECEIVED: " << evt << endl;
 		if (evt["type"] == "game_start") {
@@ -341,7 +346,9 @@ void LobbyStage::on_enter_stage() {
 
 void LobbyStage::on_event(ALLEGRO_EVENT event) {
 
-	 if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+	auto& io_client = this->engine->get_io_client();
+
+	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
 		int keycode = event.keyboard.keycode;
 
@@ -349,7 +356,7 @@ void LobbyStage::on_event(ALLEGRO_EVENT event) {
 					
 			boost::json::object pkg = {{"type", "ready_to_play"}}; //play_again
 			
-			this->engine->connection.qsend(boost::json::serialize(pkg));
+			io_client.qsend(boost::json::serialize(pkg));
 
 			this->ready = true;
 
@@ -371,17 +378,17 @@ void LobbyStage::on_tick() {
 
 void LobbyStage::draw() {
 
-	ALLEGRO_FONT* font = this->engine->font;
+	ALLEGRO_FONT* font = this->engine->get_font();
 
-	IoClient* connection = &this->engine->connection;
+	auto& io_client = this->engine->get_io_client();
 
 	al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "LOBBY");
 
-	int conn_state = connection->get_state();
+	int conn_state = io_client.get_state();
 
 	if (conn_state == CONNECTION_STATE_CONNECTED_FULL) {
 
-		al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", connection->current_host.c_str());
+		al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", io_client.get_current_host().c_str());
 
 	}
 	
