@@ -79,15 +79,99 @@ int GameHandler::get_control(int k_code, int player_id) {
 }
 
 
-
 GameHandler game_handler;
-
 
 
 //-----------------------------------------------------------------------------
 //------------------------------ MainMenuStage --------------------------------
 
-MainMenuStage::MainMenuStage(HGameEngine* _engine):Stage(_engine) {
+
+RetroLines::RetroLines(std::vector<RetroLine>&& _lines) :
+	lines(_lines)
+{
+	this->calc_width();
+}
+
+RetroLines::RetroLines(std::vector<std::string>&& str_lines) {
+
+	for (auto& str_line: str_lines) {
+
+		char prev_ch = ' ';
+		uint8_t x = 0;
+		uint8_t dash_width = 0;
+		RetroLine retro_line;
+
+		for (auto ch: str_line) {
+
+			if (ch == '-') {
+				dash_width++;
+			} else if (ch == ' ') {
+				if (prev_ch == '-') {
+					const uint8_t dash_x = x - dash_width;
+					retro_line.push_back({ .x = dash_x, .width = dash_width });
+				}
+				dash_width = 0;
+			}
+			prev_ch = ch;
+			x++;
+
+		}
+
+		this->lines.push_back(move(retro_line));
+
+	}
+
+	this->calc_width();
+
+}
+
+void RetroLines::calc_width() {
+
+	this->width = 0;
+
+	for (auto& line: this->lines) {
+		const auto& last_dash = line[line.size() - 1];
+		const uint8_t line_width = last_dash.x + last_dash.width;
+		if (line_width > this->width) {
+			this->width = line_width;
+		}
+	}
+
+	this->width *= this->mult_x;
+
+}
+
+void RetroLines::draw(float ox, float oy) {
+	
+	uint8_t line_num = 0;
+
+	for (auto& line: this->lines) {
+		for (auto& dash: line) {
+			const float x = ox + dash.x * mult_x;
+			const float y = oy + line_num * mult_y * 2 + sin(time + x);
+			const float x2 = x + dash.width * mult_x;
+			const float y2 = y + mult_y;
+			al_draw_filled_rectangle(x, y, x2, y2, al_map_rgb(180, 255, 180));
+		}
+		line_num++;
+	}
+
+	this->time += 0.1;
+
+}
+
+
+MainMenuStage::MainMenuStage(HGameEngine* _engine) :
+	Stage(_engine),
+	retro_logo({
+		"------    -----    -----    -----  ",
+		"--   --  --   --  --   --  --   -- ",
+		"--   --  --   --  --   --  --      ",
+		"------   --   --  --   --  --  --- ",
+		"--       --   --  --   --  --   -- ",
+		"--        -----   --   --   -----  "
+	})
+{
 	
 	this->logo = load_bitmap(LOGO_DIR);
 
@@ -114,7 +198,7 @@ void MainMenuStage::on_enter_stage() {
 
 void MainMenuStage::on_tick() {
 
-	if (easteregg++ == 5000) play_exorcista();
+	//if (easteregg++ == 5000) play_exorcista();
 
 }
 	
@@ -172,11 +256,12 @@ void MainMenuStage::draw() {
 	float sc = this->engine->get_scale();
 	ALLEGRO_FONT* font = this->engine->get_font();
 
-	al_draw_bitmap(this->logo, (sc - 1) * DEF_W / 2, (sc - 1) * 50, 0);
-	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
-	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 130, ALLEGRO_ALIGN_CENTER, "1:One Player  2:Two Players");
-	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 140, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
-	al_draw_text(font, al_map_rgb(255, 255, 255), sc * DEF_W / 2, sc * 155, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
+	retro_logo.draw((sc * DEF_W - retro_logo.get_width()) / 2, sc * 40);
+	//al_draw_bitmap(this->logo, (sc - 1) * DEF_W / 2, (sc - 1) * 50, 0);
+	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
+	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 130, ALLEGRO_ALIGN_CENTER, "1:One Player  2:Two Players");
+	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 140, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
+	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 155, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
 
 }
 
