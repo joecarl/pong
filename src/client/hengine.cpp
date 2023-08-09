@@ -232,9 +232,15 @@ float AllegroHandler::get_scaled() {
 
 void AllegroHandler::cleanup() {
 
+	//cout << "AllegroHandler::cleanup" << endl;
 	al_uninstall_audio();
-	al_destroy_display(this->display);
+	al_uninstall_keyboard();
+	#ifdef ALLEGRO_ANDROID
+	al_uninstall_touch_input();
+	#endif
+	//al_destroy_font(this->);
 	al_destroy_timer(this->timer);
+	al_destroy_display(this->display);
 	al_destroy_event_queue(this->event_queue);
 
 }
