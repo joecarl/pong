@@ -5,6 +5,7 @@
 #include "randomgenerator.h"
 #include <queue>
 #include <ctime>
+#include <string>
 
 #define GROSOR  3
 #define MEDLEN  9
