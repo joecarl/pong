@@ -9,7 +9,7 @@ class TouchKeys;
 
 class HGameEngine;
 
-enum {
+enum TouchKeysFit {
 	FIT_TOP = 1,
 	FIT_RIGHT,
 	FIT_BOTTOM,
@@ -55,6 +55,23 @@ public:
 };
 
 
+typedef struct {
+
+	uint16_t width;
+	bool flex;
+	//bool empty;
+
+} TouchKeysCell;
+
+typedef struct {
+
+	uint16_t height;
+	bool flex;
+	std::vector<TouchKeysCell> cells;
+
+} TouchKeysRow;
+
+
 class TouchKeys {
 
 	std::vector<Button> buttons;
@@ -63,9 +80,15 @@ class TouchKeys {
 
 	HGameEngine* engine;
 
+	//unsigned int side; 
+	//unsigned int size;
+
+	std::vector<TouchKeysRow> layout;
+
 	
-	unsigned int side; 
-	unsigned int size;
+	uint16_t _arrange_i = 0;
+
+	void arrange_row(TouchKeysRow& row, uint16_t y, uint16_t height, uint16_t window_w);
 
 public:
 
@@ -75,7 +98,9 @@ public:
 
 	void add_button(unsigned int keycode, std::string txt);
 
-	void fit_buttons(unsigned int side, unsigned int size = 0);
+	void layout_buttons(std::vector<TouchKeysRow>&& layout);
+
+	void fit_buttons(TouchKeysFit side, uint16_t size = 1);
 
 	void re_arrange();
 

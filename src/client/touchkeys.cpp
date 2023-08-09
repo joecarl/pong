@@ -76,7 +76,7 @@ void Button::draw() {
 		return;
 	}
 
-	al_draw_rectangle(x + 1, y, x + w, y + h - 1, al_map_rgb(255, 255, 255), 1);
+	al_draw_rectangle(x + 1, y, x + w, y + h - 1, al_map_rgb(35, 35, 35), 1);
 	
 	ALLEGRO_COLOR bgcolor;
 
@@ -149,43 +149,6 @@ void TouchKeys::add_button(unsigned int keycode, string txt) {
 /*
 void TouchKeys::fit_buttons(unsigned int side, unsigned int size) {
 
-	unsigned int width, height;
-
-	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
-		width = this->engine->res_x / buttons.size();
-		height = side == FIT_HORIZONTAL ? this->engine->res_y : size;
-	}
-	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
-		height = this->engine->res_y / buttons.size();
-		width = side == FIT_VERTICAL ? this->engine->res_x : size;
-	}
-
-	unsigned int i = 0;
-
-	for (auto &btn: buttons) {
-
-		if (side == FIT_TOP || side == FIT_HORIZONTAL) {
-			btn.set_dimensions(i * width, 0, width, height);
-		}
-		else if (side == FIT_RIGHT) {
-			btn.set_dimensions(this->engine->res_x - width, i * height, width, height);
-		}
-		else if (side == FIT_BOTTOM) {
-			btn.set_dimensions(i * width, this->engine->res_y - height, width, height);
-		}
-		else if (side == FIT_LEFT || side == FIT_VERTICAL) {
-			btn.set_dimensions(0, i * height, width, height);
-		}
-
-		i++;
-	}
-
-}
-*/
-
-
-void TouchKeys::fit_buttons(unsigned int side, unsigned int size) {
-
 	this->side = side;
 	this->size = size;
 
@@ -232,6 +195,154 @@ void TouchKeys::re_arrange() {
 	}
 
 }
+*/
+
+void TouchKeys::layout_buttons(vector<TouchKeysRow>&& layout) {
+	
+	this->layout = layout;
+
+	this->re_arrange();
+
+}
+
+void TouchKeys::fit_buttons(TouchKeysFit side, uint16_t size) {
+
+	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
+
+		TouchKeysRow empty_row = {
+			.height = static_cast<uint16_t>(100 - size),
+			.flex = true,
+			.cells = {}
+		};
+
+		vector<TouchKeysCell> cells;
+		auto count = buttons.size();
+		for (uint8_t i = 0; i < count; i++) {
+			cells.push_back({
+				.width = 1,
+				.flex = true
+			});
+		}
+
+		TouchKeysRow row = {
+			.height = size,
+			.flex = true,
+			.cells = cells
+		};
+
+		if (side == FIT_BOTTOM) this->layout_buttons({ empty_row, row });
+		if (side == FIT_TOP) this->layout_buttons({ row, empty_row });
+		if (side == FIT_HORIZONTAL) this->layout_buttons({ row });
+	}
+	/*
+	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
+
+		
+	}
+	*/
+
+}
+
+void TouchKeys::arrange_row(TouchKeysRow& row, uint16_t y, uint16_t height, uint16_t window_w) {
+
+	uint16_t flex_w = window_w;
+	uint8_t flex_w_divisions = 0;
+
+	for (auto& cell: row.cells) {
+
+		if (!cell.flex) {
+			flex_w -= cell.width;
+		} else {
+			flex_w_divisions += cell.width;
+		}
+
+	}
+
+	uint16_t x = 0;
+	for (auto& cell: row.cells) {
+
+		uint16_t width = cell.flex ? ((float)cell.width / (float)flex_w_divisions) * flex_w : cell.width;
+
+		if (this->_arrange_i >= this->buttons.size()) {
+			return;
+		}
+
+		auto& btn = this->buttons[this->_arrange_i];
+
+		btn.set_dimensions(x, y, width, height);
+
+		x += width;
+		this->_arrange_i++;
+	}
+
+}
+
+void TouchKeys::re_arrange() {
+
+	auto& allegro_hnd = this->engine->get_allegro_hnd();
+
+	int window_w = allegro_hnd.get_window_width() / allegro_hnd.get_scaled();
+	int window_h = allegro_hnd.get_window_height() / allegro_hnd.get_scaled();
+
+	uint16_t flex_h = window_h;
+	uint8_t flex_h_divisions = 0;
+
+	for (auto& row: this->layout) {
+
+		if (!row.flex) {
+			flex_h -= row.height;
+		} else {
+			flex_h_divisions += row.height;
+		}
+
+	}
+
+	this->_arrange_i = 0;
+	uint16_t y = 0;
+
+	for (auto& row: this->layout) {
+
+		uint16_t height = row.flex ? ((float)row.height / (float)flex_h_divisions) * flex_h : row.height;
+
+		this->arrange_row(row, y, height, window_w);
+
+		y += height;
+	}
+/*
+	unsigned int width, height;
+
+	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
+		width = window_w / buttons.size();
+		height = side == FIT_HORIZONTAL ? window_h : window_h * size / 100;
+	}
+	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
+		height = window_h / buttons.size();
+		width = side == FIT_VERTICAL ? window_w : window_w * size / 100;
+	}
+
+	unsigned int i = 0;
+
+	for (auto &btn: buttons) {
+
+		if (side == FIT_TOP || side == FIT_HORIZONTAL) {
+			btn.set_dimensions(i * width, 0, width, height);
+		}
+		else if (side == FIT_RIGHT) {
+			btn.set_dimensions(window_w - width, i * height, width, height);
+		}
+		else if (side == FIT_BOTTOM) {
+			btn.set_dimensions(i * width, window_h - height, width, height);
+		}
+		else if (side == FIT_LEFT || side == FIT_VERTICAL) {
+			btn.set_dimensions(0, i * height, width, height);
+		}
+
+		i++;
+	}
+*/
+
+}
+
 
 void TouchKeys::redefine_touch_event(ALLEGRO_EVENT &evt) {
 
