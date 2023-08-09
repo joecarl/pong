@@ -90,19 +90,17 @@ boost::json::object export_game(PongGame* g) {
 
 Group::Group() {
 
-	this->new_game();
+	//this->new_game();
 
 }
 
 void Group::new_game() {
 
-	if (this->game != nullptr) {
-		delete this->game;
-	}
-
+	delete this->game;
+	
 	//vaciamos la cola de eventos
-	std::queue<boost::json::object> empty;
-	std::swap(this->evt_queue, empty);
+	queue<boost::json::object> empty;
+	swap(this->evt_queue, empty);
 
 	this->game = new PongGame();
 
@@ -230,6 +228,8 @@ void Group::start_game() {
 
 	cout << "Starting game in group" << endl;
 
+	this->new_game();
+
 	io = new boost::asio::io_context();
 
 	t = new boost::asio::steady_timer(*io, boost::asio::chrono::milliseconds(75 * 1000 / 60)); //el 75 se corresponde al delayer, quiza deberia commonizarse
@@ -247,7 +247,7 @@ void Group::start_game() {
 
 }
 
-void Group::send_to_all(std::string pkg) {
+void Group::send_to_all(const string& pkg) {
 
 	for (auto& cl : this->clients) {
 		if (cl != nullptr && !cl->is_dead()) {
@@ -280,7 +280,7 @@ void Group::game_main_loop() {
 
 		} else if (evtTick < this->game->tick) {
 
-			throw std::runtime_error("Evento perdido");
+			throw runtime_error("Evento perdido");
 
 		} else {
 			
@@ -294,7 +294,7 @@ void Group::game_main_loop() {
 
 	if (this->game->finished) {
 		
-		this->new_game();
+		//this->new_game();
 
 		return;
 

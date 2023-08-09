@@ -38,7 +38,7 @@ public:
 
 	void add_client(Client* cl);
 
-	void send_to_all(std::string pkg);
+	void send_to_all(const std::string& pkg);
 
 	void start_game();
 
