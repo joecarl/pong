@@ -260,7 +260,7 @@ void GameStage::on_enter_stage() {
 
 	touch_keys.clear_buttons();
 
-	if (game_handler.pong_game->control_mode == CONTROLMODE_TWO_PLAYERS) {
+	if (game_handler.pong_game->control_mode == CONTROLMODE_TWO_PLAYERS && game_handler.play_mode == PLAYMODE_LOCAL) {
 
 		touch_keys.add_button(ALLEGRO_KEY_W, "");
 		touch_keys.add_button(ALLEGRO_KEY_UP, "");
