@@ -260,10 +260,34 @@ void GameStage::on_enter_stage() {
 
 	touch_keys.clear_buttons();
 
-	touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
-	touch_keys.add_button(ALLEGRO_KEY_UP, "");
+	if (game_handler.pong_game->control_mode == CONTROLMODE_TWO_PLAYERS) {
 
-	touch_keys.fit_buttons(FIT_HORIZONTAL);
+		touch_keys.add_button(ALLEGRO_KEY_W, "");
+		touch_keys.add_button(ALLEGRO_KEY_UP, "");
+		touch_keys.add_button(ALLEGRO_KEY_S, "");
+		touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
+
+		TouchKeysCell cell = {
+			.width = 1,
+			.flex = 1
+		};
+		TouchKeysRow row = {
+			.height = 1,
+			.flex = 1,
+			.cells = { cell, cell }
+		};
+
+		touch_keys.layout_buttons({ row, row });
+
+	} else {
+
+		touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
+		touch_keys.add_button(ALLEGRO_KEY_UP, "");
+
+		touch_keys.fit_buttons(FIT_HORIZONTAL);
+
+	}
+
 
 	if (game_handler.play_mode == PLAYMODE_ONLINE) {
 
@@ -546,7 +570,7 @@ void Tracer::draw_ball(Ball *b, float scale) {
 		return;
 	}
 
-	al_draw_filled_circle(scale * b->x, scale * b->y, scale * b->radius, al_map_rgb( 255,255, 255));
+	al_draw_filled_circle(scale * b->x, scale * b->y, scale * b->radius, WHITE);
 
 }
 
