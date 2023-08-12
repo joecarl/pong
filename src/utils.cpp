@@ -75,6 +75,17 @@ string file_get_contents(const string& filepath) {
 
 }
 
+bool file_put_contents(const string& filepath, const string& contents) {
+
+	ofstream file;
+	file.open(filepath);
+	file << contents;
+	file.close();
+
+	return file.good();
+	
+}
+
 bool file_exists(const string& name) {
 
 	if (FILE *file = fopen(name.c_str(), "r")) {

@@ -15,6 +15,11 @@ const std::string& get_wait_string();
 std::string file_get_contents(const std::string& filepath);
 
 /**
+ * Write data to a file
+ */
+bool file_put_contents(const std::string& filepath, const std::string& contents);
+
+/**
  * Extracts a package form the provided buffer if the termination sequence is foud.
  * Returns an empty string otherwise. The returned value is erased from the input variable
  */ 
