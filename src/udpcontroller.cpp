@@ -259,6 +259,10 @@ void UdpChannelController::_send(const string& data, uint64_t id, uint64_t count
 		//comprobar si se ha recibido acuse de recibo en el otro listener y en caso negativo enviar de nuevo!
 		for (auto & k_id: this->unconfirmed_pkgs) {
 			if (id == k_id) {
+				if (count > 100) {
+					throw runtime_error("UDP Channel dropped: " + this->remote_id);
+					return; // stop trying after 100 tries
+				}
 				//cerr << "!! No ack received for pkg " << id << " --> sending again!" << endl;
 				this->_send(*sendbuf, id, count + 1);
 				return;
@@ -281,7 +285,7 @@ void UdpChannelController::_send(const string& data, uint64_t id, uint64_t count
 			throw std::runtime_error("ERROR: (_send handler) " + error.message());
 		}
 
-		t->expires_after(boost::asio::chrono::milliseconds(10));
+		t->expires_after(boost::asio::chrono::milliseconds(10 + count * 2));
   		t->async_wait(check);
 		
 	};
