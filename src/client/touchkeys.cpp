@@ -259,9 +259,22 @@ void TouchKeys::arrange_row(TouchKeysRow& row, uint16_t y, uint16_t height, uint
 	}
 
 	uint16_t x = 0;
+	float remainder = 0;
 	for (auto& cell: row.cells) {
 
-		uint16_t width = cell.flex ? ((float)cell.width / (float)flex_w_divisions) * flex_w : cell.width;
+		uint16_t width;
+
+		if (cell.flex) {
+			const float flex_size = ((float)cell.width / (float)flex_w_divisions) * (float) flex_w;
+			width = flex_size;
+			remainder += flex_size - width;
+			if (remainder >= 1.0) {
+				width += 1;
+				remainder -= 1.0;
+			}
+		} else {
+			width = cell.width;
+		}
 
 		if (this->_arrange_i >= this->buttons.size()) {
 			return;
@@ -308,38 +321,6 @@ void TouchKeys::re_arrange() {
 
 		y += height;
 	}
-/*
-	unsigned int width, height;
-
-	if (side == FIT_BOTTOM || side == FIT_TOP || side == FIT_HORIZONTAL) {
-		width = window_w / buttons.size();
-		height = side == FIT_HORIZONTAL ? window_h : window_h * size / 100;
-	}
-	else if (side == FIT_LEFT || side == FIT_RIGHT || side == FIT_VERTICAL) {
-		height = window_h / buttons.size();
-		width = side == FIT_VERTICAL ? window_w : window_w * size / 100;
-	}
-
-	unsigned int i = 0;
-
-	for (auto &btn: buttons) {
-
-		if (side == FIT_TOP || side == FIT_HORIZONTAL) {
-			btn.set_dimensions(i * width, 0, width, height);
-		}
-		else if (side == FIT_RIGHT) {
-			btn.set_dimensions(window_w - width, i * height, width, height);
-		}
-		else if (side == FIT_BOTTOM) {
-			btn.set_dimensions(i * width, window_h - height, width, height);
-		}
-		else if (side == FIT_LEFT || side == FIT_VERTICAL) {
-			btn.set_dimensions(0, i * height, width, height);
-		}
-
-		i++;
-	}
-*/
 
 }
 
