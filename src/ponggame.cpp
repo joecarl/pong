@@ -20,6 +20,7 @@ PongGame::PongGame(uint_fast32_t _seed) :
 	players[1] = new PlayerP(this, (DEF_W - GROSOR / 2), 50);
 	bonus[0] = new Bonus(this, BONUS_LONG);
 	bonus[1] = new Bonus(this, BONUS_BALL);
+	bonus[2] = new Bonus(this, BONUS_INVI);
 
 }
 
@@ -83,7 +84,7 @@ void PongGame::give_score(PlayerP* pl, int score) {
 	pl->racha++;
 
 	if (pl->racha > 3) {
-		pl->give_bonus(BONUS_IMPA);
+		pl->set_com_txt("UNSTOPABLE");
 	}
 
 }
@@ -92,6 +93,17 @@ void PongGame::give_score(PlayerP* pl, int score) {
 void PongGame::add_message(const std::string& evt_msg) {
 
 	this->messages.push(evt_msg);
+
+}
+
+uint8_t PongGame::get_winner() {
+
+	if (!this->finished) {
+		return 0;
+	}
+
+	if (this->players[0]->score > this->players[1]->score) return 1;
+	else return 2;
 
 }
 
@@ -195,7 +207,7 @@ void PongGame::process_tick() {
 
 				b->set_parameters(p1, p2, p3, p4);
 
-				b->cooldown = 1000 + rnd.int_random(0, 1000);
+				b->cooldown = 1400 + rnd.int_random(0, 1400);
 
 			} else {
 
@@ -221,8 +233,8 @@ Element::Element(PongGame *game) {
 
 	this->game = game;
 
-	vx = vy = t = 0;
-	x = y = x00 = y00 = -100;
+	vx = vy = 0;
+	x = y = -100;
 
 }
 
@@ -230,10 +242,10 @@ void Element::process() {
 
 	if (stat) {
 
-		x = x00 + vx * t;
-		y = y00 + vy * t;
-		t++;
-
+		const float inct = 1.0;
+		x += vx * inct;
+		y += vy * inct;
+	
 		this->preprocess();
 
 		this->process_colliding();
@@ -249,11 +261,10 @@ void Element::process() {
 
 void Element::set_parameters(double px, double py, double _vx, double _vy, int st) {
 
-	x = x00 = px;
-	y = y00 = py;
+	x = px;
+	y = py;
 	vx = _vx;
 	vy = _vy;
-	t = 0;
 	stat = st;
 
 }
@@ -321,6 +332,45 @@ void Ball::preprocess() {
 	else
 		radius = RADIUS;
 
+	this->calc_invisiball_state();
+
+}
+
+
+void Ball::calc_invisiball_state() {
+
+	auto b = this;
+	auto& p1_bonus_invi_tm = game->players[0]->bonus_timers[BONUS_INVI];
+	auto& p2_bonus_invi_tm = game->players[1]->bonus_timers[BONUS_INVI];
+	
+	const bool check_invisi_ball = 
+		p1_bonus_invi_tm > 0 && this->vx > 0 ||
+		p2_bonus_invi_tm > 0 && this->vx < 0;
+
+	if (!check_invisi_ball) {
+		invisiball_state = 0;
+		return;
+	}
+
+	#define RATIO 14.0
+
+	const bool draw_visi_ball = check_invisi_ball && (
+		fabs((b->y - LIMIT) / b->vy) < RATIO ||
+		fabs((b->y - (MAX_Y - LIMIT)) / b->vy) < RATIO ||
+		fabs(b->x - DEF_W / 2.0) < RATIO ||
+		b->x < LIMIT * 2 ||
+		b->x > DEF_W - LIMIT * 2
+	);
+
+	//cout << "R: " << fabs((b->y - LIMIT) / b->vy) << " || " << fabs((b->y - (MAX_Y - LIMIT)) / b->vy) << endl;
+
+	if (draw_visi_ball) {
+		invisiball_state = 1;
+		return;
+	}
+
+	invisiball_state = 2;
+	
 }
 
 void Ball::on_player_hit(PlayerP *pl) {
@@ -346,9 +396,11 @@ void Ball::on_player_hit(PlayerP *pl) {
 //------------------------------------------------------------------------------
 //--------------------------------- [ Bonus ] ----------------------------------
 
-Bonus::Bonus(PongGame *game, int bonus_type): Element(game) {
-	
-	this->bonus_type = bonus_type;
+Bonus::Bonus(PongGame *game, BonusType bonus_type) : 
+	Element(game),
+	bonus_type(bonus_type),
+	cooldown(600 + game->rnd.int_random(0, 1400)) 
+{
 
 	this->radius = RADIUS;//provisional
 
@@ -405,12 +457,27 @@ void PlayerP::lock_limit() {
 
 void PlayerP::move_ia() {
 
-	Element *ball = this->game->ball;
+	static int prev_inc = 0; //theorically this should be per-instance variable
+	auto ball = this->game->ball;
 
 	//double inc = 1 + 1 + sin((double)this->game->tick / 100.0);
+	if (ball->get_vx() < 0) {
+		return; // this work because ia is always on the right side
+	}
 
-	if (y > ball->get_y()) y -= (1 + this->game->rnd.int_random(0, 1));
-	if (y < ball->get_y()) y += (1 + this->game->rnd.int_random(0, 1));
+	if (ball->get_invisiball_state() == 2) {
+		y += prev_inc / 2;
+	} else {
+
+		const int inc_module = 1 + this->game->rnd.int_random(0, 1);
+		int inc_y = 0;
+
+		if (y > ball->get_y()) inc_y = -inc_module;
+		else if (y < ball->get_y()) inc_y = inc_module;
+		y += inc_y;
+		prev_inc = inc_y;
+
+	}
 	
 	this->lock_limit();
 
@@ -433,28 +500,31 @@ void PlayerP::control_move() {
 
 }
 
-void PlayerP::give_bonus(int bonus_type) {
+void PlayerP::set_com_txt(const string& txt) {
+
+	this->com_txt = txt;
+	this->com_txt_y = 150;
+	
+}
+
+void PlayerP::give_bonus(BonusType bonus_type) {
 
 	if (bonus_type == BONUS_LONG) {
 		medlen += 7;
-		com_txt = "LONGERRR";
-		com_txt_y = 150;
-	}
-
-	else if (bonus_type == BONUS_IMPA) {
-		com_txt = "UNSTOPABLE";
-		com_txt_y = 150;
+		this->set_com_txt("LONGERRR");
 	}
 
 	else if (bonus_type == BONUS_BALL) {
 		this->bonus_timers[BONUS_BALL] = 800;
-		com_txt = "SPECIAL BALL";
-		com_txt_y = 150;
+		this->set_com_txt("SPECIAL BALL");
+	}
+
+	else if (bonus_type == BONUS_INVI) {
+		this->bonus_timers[BONUS_INVI] = 800;
+		this->set_com_txt("INVISI BALL");
 	}
 
 }
-
-
 
 
 /*

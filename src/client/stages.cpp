@@ -18,6 +18,26 @@
 
 using namespace std;
 
+typedef struct {
+	ALLEGRO_COLOR bar_color;
+	string sprite_path;
+} bonus_def;
+
+bonus_def bonuses_defs[] = {
+	{ 
+		.bar_color = al_map_rgb(0, 0, 0),
+		.sprite_path = RES_DIR"/long.bmp",
+	},
+	{ 
+		.bar_color = al_map_rgb(0, 200, 50),
+		.sprite_path = RES_DIR"/ball.bmp",
+	},
+	{ 
+		.bar_color = al_map_rgb(50, 100, 200),
+		.sprite_path = RES_DIR"/invi.bmp",
+	},
+};
+
 
 void GameHandler::setup(int _playMode, int _controlMode) {
 
@@ -173,7 +193,7 @@ MainMenuStage::MainMenuStage(HGameEngine* _engine) :
 	})
 {
 	
-	this->logo = load_bitmap(LOGO_DIR);
+	//this->logo = load_bitmap(LOGO_DIR);
 
 	//std::cout << "MainMenuStage init" << std::endl;
 
@@ -193,6 +213,9 @@ void MainMenuStage::on_enter_stage() {
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "ESC");
 
 	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+
+	//play_main_theme();
+
 }
 
 
@@ -283,13 +306,13 @@ void GameStage::draw_court() {
 	float min_court_y = scale * (LIMIT);
 	float max_court_y = scale * (MAX_Y - LIMIT);
 
-	al_draw_line(0, min_court_y, scale * DEF_W, min_court_y, al_map_rgb(255, 255, 255), 2);
-	al_draw_line(0, max_court_y, scale * DEF_W, max_court_y, al_map_rgb(255, 255, 255), 2);
-	al_draw_line(scale * (320 / 2 - 1), min_court_y, scale * (320 / 2 - 1), max_court_y, al_map_rgb(255, 255, 255), 2);
-	al_draw_line(scale * (320 / 2 + 1), min_court_y, scale * (320 / 2 + 1), max_court_y, al_map_rgb(255, 255, 255), 2);
+	al_draw_line(0, min_court_y, scale * DEF_W, min_court_y, WHITE, 2);
+	al_draw_line(0, max_court_y, scale * DEF_W, max_court_y, WHITE, 2);
+	al_draw_line(scale * (320 / 2 - 1), min_court_y, scale * (320 / 2 - 1), max_court_y, WHITE, 2);
+	al_draw_line(scale * (320 / 2 + 1), min_court_y, scale * (320 / 2 + 1), max_court_y, WHITE, 2);
 
 	if (game_handler.pong_game->control_mode == CONTROLMODE_TRAINING) {
-		al_draw_line(scale * DEF_W, min_court_y, scale * DEF_W, max_court_y, al_map_rgb(255, 255, 255), 2);
+		al_draw_line(scale * DEF_W, min_court_y, scale * DEF_W, max_court_y, WHITE, 2);
 	}
 
 }
@@ -530,13 +553,27 @@ void GameStage::on_tick() {
 	}
 
 	if (game_handler.pong_game->finished) {
+
+		const uint8_t local_player_id = 1; //TODO: onlinemode player detection
 		
 		this->engine->set_stage(OVER);
-		play_sound(Re, 150, 3);
-		play_sound(Re, 150, 3);
-		play_sound(Re, 200, 3);
-		play_sound(LaSos, 500, 2);
+
+		const bool local_player_wins = local_player_id == game_handler.pong_game->get_winner();
+
+		if (local_player_wins) {
+			play_sound(Do, 150, 3);
+			play_sound(Mi, 150, 3);
+			play_sound(Sol, 200, 3);
+			play_sound(Do, 700, 4);
+		} else {
+			play_sound(Re, 150, 3);
+			play_sound(Re, 150, 3);
+			play_sound(Re, 200, 3);
+			play_sound(LaSos, 500, 2);
+		}
+		
 		play_audio();
+		
 
 	}
 	
@@ -590,8 +627,10 @@ void GameStage::draw() {
 			Tracer *tr = this->tracer;
 
 			tr->draw_ball(game_handler.pong_game->ball, scale);
-			tr->draw_bonus(game_handler.pong_game->bonus[0], scale);
-			tr->draw_bonus(game_handler.pong_game->bonus[1], scale);
+			
+			for (uint8_t i = 0; i < BONUS_MAX; i++) {
+				tr->draw_bonus(game_handler.pong_game->bonus[i], scale);
+			}
 
 			this->draw_scores();
 
@@ -619,30 +658,25 @@ void GameStage::draw() {
 //---------------------------------[ TRACER ]----------------------------------
 
 
-Tracer::Tracer(HGameEngine* _engine) {
+Tracer::Tracer(HGameEngine* _engine) :
+	engine(_engine)
+{
 
-	this->engine = _engine;
-
-	this->bonus_ball_spr = load_bitmap(BALL_DIR);
-
-	this->bonus_long_spr = load_bitmap(LONG_DIR);
+	for (uint8_t i = 0; i < BONUS_MAX; i++) {
+		this->bonus_sprites[i] = load_bitmap(bonuses_defs[i].sprite_path);
+	}
 
 }
 
-ALLEGRO_BITMAP* Tracer::get_sprite_for_bonus_type(int bonus_type) {
+ALLEGRO_BITMAP* Tracer::get_sprite_for_bonus_type(BonusType bonus_type) {
 
-	if (bonus_type == BONUS_BALL) {
+	if (bonus_type >= 0 && bonus_type < BONUS_MAX) {
 
-		return this->bonus_ball_spr;
-
-	} else if (bonus_type == BONUS_LONG) {
-
-		return this->bonus_long_spr;
+		return this->bonus_sprites[bonus_type];
 
 	} else {
 
 		cerr << "Unknown bonus type: " << bonus_type << endl;
-
 		return nullptr;
 
 	}
@@ -655,11 +689,17 @@ void Tracer::draw_ball(Ball *b, float scale) {
 		return;
 	}
 
-	al_draw_filled_circle(scale * b->x, scale * b->y, scale * b->radius, WHITE);
+	uint8_t invisiball_state = b->get_invisiball_state();
+
+	if (invisiball_state == 0) {
+		al_draw_filled_circle(scale * b->x, scale * b->y, scale * b->radius, WHITE);
+	} else if (invisiball_state == 1) {
+		al_draw_circle(scale * b->x, scale * b->y, scale * b->radius, WHITE, 0);
+	}
 
 }
 
-void Tracer::draw_bonus(Bonus * b, float scale) {
+void Tracer::draw_bonus(Bonus *b, float scale) {
 	
 	if (!b->stat) {
 		return;
@@ -694,29 +734,38 @@ void Tracer::draw_player(PlayerP *pl, int scale) {
 		WHITE
 	);
 	
-	if (pl->bonus_timers[BONUS_BALL]) {
+	int y_offset = 0;
+	const uint8_t line_width = 4;
+
+	for (uint8_t i = 0; i < BONUS_MAX; i++) {
+
+		if (!pl->bonus_timers[i]) {
+			continue;
+		}
 
 		if (pl->x < 100) {
 
 			al_draw_filled_rectangle(
-				scale * 0, 
-				scale * 16, 
-				scale * (158.0 * pl->bonus_timers[BONUS_BALL] / 800.0), 
-				scale * 20, 
-				al_map_rgb(0, 200, 50)
+				scale * 0,
+				scale * (16 + y_offset),
+				scale * (158.0 * pl->bonus_timers[i] / 800.0),
+				scale * (16 + y_offset + line_width),
+				bonuses_defs[i].bar_color
 			);
 
 		} else {
 
 			al_draw_filled_rectangle(
-				scale * (DEF_W), 
-				scale * 16, 
-				scale * (DEF_W - 158.0 * pl->bonus_timers[BONUS_BALL] / 800.0),
-				scale * 20, 
-				al_map_rgb(0, 200, 50)
+				scale * (DEF_W),
+				scale * (16 + y_offset),
+				scale * (DEF_W - 158.0 * pl->bonus_timers[i] / 800.0),
+				scale * (16 + y_offset + line_width),
+				bonuses_defs[i].bar_color
 			);
 
 		}
+
+		y_offset += line_width;
 	
 	}
 
@@ -786,9 +835,7 @@ void GameOverStage::on_event(ALLEGRO_EVENT event) {
 
 void GameOverStage::draw() {
 
-	int winner;
-	if (game_handler.pong_game->players[0]->score > game_handler.pong_game->players[1]->score) winner = 1;
-	else winner = 2;
+	int winner = game_handler.pong_game->get_winner();
 
 	float scale = this->engine->get_scale();
 	ALLEGRO_FONT *font = this->engine->get_font();

@@ -15,6 +15,8 @@
 
 #include <iostream>
 
+#define FONT_DIR RES_DIR"/font.ttf"
+
 using namespace std;
 
 //-----------------------------------------------------------------------------

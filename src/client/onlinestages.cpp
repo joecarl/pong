@@ -92,12 +92,9 @@ void syncElement(Element* e, boost::json::object& vars) {
 	e->stat = vars["stat"].as_bool();
 	e->x = vars["x"].as_double();
 	e->y = vars["y"].as_double();
-	e->x00 = vars["x00"].as_double();
-	e->y00 = vars["y00"].as_double();
 	e->radius = vars["radius"].as_double();
 	e->vx = vars["vx"].as_double();
 	e->vy = vars["vy"].as_double();
-	e->t = vars["t"].as_double();
 
 }
 
@@ -127,8 +124,9 @@ void Controller::sync_game(boost::json::object& vars) {
 	syncPlayer(this->game->players[1], vars["p1vars"].as_object());
 	
 	cout << "sync bonus ..." << endl;
-	syncBonus(this->game->bonus[0], vars["bonus0vars"].as_object());
-	syncBonus(this->game->bonus[1], vars["bonus1vars"].as_object());
+	for (uint8_t i = 0; i < BONUS_MAX; i++) {
+		syncBonus(this->game->bonus[i], vars["bonus"].as_array()[i].as_object());
+	}
 
 	cout << "sync ball ..." << endl;
 	syncBall(this->game->ball, vars["ballvars"].as_object());
@@ -187,7 +185,7 @@ Controller controller;
 //------------------------------- [ ConnStage ] -------------------------------
 
 
-ConnStage::ConnStage(HGameEngine* _engine): Stage(_engine) {
+ConnStage::ConnStage(HGameEngine* _engine) : Stage(_engine) {
 
 	this->input = new JC_TEXTINPUT(this->engine->get_font());
 
@@ -332,6 +330,7 @@ void LobbyStage::on_enter_stage() {
 
 		cout << "RECEIVED: " << evt << endl;
 		if (evt["type"] == "game_start") {
+			//en este evento podria venir el id del jugador local
 
 			game_handler.make_new_pong_game((int_fast32_t) evt["seed"].as_int64());
 

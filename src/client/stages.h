@@ -6,19 +6,6 @@
 #include "../ponggame.h"
 #include <allegro5/allegro.h>
 
-#ifdef __APPLE__
-#define LONG_DIR "../Resources/long.bmp"
-#define BALL_DIR "../Resources/ball.bmp"
-#define LOGO_DIR "../Resources/pong.bmp"
-#define FONT_DIR "../Resources/font.ttf"
-
-#else //if defined _WIN32 || defined _WIN64
-#define LONG_DIR "resources/long.bmp"
-#define BALL_DIR "resources/ball.bmp"
-#define LOGO_DIR "resources/pong.bmp"
-#define FONT_DIR "resources/font.ttf"
-#endif
-
 
 enum {
 	PLAYMODE_NONE = 0,
@@ -116,17 +103,17 @@ class Tracer {
 
 	HGameEngine* engine;
 
-	ALLEGRO_BITMAP *bonus_ball_spr, *bonus_long_spr;
+	ALLEGRO_BITMAP* bonus_sprites[BONUS_MAX];
 
 public:
 
 	Tracer(HGameEngine* _engine);
 
-	ALLEGRO_BITMAP* get_sprite_for_bonus_type(int bonus_type);
+	ALLEGRO_BITMAP* get_sprite_for_bonus_type(BonusType bonus_type);
 
 	void draw_ball(Ball *b, float scale);
 
-	void draw_bonus(Bonus * b, float scale);
+	void draw_bonus(Bonus *b, float scale);
 
 	void draw_player(PlayerP *pl, int scale);
 

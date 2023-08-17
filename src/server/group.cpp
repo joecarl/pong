@@ -38,12 +38,9 @@ boost::json::object export_element(Element* e) {
 		{"stat", e->stat},
 		{"x", e->x},
 		{"y", e->y},
-		{"x00", e->x00},
-		{"y00", e->y00},
 		{"radius", e->radius},
 		{"vx", e->vx},
 		{"vy", e->vy},
-		{"t", e->t}
 	};
 
 	return o;
@@ -70,6 +67,11 @@ boost::json::object export_game(PongGame* g) {
 
 	boost::json::object o;
 
+	boost::json::array bonus;
+	for (uint8_t i = 0; i < BONUS_MAX; i++) {
+		bonus.push_back(export_bonus(g->bonus[i]));
+	}
+
 	o = {
 		{"tick", g->tick},
 		{"warmup", g->warmup},
@@ -77,8 +79,7 @@ boost::json::object export_game(PongGame* g) {
 		{"rnd_index", g->rnd.index},
 		{"p0vars", export_player(g->players[0])},
 		{"p1vars", export_player(g->players[1])},
-		{"bonus0vars", export_bonus(g->bonus[0])},
-		{"bonus1vars", export_bonus(g->bonus[1])},
+		{"bonus", bonus},
 		{"ballvars", export_ball(g->ball)}
 	};
 

@@ -17,10 +17,10 @@
 
 
 enum BonusType {
-	BONUS_NONE = 0,
+	BONUS_NONE = -1,
 	BONUS_LONG,
-	BONUS_IMPA,
 	BONUS_BALL,
+	BONUS_INVI,
 	BONUS_MAX
 };
 
@@ -62,7 +62,7 @@ public:
 
 	Ball *ball;
 
-	Bonus *bonus[2];
+	Bonus *bonus[BONUS_MAX];
 
 	unsigned int tick = 0;
 
@@ -81,6 +81,8 @@ public:
 	void process_tick();
 
 	void add_message(const std::string& evt_msg);
+
+	uint8_t get_winner();
 	
 };
 
@@ -91,9 +93,9 @@ public:
 
 	bool stat = false;
 
-	double x, y, x00, y00, radius;
+	double x, y, radius;
 	
-	double vx, vy, t;
+	double vx, vy;
 
 	PongGame *game;
 
@@ -115,7 +117,7 @@ public:
 
 	int get_y() { return y; }
 
-	void set_pos(int px, int py) {x = x00 = px; y = y00 = py;}
+	void set_pos(int px, int py) { x = px; y = py; }
 
 	double get_vx() { return vx; }
 	
@@ -124,6 +126,10 @@ public:
 
 
 class Ball: public Element {
+
+	uint8_t invisiball_state = 0;
+
+	void calc_invisiball_state();
 	
 public:
 
@@ -133,6 +139,8 @@ public:
 	
 	void preprocess();
 
+	uint8_t get_invisiball_state() { return this->invisiball_state; }
+
 };
 
 
@@ -140,11 +148,11 @@ class Bonus: public Element {
 	
 	public:
 
-	int bonus_type;
+	BonusType bonus_type;
 
-	int cooldown = 500;
+	int cooldown;
 
-	Bonus(PongGame* game, int bonus_type);
+	Bonus(PongGame* game, BonusType bonus_type);
 	
 	void on_player_hit(PlayerP *pl);
 	
@@ -169,7 +177,9 @@ public:
 
 	PlayerP(PongGame *pong_game, int px, int py);
 
-	void give_bonus(int bonus_type);
+	void set_com_txt(const std::string& txt);
+
+	void give_bonus(BonusType bonus_type);
  
 	void lock_limit();
 	
