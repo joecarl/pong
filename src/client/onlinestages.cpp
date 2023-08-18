@@ -187,7 +187,7 @@ Controller controller;
 
 ConnStage::ConnStage(HGameEngine* _engine) : Stage(_engine) {
 
-	this->input = new JC_TEXTINPUT(this->engine->get_font());
+	this->input = new TextInput(this->engine->get_font());
 
 }
 
@@ -310,7 +310,7 @@ void ConnStage::draw() {
 
 LobbyStage::LobbyStage(HGameEngine* _engine): Stage(_engine) {
 
-	this->input = new JC_TEXTINPUT(this->engine->get_font());
+	this->input = new TextInput(this->engine->get_font());
 
 }
 

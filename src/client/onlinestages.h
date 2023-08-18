@@ -2,7 +2,7 @@
 #define ONLINESTAGES_H
 
 #include "hengine.h"
-#include "mediatools.h"
+#include "textinput.h"
 #include "../ponggame.h"
 #include <allegro5/allegro.h>
 #include <boost/json.hpp>
@@ -32,7 +32,7 @@ public:
 
 class ConnStage: public Stage {
 
-	JC_TEXTINPUT* input;
+	TextInput* input;
 
 	std::string server;
 
@@ -56,7 +56,7 @@ public:
 
 class LobbyStage: public Stage {
 
-	JC_TEXTINPUT* input;
+	TextInput* input;
 
 	bool ready = false;
 

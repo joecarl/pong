@@ -24,6 +24,7 @@ SCRIPTS+=(stages)
 SCRIPTS+=(onlinestages)
 SCRIPTS+=(tutorialstage)
 SCRIPTS+=(mediatools)
+SCRIPTS+=(textinput)
 SCRIPTS+=(ioclient)
 SCRIPTS+=(main)
 

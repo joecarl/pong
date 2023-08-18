@@ -2,9 +2,6 @@
 #define MEDIATOOLS_H
 
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_audio.h>
 #include <string>
 
@@ -34,55 +31,5 @@ void play_audio(float volumen = 1.0, ALLEGRO_PLAYMODE mode = ALLEGRO_PLAYMODE_ON
 
 void play_exorcista();
 
-class JC_TEXTINPUT {
-	
-	/**
-	 * The font used to draw the text
-	 */
-	ALLEGRO_FONT* font;
-
-	/**
-	 * An empty string for editting
-	 */
-	std::string  edittext;
-	/**
-	 * String iterator
-	 */
-	std::string::iterator iter;
-
-	/**
-	 * Tracks the text caret
-	 */
-	int	caret;
-
-	/**
-	 * True if should text be inserted
-	 */
-	bool insert;
-	
-	/**
-	 * Caret blinking control
-	 */
-	int caret_time;
-	
-public:
-
-	bool active;
-
-	JC_TEXTINPUT(ALLEGRO_FONT* fuente);
-
-	void reset();
-	
-	void process_key(wchar_t ASCII, int control_key);
-
-	void draw(int x, int y);
-
-	void start();
-	
-	void finish();
-	
-	std::string get_value();
-
-};
 
 #endif
