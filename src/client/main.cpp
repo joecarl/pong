@@ -4,8 +4,8 @@
 
 #include "hengine.h"
 #include "../utils.h"
+#include "../appinfo.h"
 
-#define CURR_VERSION "1.5"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	try {
 
 		if (argc == 2 && strcmp(argv[1], "--version") == 0) {
-			cout << CURR_VERSION;
+			cout << APP_VERSION;
 			return 0;
 		}
 		/*
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 
 		cout << "Version checkout: " << v << "(" << v.length() << ")" << endl;
 
-		if (v.length() > 0 && v != CURR_VERSION) {
+		if (v.length() > 0 && v != APP_VERSION) {
 
 			//system("updater &");
 			//here should open updater process
