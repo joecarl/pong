@@ -1,6 +1,7 @@
 #include "hengine.h"
 #include "stages.h"
 #include "onlinestages.h"
+#include "tutorialstage.h"
 #include "../utils.h"
 
 #include <allegro5/allegro.h>
@@ -273,16 +274,74 @@ void Stage::on_enter_stage() {
 
 }
 
+static void setup_kb(TouchKeys& tk) {
+
+	tk.add_button(ALLEGRO_KEY_1, "1");
+	tk.add_button(ALLEGRO_KEY_2, "2");
+	tk.add_button(ALLEGRO_KEY_3, "3");
+	tk.add_button(ALLEGRO_KEY_4, "4");
+	tk.add_button(ALLEGRO_KEY_5, "5");
+	tk.add_button(ALLEGRO_KEY_6, "6");
+	tk.add_button(ALLEGRO_KEY_7, "7");
+	tk.add_button(ALLEGRO_KEY_8, "8");
+	tk.add_button(ALLEGRO_KEY_9, "9");
+	tk.add_button(ALLEGRO_KEY_0, "0");
+
+	tk.add_button(ALLEGRO_KEY_Q, "Q");
+	tk.add_button(ALLEGRO_KEY_W, "W");
+	tk.add_button(ALLEGRO_KEY_E, "E");
+	tk.add_button(ALLEGRO_KEY_R, "R");
+	tk.add_button(ALLEGRO_KEY_T, "T");
+	tk.add_button(ALLEGRO_KEY_Y, "Y");
+	tk.add_button(ALLEGRO_KEY_U, "U");
+	tk.add_button(ALLEGRO_KEY_I, "I");
+	tk.add_button(ALLEGRO_KEY_O, "O");
+	tk.add_button(ALLEGRO_KEY_P, "P");
+
+	tk.add_button(ALLEGRO_KEY_A, "A");
+	tk.add_button(ALLEGRO_KEY_S, "S");
+	tk.add_button(ALLEGRO_KEY_D, "D");
+	tk.add_button(ALLEGRO_KEY_F, "F");
+	tk.add_button(ALLEGRO_KEY_G, "G");
+	tk.add_button(ALLEGRO_KEY_H, "H");
+	tk.add_button(ALLEGRO_KEY_J, "J");
+	tk.add_button(ALLEGRO_KEY_K, "K");
+	tk.add_button(ALLEGRO_KEY_L, "L");
+
+	tk.add_button(ALLEGRO_KEY_Z, "Z");
+	tk.add_button(ALLEGRO_KEY_X, "X");
+	tk.add_button(ALLEGRO_KEY_C, "C");
+	tk.add_button(ALLEGRO_KEY_V, "V");
+	tk.add_button(ALLEGRO_KEY_B, "B");
+	tk.add_button(ALLEGRO_KEY_N, "N");
+	tk.add_button(ALLEGRO_KEY_M, "M");
+	tk.add_button(ALLEGRO_KEY_ENTER, "Ok");
+
+	TouchKeysCell c = {
+		.width = 1,
+		.flex = true,
+	};
+
+	tk.layout_buttons({
+		{ .height = 1,  .flex = true,  .cells = {} },
+		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c, c } },
+		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c, c } },
+		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c } },
+		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c } },
+	});
+
+}
 
 //-----------------------------------------------------------------------------
 //----------------------------- [HGameEngine] ---------------------------------
 
 HGameEngine::HGameEngine() : 
+	custom_cfg_filepath(get_storage_dir() + "/cfg.json"),
 	allegro_hnd(this),
-	touch_keys(this) 
+	touch_keys(this),
+	kb_touch_keys(this)
 {
 
-	string custom_cfg_filepath = "cfg.json";
 	string default_cfg_filepath = "resources/defaultCfg.json";
 	
 	if (file_exists(custom_cfg_filepath)) {
@@ -329,11 +388,22 @@ HGameEngine::HGameEngine() :
 
 	font = al_load_ttf_font(FONT_DIR, scale * 10, ALLEGRO_TTF_MONOCHROME);
 
+	setup_kb(kb_touch_keys);
+
 	stages[MENU] = new MainMenuStage(this);
 	stages[GAME] = new GameStage(this);
 	stages[OVER] = new GameOverStage(this);
 	stages[CONN] = new ConnStage(this);
 	stages[LOBBY] = new LobbyStage(this);
+	stages[TUTO] = new TutorialStage(this);
+
+}
+
+
+void HGameEngine::set_cfg_param(const string& key, const boost::json::value& val) {
+
+	this->cfg[key] = val;
+	file_put_contents(this->custom_cfg_filepath, boost::json::serialize(this->cfg));
 
 }
 
@@ -407,6 +477,7 @@ void HGameEngine::run() {
 
 }
 
+
 void HGameEngine::calc_fps() {
 
 	double game_time = al_get_time();
@@ -423,6 +494,7 @@ void HGameEngine::calc_fps() {
 
 }
 
+
 void HGameEngine::set_stage(unsigned int stage_id) {
 	
 	this->active_stage_id = stage_id;
@@ -431,6 +503,7 @@ void HGameEngine::set_stage(unsigned int stage_id) {
 	std::cout << " > set_stage: " << this->active_stage_id << std::endl;
 
 }
+
 
 void HGameEngine::run_tick() {
 
@@ -448,6 +521,7 @@ void HGameEngine::run_tick() {
 	//std::cout << "done!" << std::endl;
 
 }
+
 
 void HGameEngine::draw() {
 
@@ -467,7 +541,9 @@ void HGameEngine::draw() {
 	
 	this->allegro_hnd.prepare_sec_surface();
 	
+	
 	#ifdef ALLEGRO_ANDROID
+	//this->kb_touch_keys.draw();
 	this->touch_keys.draw();
 	#endif
 	
@@ -478,6 +554,7 @@ void HGameEngine::draw() {
 	//std::cout << "done!" << std::endl;
 
 }
+
 
 void HGameEngine::on_event(ALLEGRO_EVENT event) {
 

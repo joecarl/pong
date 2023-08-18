@@ -18,6 +18,7 @@ enum {
 	OVER,
 	CONN,
 	LOBBY,
+	TUTO,
 	MAX_SCREENS
 };
 
@@ -58,7 +59,6 @@ class AllegroHandler {
 	void cleanup();
 
 public:
-	
 
 	AllegroHandler(HGameEngine *game_engine);
 
@@ -99,7 +99,7 @@ class Stage {
 public:
 
 	HGameEngine* engine;
-	
+
 	Stage(HGameEngine* _engine);
 
 	virtual void on_event(ALLEGRO_EVENT event);
@@ -115,23 +115,27 @@ public:
 class HGameEngine {
 
 	double old_time = 0;
-	
+
 	unsigned int frames_done = 0;
 
 	bool must_run_on_enter_stage = false;
+
+	std::string custom_cfg_filepath;
 
 	AllegroHandler allegro_hnd;
 
 	TouchKeys touch_keys;
 
+	TouchKeys kb_touch_keys;
+
 	IoClient connection;
-	
+
 	ALLEGRO_FONT* font;
 
 	boost::json::object cfg;
 
 	float fps = 0;
-	
+
 	float scale = 1.0;
 
 	unsigned int active_stage_id = 0;
@@ -162,8 +166,10 @@ public:
 
 	void run();
 
+	void set_cfg_param(const std::string& key, const boost::json::value& val);
+
 	TouchKeys& get_touch_keys() { return this->touch_keys; }
-	
+
 	IoClient& get_io_client() { return this->connection; }
 
 	boost::json::object& get_cfg() { return this->cfg; }
@@ -177,7 +183,7 @@ public:
 	uint16_t get_res_x() { return this->res_x; }
 
 	uint16_t get_res_y() { return this->res_y; }
-	
+
 	ALLEGRO_FONT* get_font() { return this->font; }
 
 	bool get_key(uint16_t kcode) { return kcode < ALLEGRO_KEY_MAX ? this->keys[kcode]: false; }
