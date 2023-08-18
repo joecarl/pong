@@ -1,5 +1,6 @@
 
 #include "utils.h"
+#include "appinfo.h"
 
 #include <cstdio>
 #include <iostream>
@@ -11,23 +12,48 @@
 #include <algorithm> 
 #include <cctype>
 #include <locale>
+#include <filesystem>
 
 using namespace std;
 
-/*
+
 #ifdef __ANDROID__
 #include <android/log.h>
-#define APPNAME "Ponggame"
-#endif 
+#endif
 
 void log(const string& txt) {
-	#ifdef ANDROID
-	__android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", txt.c_str());
-	#else 
-	cout << txt;
-	#endif
+
+#ifdef __ANDROID__
+
+	__android_log_print(ANDROID_LOG_VERBOSE, APP_PKGNAME, "%s", txt.c_str());
+
+#else
+	
+	cout << txt << endl;
+	
+#endif
+
 }
-*/
+
+
+const string get_storage_dir() {
+
+#ifdef __ANDROID__
+
+	return "/data/data/" APP_PKGNAME "/files";
+
+#else
+
+	string path = "./data"; // TODO: get real writable path
+
+	filesystem::create_directories(path);
+
+	return path;
+
+#endif
+
+}
+
 
 const string& get_wait_string() {
 
@@ -46,6 +72,7 @@ const string& get_wait_string() {
 	return pts;
 }
 
+
 string extract_pkg(string& buffer) {
 	
 	string pkg = "";
@@ -61,6 +88,7 @@ string extract_pkg(string& buffer) {
 
 }
 
+
 string file_get_contents(const string& filepath) {
 
 	ifstream ifs(filepath);
@@ -75,6 +103,7 @@ string file_get_contents(const string& filepath) {
 
 }
 
+
 bool file_put_contents(const string& filepath, const string& contents) {
 
 	ofstream file;
@@ -85,6 +114,7 @@ bool file_put_contents(const string& filepath, const string& contents) {
 	return file.good();
 	
 }
+
 
 bool file_exists(const string& name) {
 
@@ -117,8 +147,6 @@ string exec(const char* cmd) {
 }
 
 
-
-// trim from start (in place)
 string ltrim(string s) {
 
 	s.erase(s.begin(), find_if (s.begin(), s.end(), [] (unsigned char ch) {
@@ -129,7 +157,7 @@ string ltrim(string s) {
 
 }
 
-// trim from end (in place)
+
 string rtrim(string s) {
 
 	s.erase(find_if(s.rbegin(), s.rend(), [] (unsigned char ch) {
@@ -140,7 +168,7 @@ string rtrim(string s) {
 
 }
 
-// trim from both ends (in place)
+
 string trim(string s) {
 
 	s = ltrim(s);
