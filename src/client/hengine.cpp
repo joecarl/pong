@@ -396,6 +396,7 @@ HGameEngine::HGameEngine() :
 	stages[CONN] = new ConnStage(this);
 	stages[LOBBY] = new LobbyStage(this);
 	stages[TUTO] = new TutorialStage(this);
+	stages[CONF] = new ConfigStage(this);
 
 }
 

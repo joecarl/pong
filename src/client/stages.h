@@ -3,6 +3,7 @@
 
 #include "hengine.h"
 #include "mediatools.h"
+#include "textinput.h"
 #include "../ponggame.h"
 #include <allegro5/allegro.h>
 
@@ -166,6 +167,26 @@ public:
 	void draw();
 
 };
+
+
+//-----------------------------------------------------------------------------
+
+class ConfigStage: public Stage {
+
+	TextInput* input;
+
+public:
+
+	ConfigStage(HGameEngine* _engine);
+
+	void on_enter_stage();
+
+	void on_event(ALLEGRO_EVENT event);
+
+	void draw();
+
+};
+
 
 
 #endif

@@ -19,6 +19,7 @@ enum {
 	CONN,
 	LOBBY,
 	TUTO,
+	CONF,
 	MAX_SCREENS
 };
 

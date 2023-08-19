@@ -30,9 +30,13 @@ int main(int argc, char **argv) {
 		}
 		*/
 		HGameEngine game_engine;
-		
-		game_engine.set_stage(MENU);
 
+		auto& cfg = game_engine.get_cfg();
+
+		int stage = cfg.contains("playerName") ? MENU : CONF;
+
+		game_engine.set_stage(stage);
+		
 		game_engine.run();
 		
 		return 0;
