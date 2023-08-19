@@ -383,9 +383,9 @@ void Ball::on_player_hit(PlayerP *pl) {
 
 	}
 
-	double newX = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - GROSOR - 1);
+	double new_x = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - GROSOR - 1);
 
-	this->set_parameters(newX, y, -vx, vy, stat);
+	this->set_parameters(new_x, y, -vx, vy, stat);
 
 }
 

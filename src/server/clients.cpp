@@ -94,9 +94,9 @@ void Client::process_request(const string& request) {
 	
 	boost::json::object evt = q.get_object();
 
-	auto evtType = evt["type"].get_string();
+	auto evt_type = evt["type"].get_string();
 
-	if (evtType == "ping") {
+	if (evt_type == "ping") {
 
 		evt["type"] = "pong";
 		this->qsend(boost::json::serialize(evt));

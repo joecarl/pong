@@ -64,7 +64,7 @@ void Controller::process_event(boost::json::object &evt) {
 }
 
 
-void syncPlayer(PlayerP* p, boost::json::object& vars) {
+void sync_player(PlayerP* p, boost::json::object& vars) {
 
 	p->x = vars["x"].as_int64();
 	p->y = vars["y"].as_int64();
@@ -87,7 +87,7 @@ void syncPlayer(PlayerP* p, boost::json::object& vars) {
 	
 }
 
-void syncElement(Element* e, boost::json::object& vars) {
+void sync_element(Element* e, boost::json::object& vars) {
 
 	e->stat = vars["stat"].as_bool();
 	e->x = vars["x"].as_double();
@@ -98,15 +98,15 @@ void syncElement(Element* e, boost::json::object& vars) {
 
 }
 
-void syncBall(Ball* b, boost::json::object& vars) {
+void sync_ball(Ball* b, boost::json::object& vars) {
 	
-	syncElement((Element*) b, vars);
+	sync_element((Element*) b, vars);
 	
 }
 
-void syncBonus(Bonus* b, boost::json::object& vars) {
+void sync_bonus(Bonus* b, boost::json::object& vars) {
 
-	syncElement((Element*) b, vars);
+	sync_element((Element*) b, vars);
 	b->cooldown = vars["cooldown"].as_int64();
 	
 }
@@ -120,16 +120,16 @@ void Controller::sync_game(boost::json::object& vars) {
 	this->game->rnd.index = vars["rnd_index"].as_int64();
 
 	cout << "sync players ..." << endl;
-	syncPlayer(this->game->players[0], vars["p0vars"].as_object());
-	syncPlayer(this->game->players[1], vars["p1vars"].as_object());
+	sync_player(this->game->players[0], vars["p0vars"].as_object());
+	sync_player(this->game->players[1], vars["p1vars"].as_object());
 	
 	cout << "sync bonus ..." << endl;
 	for (uint8_t i = 0; i < BONUS_MAX; i++) {
-		syncBonus(this->game->bonus[i], vars["bonus"].as_array()[i].as_object());
+		sync_bonus(this->game->bonus[i], vars["bonus"].as_array()[i].as_object());
 	}
 
 	cout << "sync ball ..." << endl;
-	syncBall(this->game->ball, vars["ballvars"].as_object());
+	sync_ball(this->game->ball, vars["ballvars"].as_object());
 
 }
 
@@ -161,7 +161,7 @@ void Controller::on_tick() {
 
 		} else if (evt_tick < this->game->tick) {
 
-			cerr << "DESYNC! evt_tick: " << evt_tick << " | gameTick: " << this->game->tick << endl;
+			cerr << "DESYNC! evt_tick: " << evt_tick << " | game_tick: " << this->game->tick << endl;
 
 			this->evt_queue.pop();
 		

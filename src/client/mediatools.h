@@ -9,6 +9,8 @@
 
 #define WHITE al_map_rgb(255, 255, 255)
 
+#define RED al_map_rgb(255, 0, 0)
+
 #ifdef __APPLE__
 #define RES_DIR "../Resources"
 #else //if defined _WIN32 || defined _WIN64

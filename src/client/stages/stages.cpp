@@ -43,10 +43,10 @@ bonus_def bonuses_defs[] = {
 };
 
 
-void GameHandler::setup(int _playMode, int _controlMode) {
+void GameHandler::setup(int _play_mode, int _control_mode) {
 
-	this->play_mode = _playMode;
-	this->control_mode = _controlMode;
+	this->play_mode = _play_mode;
+	this->control_mode = _control_mode;
 	
 }
 
@@ -331,7 +331,7 @@ void GameStage::draw_scores() {
 
 		al_draw_textf(
 			font,
-			al_map_rgb(255, 0, 0),
+			RED,
 			scale * 25,
 			scale * 186,
 			ALLEGRO_ALIGN_LEFT,
@@ -341,7 +341,7 @@ void GameStage::draw_scores() {
 
 		al_draw_textf(
 			font,
-			al_map_rgb(255, 0, 0),
+			RED,
 			scale * 240,
 			scale * 186,
 			ALLEGRO_ALIGN_LEFT,
@@ -353,7 +353,7 @@ void GameStage::draw_scores() {
 
 		al_draw_textf(
 			font,
-			al_map_rgb(255, 0, 0),
+			RED,
 			scale * 25,
 			scale * 186,
 			ALLEGRO_ALIGN_LEFT,
@@ -459,31 +459,31 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 
 	if (evt.type == ALLEGRO_EVENT_KEY_DOWN || evt.type == ALLEGRO_EVENT_KEY_UP) {
 
-		bool newSt = evt.type == ALLEGRO_EVENT_KEY_DOWN;
+		bool new_st = evt.type == ALLEGRO_EVENT_KEY_DOWN;
 
-		int controlP1 = game_handler.get_control(k_code, 0);
-		int controlP2 = game_handler.get_control(k_code, 1);
+		int control_p1 = game_handler.get_control(k_code, 0);
+		int control_p2 = game_handler.get_control(k_code, 1);
 
 		if (game_handler.play_mode == PLAYMODE_ONLINE) {
 				
-			if (controlP1 != CONTROL_NONE) {
+			if (control_p1 != CONTROL_NONE) {
 
-				boost::json::value inputEvt = {
+				boost::json::value input_evt = {
 					{"type", "set_control_state"},
-					{"state", newSt},
-					{"control", controlP1},
+					{"state", new_st},
+					{"control", control_p1},
 					{"tick", game_handler.pong_game->tick}
 				};
 
-				cout << "Sending: " << inputEvt << endl;
-				this->engine->get_io_client().qsend_udp(boost::json::serialize(inputEvt));
+				cout << "Sending: " << input_evt << endl;
+				this->engine->get_io_client().qsend_udp(boost::json::serialize(input_evt));
 
 			}
 
 		} else {
 		
-			game_handler.pong_game->players[0]->controls[controlP1] = newSt;
-			game_handler.pong_game->players[1]->controls[controlP2] = newSt;
+			game_handler.pong_game->players[0]->controls[control_p1] = new_st;
+			game_handler.pong_game->players[1]->controls[control_p2] = new_st;
 			
 		} 
 
@@ -599,7 +599,7 @@ void GameStage::draw() {
 
 		al_draw_textf(
 			font, 
-			al_map_rgb(255, 0, 0), 
+			RED, 
 			scale * this->engine->get_res_x() / 2, 
 			scale * this->engine->get_res_y() / 2, 
 			ALLEGRO_ALIGN_CENTER, 
@@ -622,13 +622,13 @@ void GameStage::draw() {
 			
 		} else {
 
-			//al_draw_text(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
+			//al_draw_text(font, RED, scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
 			
 			int secs = game_handler.pong_game->tick / 60;
 			int secs_d = (secs % 60) / 10;
 			int secs_u = secs % 10;
 			int min = secs / 60;
-			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 1, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
+			al_draw_textf(font, RED, scale * 320 / 2, scale * 1, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
 				
 			this->draw_court();
 
@@ -642,11 +642,11 @@ void GameStage::draw() {
 
 			this->draw_scores();
 
-			al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->get_fps()));
+			al_draw_textf(font, RED, scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->get_fps()));
 
 			if (game_handler.play_mode == PLAYMODE_ONLINE) {
 				int ping = (int) (this->engine->get_io_client().get_ping_ms());
-				al_draw_textf(font, al_map_rgb(255, 0, 0), scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
+				al_draw_textf(font, RED, scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
 			}
 
 			tr->draw_player(game_handler.pong_game->players[0], scale);
@@ -848,8 +848,8 @@ void GameOverStage::draw() {
 	float scale = this->engine->get_scale();
 	ALLEGRO_FONT *font = this->engine->get_font();
 
-	al_draw_textf(font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
-	al_draw_text (font, al_map_rgb(255, 0, 0), scale * 320 / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
+	al_draw_textf(font, RED, scale * 320 / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
+	al_draw_text (font, RED, scale * 320 / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
 
 }
 

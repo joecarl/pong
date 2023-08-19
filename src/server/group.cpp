@@ -124,7 +124,7 @@ void Group::add_client(Client* cl) {
 
 	bool must_push = true;
 
-	for (size_t i = 0; i < this->clients.size(); i++) {//} &itCl: this->clients) {
+	for (size_t i = 0; i < this->clients.size(); i++) {//} &it_cl: this->clients) {
 		if (this->clients[i] == nullptr) {
 			this->clients[i] = cl;
 			must_push = false;
@@ -153,9 +153,9 @@ void Group::add_client(Client* cl) {
 		
 		cl->on_pkg_received = [this, player_id] (boost::json::object& pkg) {
 
-			auto evtType = pkg["type"].as_string();
+			auto evt_type = pkg["type"].as_string();
 		
-			if (evtType == "ready_to_play") {//if scope == group-event
+			if (evt_type == "ready_to_play") {//if scope == group-event
 
 				cout << "Player ready!!" << endl;
 				
@@ -165,7 +165,7 @@ void Group::add_client(Client* cl) {
 					this->start_game();
 				}
 
-			} else if (evtType == "desync") {
+			} else if (evt_type == "desync") {
 
 				boost::json::object o = {
 					{"type", "sync"},
@@ -178,16 +178,16 @@ void Group::add_client(Client* cl) {
 
 			} else {
 
-			//if (evtType == "set_control_state") {//if scope == game-event
+			//if (evt_type == "set_control_state") {//if scope == game-event
 				//cout << pkg << endl;
 
-				unsigned int origTick = pkg["tick"].as_int64();
+				unsigned int orig_tick = pkg["tick"].as_int64();
 
-				unsigned int tickDiff = 0;
+				unsigned int tick_diff = 0;
 
-				if (origTick < this->game->tick) {
-					tickDiff = this->game->tick - origTick;
-					cout << "Tick diff: " << tickDiff << endl;
+				if (orig_tick < this->game->tick) {
+					tick_diff = this->game->tick - orig_tick;
+					cout << "Tick diff: " << tick_diff << endl;
 				}
 
 				pkg["player_key"] = player_id;
@@ -209,18 +209,18 @@ void Group::process_event(boost::json::object &evt) {
 
 	//cout << "processing EVT: " << evt << endl;
 
-	auto evtType = evt["type"].as_string();
+	auto evt_type = evt["type"].as_string();
 		
-	if (evtType == "set_control_state") {
+	if (evt_type == "set_control_state") {
 		
 		int control = evt["control"].as_int64();
-		bool newState = evt["state"].as_bool();
+		bool new_state = evt["state"].as_bool();
 		int player_id = evt["player_key"].as_int64();
 		
-		this->game->players[player_id]->controls[control] = newState;
+		this->game->players[player_id]->controls[control] = new_state;
 
 	} else {
-		cerr << "Unknown event type: " << evtType << endl;
+		cerr << "Unknown event type: " << evt_type << endl;
 	}
 
 }
@@ -271,15 +271,15 @@ void Group::game_main_loop() {
 
 		//cout << "checking EVT: " << evt << " | is uint64 ? " << evt["tick"].is_uint64() << endl;
 
-		unsigned int evtTick = (unsigned int)(evt["tick"].as_uint64());
+		unsigned int evt_tick = (unsigned int)(evt["tick"].as_uint64());
 
-		if (evtTick == this->game->tick) {
+		if (evt_tick == this->game->tick) {
 
 			this->process_event(evt);
 
 			this->evt_queue.pop();
 
-		} else if (evtTick < this->game->tick) {
+		} else if (evt_tick < this->game->tick) {
 
 			throw runtime_error("Evento perdido");
 

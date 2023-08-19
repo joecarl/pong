@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Button::Button(TouchKeys* tKeys, unsigned int keycode, string txt):
+Button::Button(TouchKeys* t_keys, unsigned int keycode, string txt):
 	id(-1),
 	x(0), 
 	y(0), 
@@ -18,7 +18,7 @@ Button::Button(TouchKeys* tKeys, unsigned int keycode, string txt):
 	keycode(keycode), 
 	text(txt),
 	pressed(false),
-	touch_keys(tKeys)
+	touch_keys(t_keys)
 {
 
 }
@@ -30,9 +30,9 @@ void Button::set_dimensions(int x, int y, int w, int h) {
 	this->h = h;
 }
 
-void Button::set_pressed(int newTouchID) {
+void Button::set_pressed(int new_touch_id) {
 	
-	this->id = newTouchID;
+	this->id = new_touch_id;
 	this->pressed = true;
 
 }
@@ -333,12 +333,12 @@ void TouchKeys::redefine_touch_event(ALLEGRO_EVENT &evt) {
 			{
 				int touch_id = evt.touch.id;
 				this->engine->debug_txt = "ID BEGIN: " + to_string(touch_id);
-				//auto mappedPt = this->engine->allegro_hnd->get_mapped_coordinates(evt.touch.x, evt.touch.y);
+				//auto mapped_pt = this->engine->allegro_hnd->get_mapped_coordinates(evt.touch.x, evt.touch.y);
 				float scaled = this->engine->get_allegro_hnd().get_scaled();
 
 				for (auto& btn: buttons) {
 
-					//if (btn.in_area(mappedPt.x, mappedPt.y)) {
+					//if (btn.in_area(mapped_pt.x, mapped_pt.y)) {
 					if (btn.in_area(evt.touch.x / scaled, evt.touch.y / scaled)) {
 						evt.type = ALLEGRO_EVENT_KEY_DOWN;
 						evt.keyboard.keycode = btn.get_keycode();
