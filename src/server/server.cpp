@@ -1,5 +1,6 @@
 #include "server.h"
 #include "group.h"
+#include "../utils.h"
 
 #include <ctime>
 #include <iostream>
@@ -72,9 +73,12 @@ void Server::start_listening() {
 
 void Server::on_new_connection(tcp::socket& socket) {
 
+	cout << "[" << date() << "] New connection!" << endl;
+	bool assigned = false;
+
 	for (int i = 0; i < this->max_connections; i++) {
 
-		cout << "Testing " << i << ": " << (clients[i] == nullptr ? "available!" : "busy") << endl;
+		//cout << "Testing " << i << ": " << (clients[i] == nullptr ? "available!" : "busy") << endl;
 
 		if (clients[i] == nullptr) {
 
@@ -88,10 +92,16 @@ void Server::on_new_connection(tcp::socket& socket) {
 			
 			cl->async_wait_for_data();
 
+			assigned = true;
+
 			break;
 
 		} 
 
+	}
+
+	if (!assigned) {
+		cerr << "Unable to find an available slot for the client" << endl;
 	}
 
 }
