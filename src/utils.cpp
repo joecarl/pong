@@ -13,6 +13,8 @@
 #include <cctype>
 #include <locale>
 #include <filesystem>
+#include <chrono>
+#include <iomanip>
 
 using namespace std;
 
@@ -51,6 +53,17 @@ const string get_storage_dir() {
 	return path;
 
 #endif
+
+}
+
+
+string date() {
+
+	time_t t = chrono::system_clock::to_time_t(chrono::system_clock::now());
+
+	stringstream outbuff;	
+	outbuff << put_time(localtime(&t), "%FT%T%z");
+	return outbuff.str();
 
 }
 

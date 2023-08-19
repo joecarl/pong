@@ -61,4 +61,9 @@ void log(const std::string& txt);
  */ 
 const std::string get_storage_dir();
 
+/**
+ * Obtain stringified date
+ */ 
+std::string date();
+
 #endif
