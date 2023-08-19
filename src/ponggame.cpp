@@ -21,6 +21,7 @@ PongGame::PongGame(uint_fast32_t _seed) :
 	bonus[0] = new Bonus(this, BONUS_LONG);
 	bonus[1] = new Bonus(this, BONUS_BALL);
 	bonus[2] = new Bonus(this, BONUS_INVI);
+	bonus[3] = new Bonus(this, BONUS_WALL);
 
 }
 
@@ -349,17 +350,16 @@ void Ball::calc_invisiball_state() {
 		return;
 	}
 
-	#define RATIO 14.0
+	const double factor_vy = 0.2 * fabs(b->vy);
+	const double max_offset = 16.0 + factor_vy;
 
 	const bool draw_visi_ball = check_invisi_ball && (
-		fabs((b->y - LIMIT) / b->vy) < RATIO ||
-		fabs((b->y - (MAX_Y - LIMIT)) / b->vy) < RATIO ||
-		fabs(b->x - DEF_W / 2.0) < RATIO ||
-		b->x < LIMIT * 2 ||
-		b->x > DEF_W - LIMIT * 2
+		fabs(b->y - LIMIT) < max_offset ||
+		fabs(b->y - (MAX_Y - LIMIT)) < max_offset ||
+		fabs(b->x - DEF_W / 2.0) < max_offset ||
+		b->x < max_offset * 2 ||
+		b->x > DEF_W - max_offset * 2
 	);
-
-	//cout << "R: " << fabs((b->y - LIMIT) / b->vy) << " || " << fabs((b->y - (MAX_Y - LIMIT)) / b->vy) << endl;
 
 	if (draw_visi_ball) {
 		invisiball_state = 1;
@@ -519,6 +519,11 @@ void PlayerP::give_bonus(BonusType bonus_type) {
 	else if (bonus_type == BONUS_INVI) {
 		this->bonus_timers[BONUS_INVI] = 800;
 		this->set_com_txt("INVISI BALL");
+	}
+
+	else if (bonus_type == BONUS_WALL) {
+		// TODO: create walls
+		this->set_com_txt("DEFENSE WALLS");
 	}
 
 }

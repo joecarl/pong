@@ -23,6 +23,7 @@ enum BonusType {
 	BONUS_LONG,
 	BONUS_BALL,
 	BONUS_INVI,
+	BONUS_WALL,
 	BONUS_MAX
 };
 

@@ -36,6 +36,10 @@ bonus_def bonuses_defs[] = {
 		.bar_color = al_map_rgb(50, 100, 200),
 		.sprite_path = RES_DIR"/invi.bmp",
 	},
+	{ 
+		.bar_color = al_map_rgb(0, 0, 0),
+		.sprite_path = RES_DIR"/wall.bmp",
+	},
 };
 
 
@@ -444,6 +448,10 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 		} else if (k_code == ALLEGRO_KEY_D) {
 
 			this->trigger_desync(); //debug
+
+		} else if (k_code == ALLEGRO_KEY_V) {
+			
+			//game_handler.pong_game->players[1]->give_bonus(BONUS_INVI);//debug
 
 		}
 
