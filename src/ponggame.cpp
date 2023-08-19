@@ -51,11 +51,9 @@ void PongGame::iniciar_punto(int first) {
 	if (first == 1) {
 		players[0]->score = 0; 
 		players[1]->score = 0;
-		while (tvx == 0) {
-			tvx = 2 * (this->rnd.int_random(-1, 1));
-		}
+		tvx = INITIAL_SPEED * this->rnd.int_random(1, 1, true);
 	} else {
-		tvx = (int) ball->get_vx();
+		tvx = ball->get_vx() < 0 ? -INITIAL_SPEED : INITIAL_SPEED;
 	}
 	
 	for (auto & player: players) {
@@ -66,6 +64,7 @@ void PongGame::iniciar_punto(int first) {
 	}
 
 	ball->set_parameters(INIX, INIY, tvx, 0.5 * (this->rnd.int_random(-1, 1)));
+	ball->radius = INITIAL_RADIUS;
 	players[0]->set_y(40);
 	players[1]->set_y(160);
 
@@ -156,8 +155,6 @@ void PongGame::process_tick() {
 		this->iniciar_punto(0);
 
 	}
-
-	#define MAX_SCORE 11
 	
 	if ((players[0]->score == MAX_SCORE || players[1]->score == MAX_SCORE) && this->control_mode != CONTROLMODE_TRAINING) {
 
@@ -316,7 +313,7 @@ void Element::process_colliding() {
 
 Ball::Ball(PongGame *game): Element(game) {
 	
-	this->radius = RADIUS;
+	this->radius = INITIAL_RADIUS;
 
 }
 
@@ -330,7 +327,7 @@ void Ball::preprocess() {
 	else if (p2->bonus_timers[BONUS_BALL] > 0 && p1->bonus_timers[BONUS_BALL] == 0)
 		radius = x / 20 + 2;
 	else
-		radius = RADIUS;
+		radius = INITIAL_RADIUS;
 
 	this->calc_invisiball_state();
 
@@ -344,8 +341,8 @@ void Ball::calc_invisiball_state() {
 	auto& p2_bonus_invi_tm = game->players[1]->bonus_timers[BONUS_INVI];
 	
 	const bool check_invisi_ball = 
-		p1_bonus_invi_tm > 0 && this->vx > 0 ||
-		p2_bonus_invi_tm > 0 && this->vx < 0;
+		(p1_bonus_invi_tm > 0 && this->vx > 0) ||
+		(p2_bonus_invi_tm > 0 && this->vx < 0);
 
 	if (!check_invisi_ball) {
 		invisiball_state = 0;
@@ -402,7 +399,7 @@ Bonus::Bonus(PongGame *game, BonusType bonus_type) :
 	cooldown(600 + game->rnd.int_random(0, 1400)) 
 {
 
-	this->radius = RADIUS;//provisional
+	this->radius = INITIAL_RADIUS;//provisional
 
 }
 

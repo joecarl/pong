@@ -7,9 +7,11 @@
 #include <ctime>
 #include <string>
 
+#define MAX_SCORE 11
+#define INITIAL_SPEED 2
+#define INITIAL_RADIUS  6
 #define GROSOR  3
 #define MEDLEN  9
-#define RADIUS  6
 #define LIMIT  15
 #define MAX_Y 200
 #define DEF_H 200
