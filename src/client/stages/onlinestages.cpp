@@ -1,7 +1,7 @@
 #include "onlinestages.h"
 #include "stages.h"
-#include "mediatools.h"
-#include "../utils.h"
+#include "../mediatools.h"
+#include "../../utils.h"
 
 #include <iostream>
 

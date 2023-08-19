@@ -1,7 +1,7 @@
 #include "hengine.h"
-#include "stages.h"
-#include "onlinestages.h"
-#include "tutorialstage.h"
+#include "stages/stages.h"
+#include "stages/onlinestages.h"
+#include "stages/tutorialstage.h"
 #include "../utils.h"
 
 #include <allegro5/allegro.h>

@@ -1,7 +1,7 @@
-#include "../ponggame.h"
-#include "../utils.h"
-#include "mediatools.h"
-#include "hengine.h"
+#include "../../ponggame.h"
+#include "../../utils.h"
+#include "../mediatools.h"
+#include "../hengine.h"
 #include "stages.h"
 #include "onlinestages.h"
 

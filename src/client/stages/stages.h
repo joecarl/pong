@@ -1,10 +1,10 @@
 #ifndef STAGES_H
 #define STAGES_H
 
-#include "hengine.h"
-#include "mediatools.h"
-#include "textinput.h"
-#include "../ponggame.h"
+#include "../hengine.h"
+#include "../mediatools.h"
+#include "../textinput.h"
+#include "../../ponggame.h"
 #include <allegro5/allegro.h>
 
 

@@ -1,9 +1,9 @@
 #ifndef ONLINESTAGES_H
 #define ONLINESTAGES_H
 
-#include "hengine.h"
-#include "textinput.h"
-#include "../ponggame.h"
+#include "../hengine.h"
+#include "../textinput.h"
+#include "../../ponggame.h"
 #include <allegro5/allegro.h>
 #include <boost/json.hpp>
 

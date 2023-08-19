@@ -1,7 +1,7 @@
 #ifndef TUTORIALSTAGE_H
 #define TUTORIALSTAGE_H
 
-#include "hengine.h"
+#include "../hengine.h"
 
 #define THUMB_PRESS RES_DIR"/thumb_press.png"
 #define THUMB_RELEASE RES_DIR"/thumb_release.png"
