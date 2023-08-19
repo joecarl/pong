@@ -116,12 +116,14 @@ void IoClient::connect(const string& host, unsigned short port) {
 IoClient::~IoClient() {
 
 	this->io_context.stop();
+	
+	delete this->udp_controller;
 
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	//std::this_thread::sleep_for(std::chrono::seconds(1));
 	
 }
 
-int IoClient::get_state() {
+ConnState IoClient::get_state() {
 
 	return this->connection_state;
 
