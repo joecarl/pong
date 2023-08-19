@@ -38,7 +38,7 @@ void Controller::push_event(boost::json::object &evt) {
 
 void Controller::process_event(boost::json::object &evt) {
 
-	cout << "Processing evt" << evt << endl;
+	//cout << "Processing evt" << evt << endl;
 
 	auto evt_type = evt["type"].as_string();
 		

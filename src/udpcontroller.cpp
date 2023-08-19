@@ -193,13 +193,17 @@ void UdpChannelController::yield_pkgs_buffer() {
 	
 	auto& pkg = pkg_it->second;
 
-	cout << "[] ---> yielding pkg " << next_pkg_to_handle_id;
+	//cout << "[] ---> yielding pkg " << next_pkg_to_handle_id;
 	auto obj = boost::json::parse(pkg["data"].as_string()).as_object();
 	this->process_actions_fn(obj);
 	this->last_handled_pkg_id = next_pkg_to_handle_id;
 	this->pkgs_buffer.erase(next_pkg_to_handle_id);//, pkg_it + 1);
-	cout << " | REM: " << this->pkgs_buffer.size() << endl;
-	this->yield_pkgs_buffer();
+	auto rem = this->pkgs_buffer.size();
+	//cout << " | REM: " << rem << endl;
+	if (rem > 0) {
+		cout << " [] ---> Remaining pkgs to yield: " << rem << endl;
+	}
+	this->yield_pkgs_buffer(); // TODO: rethink, es posible que usar recursividad aqui sea inapropiado 
 
 }
 

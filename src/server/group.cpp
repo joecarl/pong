@@ -179,7 +179,7 @@ void Group::add_client(Client* cl) {
 			} else {
 
 			//if (evtType == "set_control_state") {//if scope == game-event
-				cout << pkg << endl;
+				//cout << pkg << endl;
 
 				unsigned int origTick = pkg["tick"].as_int64();
 
