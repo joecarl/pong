@@ -72,10 +72,39 @@ GameHandler::~GameHandler() {
 
 }
 
+void GameHandler::set_player_name(uint8_t player_id, string name) {
+
+	if (player_id > 2) {
+		return;
+	}
+
+	this->players_names[player_id] = name;
+
+}
+
+string GameHandler::get_player_name(uint8_t player_id) {
+
+	if (player_id > 2) {
+		return "";
+	}
+
+	if (this->play_mode == PLAYMODE_ONLINE) {
+		string pname = this->players_names[player_id];
+		return pname == "" ? "PLAYER " + to_string(player_id + 1) : pname;
+	}
+
+	if (this->pong_game->control_mode == CONTROLMODE_TWO_PLAYERS) {
+		return "PLAYER " + to_string(player_id + 1);
+	} else {
+		return player_id == 0 ? "PLAYER" : "";
+	}
+
+}
+
 /**
  * Retrieves the game CONTROL_* based on control_mode, keycode and player_id
  */
-int GameHandler::get_control(int k_code, int player_id) {
+int GameHandler::get_control(int k_code, uint8_t player_id) {
 
 	if (this->pong_game->control_mode == CONTROLMODE_TWO_PLAYERS && this->play_mode == PLAYMODE_LOCAL) {
 
@@ -327,77 +356,99 @@ void GameStage::draw_scores() {
 	ALLEGRO_FONT* font = this->engine->get_font();
 	float scale = this->engine->get_scale();
 
-	if (game_handler.pong_game->control_mode != CONTROLMODE_TRAINING) {
-		/*
+	const float y_coord = 186;
+
+	if (game_handler.pong_game->control_mode == CONTROLMODE_TRAINING) {
+		
 		al_draw_textf(
 			font,
 			RED,
 			scale * 25,
-			scale * 186,
-			ALLEGRO_ALIGN_LEFT,
-			"SCORE:%d",
-			game_handler.pong_game->players[0]->score
-		);
-
-		al_draw_textf(
-			font,
-			RED,
-			scale * 240,
-			scale * 186,
-			ALLEGRO_ALIGN_LEFT,
-			"SCORE:%d",
-			game_handler.pong_game->players[1]->score
-		);
-		*/
-
-		const float center = DEF_W / 2.0;
-
-		al_draw_textf(
-			font,
-			RED,
-			scale * (center - 12),
-			scale * 186,
-			ALLEGRO_ALIGN_RIGHT,
-			"%d",
-			game_handler.pong_game->players[0]->score
-		);
-
-		for (uint8_t i = 0; i < 4; i++) {
-
-			al_draw_line(
-				scale * (center - 1), 
-				scale * (DEF_H - 10 + i * 2), 
-				scale * (center + 1), 
-				scale * (DEF_H - 10 + i * 2), 
-				RED,
-				0
-			);
-
-		}
-
-		al_draw_textf(
-			font,
-			RED,
-			scale * (center + 12),
-			scale * 186,
-			ALLEGRO_ALIGN_LEFT,
-			"%d",
-			game_handler.pong_game->players[1]->score
-		);
-
-	} else {
-
-		al_draw_textf(
-			font,
-			RED,
-			scale * 25,
-			scale * 186,
+			scale * y_coord,
 			ALLEGRO_ALIGN_LEFT,
 			"FAILS:%d",
 			game_handler.pong_game->players[1]->score
 		);
+
+		return;
 	
 	}
+
+	/*
+	al_draw_textf(
+		font,
+		RED,
+		scale * 25,
+		scale * y_coord,
+		ALLEGRO_ALIGN_LEFT,
+		"SCORE:%d",
+		game_handler.pong_game->players[0]->score
+	);
+
+	al_draw_textf(
+		font,
+		RED,
+		scale * 240,
+		scale * y_coord,
+		ALLEGRO_ALIGN_LEFT,
+		"SCORE:%d",
+		game_handler.pong_game->players[1]->score
+	);
+	*/
+
+	const float center = DEF_W / 2.0;
+	// string player_name = cfg.contains("playerName") ? cfg["playerName"].as_string().c_str() : "-" ;
+
+	al_draw_text(
+		font,
+		RED,
+		scale * (5),
+		scale * y_coord,
+		ALLEGRO_ALIGN_LEFT,
+		game_handler.get_player_name(0).c_str()
+	);
+
+	al_draw_text(
+		font,
+		RED,
+		scale * (DEF_W - 5),
+		scale * y_coord,
+		ALLEGRO_ALIGN_RIGHT,
+		game_handler.get_player_name(1).c_str()
+	);
+
+	al_draw_textf(
+		font,
+		RED,
+		scale * (center - 12),
+		scale * y_coord,
+		ALLEGRO_ALIGN_RIGHT,
+		"%d",
+		game_handler.pong_game->players[0]->score
+	);
+
+	for (uint8_t i = 0; i < 4; i++) {
+
+		al_draw_line(
+			scale * (center - 1), 
+			scale * (DEF_H - 10 + i * 2), 
+			scale * (center + 1), 
+			scale * (DEF_H - 10 + i * 2), 
+			RED,
+			0
+		);
+
+	}
+
+	al_draw_textf(
+		font,
+		RED,
+		scale * (center + 12),
+		scale * y_coord,
+		ALLEGRO_ALIGN_LEFT,
+		"%d",
+		game_handler.pong_game->players[1]->score
+	);
 
 }
 
@@ -598,11 +649,11 @@ void GameStage::on_tick() {
 
 	if (game_handler.pong_game->finished) {
 
-		const uint8_t local_player_id = 1; //TODO: onlinemode player detection
+		const uint8_t local_player_id = 0; //TODO: onlinemode player detection
 		
 		this->engine->set_stage(OVER);
 
-		const bool local_player_wins = local_player_id == game_handler.pong_game->get_winner();
+		const bool local_player_wins = local_player_id == game_handler.pong_game->get_winner_id();
 
 		if (local_player_wins) {
 			play_sound(Do, 150, 3);
@@ -618,7 +669,6 @@ void GameStage::on_tick() {
 		
 		play_audio();
 		
-
 	}
 	
 }
@@ -880,12 +930,13 @@ void GameOverStage::on_event(ALLEGRO_EVENT event) {
 
 void GameOverStage::draw() {
 
-	int winner = game_handler.pong_game->get_winner();
+	int winner_id = game_handler.pong_game->get_winner_id();
+	const string winner = game_handler.get_player_name(winner_id);
 
 	float scale = this->engine->get_scale();
 	ALLEGRO_FONT *font = this->engine->get_font();
 
-	al_draw_textf(font, RED, scale * DEF_W / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
+	al_draw_textf(font, RED, scale * DEF_W / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: %s", winner.c_str());
 	al_draw_text (font, RED, scale * DEF_W / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
 
 }

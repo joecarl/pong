@@ -19,6 +19,11 @@ class GameHandler {
 
 	int control_mode = CONTROLMODE_NONE;
 
+	/**
+	 * Current game's players names (online mode only)
+	 */
+	std::string players_names[2];
+
 public:
 
 	int play_mode = PLAYMODE_NONE;
@@ -31,8 +36,18 @@ public:
 
 	void make_new_pong_game(int_fast32_t seed);
 	
-	int get_control(int kCode, int playerID);
-	
+	int get_control(int k_code, uint8_t player_id);
+
+	/**
+	 * Sets the corresponding player name (online mode only)
+	 */
+	void set_player_name(uint8_t player_id, std::string name);
+
+	/**
+	 * Retrieves the corresponding player name
+	 */
+	std::string get_player_name(uint8_t player_id);
+
 	void cleanup();
 
 };

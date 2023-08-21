@@ -85,7 +85,12 @@ public:
 
 	void add_message(const std::string& evt_msg);
 
-	uint8_t get_winner();
+	/**
+	 * Retrieves the winner id. Negative values are special codes:
+	 * -1 : game not finished
+	 * -2 : draw 
+	 */
+	int get_winner_id();
 	
 };
 

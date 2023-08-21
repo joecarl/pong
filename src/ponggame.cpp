@@ -96,14 +96,22 @@ void PongGame::add_message(const std::string& evt_msg) {
 
 }
 
-uint8_t PongGame::get_winner() {
+
+int PongGame::get_winner_id() {
 
 	if (!this->finished) {
-		return 0;
+		return -1;
 	}
 
-	if (this->players[0]->score > this->players[1]->score) return 1;
-	else return 2;
+	const auto p1_score = this->players[0]->score;
+	const auto p2_score = this->players[1]->score;
+
+	if (p1_score == p2_score) {
+		return -2;
+	}
+
+	if (p1_score > p2_score) return 0;
+	else return 1;
 
 }
 
