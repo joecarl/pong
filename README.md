@@ -29,7 +29,7 @@ Si tratamos de ejecutar la aplicación compilada haciendo doble click en ella no
 
 ### Prerequisitos
 
-1. Instalar el compilador de C++14 o superior.
+1. Instalar el compilador de C++17 o superior.
 1. Instalar las libs de Boost v1.75 o superior.
 
 ### Compilación
