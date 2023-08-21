@@ -13,8 +13,7 @@ void Controller::push_event(boost::json::object &evt) {
 
 	if (evt_type == "sync") {
 		
-		cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-		cerr << "SYNCING: " << evt << endl;
+		cerr << "!! SYNCING: " << evt << endl;
 
 		try {
 
