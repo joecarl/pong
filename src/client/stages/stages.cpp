@@ -312,8 +312,8 @@ void GameStage::draw_court() {
 
 	al_draw_line(0, min_court_y, scale * DEF_W, min_court_y, WHITE, 2);
 	al_draw_line(0, max_court_y, scale * DEF_W, max_court_y, WHITE, 2);
-	al_draw_line(scale * (320 / 2 - 1), min_court_y, scale * (320 / 2 - 1), max_court_y, WHITE, 2);
-	al_draw_line(scale * (320 / 2 + 1), min_court_y, scale * (320 / 2 + 1), max_court_y, WHITE, 2);
+	al_draw_line(scale * (DEF_W / 2 - 1), min_court_y, scale * (DEF_W / 2 - 1), max_court_y, WHITE, 2);
+	al_draw_line(scale * (DEF_W / 2 + 1), min_court_y, scale * (DEF_W / 2 + 1), max_court_y, WHITE, 2);
 
 	if (game_handler.pong_game->control_mode == CONTROLMODE_TRAINING) {
 		al_draw_line(scale * DEF_W, min_court_y, scale * DEF_W, max_court_y, WHITE, 2);
@@ -328,7 +328,7 @@ void GameStage::draw_scores() {
 	float scale = this->engine->get_scale();
 
 	if (game_handler.pong_game->control_mode != CONTROLMODE_TRAINING) {
-
+		/*
 		al_draw_textf(
 			font,
 			RED,
@@ -348,7 +348,43 @@ void GameStage::draw_scores() {
 			"SCORE:%d",
 			game_handler.pong_game->players[1]->score
 		);
-	
+		*/
+
+		const float center = DEF_W / 2.0;
+
+		al_draw_textf(
+			font,
+			RED,
+			scale * (center - 12),
+			scale * 186,
+			ALLEGRO_ALIGN_RIGHT,
+			"%d",
+			game_handler.pong_game->players[0]->score
+		);
+
+		for (uint8_t i = 0; i < 4; i++) {
+
+			al_draw_line(
+				scale * (center - 1), 
+				scale * (DEF_H - 10 + i * 2), 
+				scale * (center + 1), 
+				scale * (DEF_H - 10 + i * 2), 
+				RED,
+				0
+			);
+
+		}
+
+		al_draw_textf(
+			font,
+			RED,
+			scale * (center + 12),
+			scale * 186,
+			ALLEGRO_ALIGN_LEFT,
+			"%d",
+			game_handler.pong_game->players[1]->score
+		);
+
 	} else {
 
 		al_draw_textf(
@@ -622,13 +658,13 @@ void GameStage::draw() {
 			
 		} else {
 
-			//al_draw_text(font, RED, scale * 320 / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
+			//al_draw_text(font, RED, scale * DEF_W / 2, scale * 2, ALLEGRO_ALIGN_CENTER, "Press ESC to Main Menu");
 			
 			int secs = game_handler.pong_game->tick / 60;
 			int secs_d = (secs % 60) / 10;
 			int secs_u = secs % 10;
 			int min = secs / 60;
-			al_draw_textf(font, RED, scale * 320 / 2, scale * 1, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
+			al_draw_textf(font, RED, scale * DEF_W / 2, 0, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
 				
 			this->draw_court();
 
@@ -642,11 +678,12 @@ void GameStage::draw() {
 
 			this->draw_scores();
 
-			al_draw_textf(font, RED, scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->get_fps()));
+			//al_draw_textf(font, RED, scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->get_fps()));
+			al_draw_textf(font, RED, scale * 5, 0, ALLEGRO_ALIGN_LEFT, "FPS: %d", (int) (this->engine->get_fps()));
 
 			if (game_handler.play_mode == PLAYMODE_ONLINE) {
 				int ping = (int) (this->engine->get_io_client().get_ping_ms());
-				al_draw_textf(font, RED, scale * (320 - 4), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
+				al_draw_textf(font, RED, scale * (DEF_W - 5), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
 			}
 
 			tr->draw_player(game_handler.pong_game->players[0], scale);
@@ -848,8 +885,8 @@ void GameOverStage::draw() {
 	float scale = this->engine->get_scale();
 	ALLEGRO_FONT *font = this->engine->get_font();
 
-	al_draw_textf(font, RED, scale * 320 / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
-	al_draw_text (font, RED, scale * 320 / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
+	al_draw_textf(font, RED, scale * DEF_W / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: PLAYER %d", winner);
+	al_draw_text (font, RED, scale * DEF_W / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
 
 }
 

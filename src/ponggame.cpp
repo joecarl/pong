@@ -141,9 +141,9 @@ void PongGame::process_tick() {
 	}
 
 	//COMPROBAMOS QUE LA BOLA ESTÁ FUERA
-	if (ball->get_x() > (320 + 15) || ball->get_x() < -15 ) {
+	if (ball->get_x() > (DEF_W + LIMIT) || ball->get_x() < -LIMIT ) {
 
-		if (ball->get_x() < -15) {
+		if (ball->get_x() < -LIMIT) {
 			this->give_score(players[1], 1);
 			cout << "T " << this->tick << " | P2 score: " << players[1]->score << endl;
 		} else {
@@ -297,9 +297,9 @@ void Element::process_colliding() {
 	}
 
 	//CHOQUE CON LA PALA DCHA
-	if (x >= (320 - radius - GROSOR)) {
+	if (x >= (DEF_W - radius - GROSOR)) {
 
-		if (fabs(y - players[1]->get_y()) < (players[1]->medlen + radius + 2) && x < (320 - GROSOR)) {
+		if (fabs(y - players[1]->get_y()) < (players[1]->medlen + radius + 2) && x < (DEF_W - GROSOR)) {
 
 			this->on_player_hit(players[1]);
 			
@@ -324,7 +324,7 @@ void Ball::preprocess() {
 	PlayerP *p2 = this->game->players[1];
 
 	if (p1->bonus_timers[BONUS_BALL] > 0 && p2->bonus_timers[BONUS_BALL] == 0)
-		radius = (320 - x) / 20 + 2;
+		radius = (DEF_W - x) / 20 + 2;
 	else if (p2->bonus_timers[BONUS_BALL] > 0 && p1->bonus_timers[BONUS_BALL] == 0)
 		radius = x / 20 + 2;
 	else
@@ -383,7 +383,7 @@ void Ball::on_player_hit(PlayerP *pl) {
 
 	}
 
-	double new_x = pl == this->game->players[0] ? (radius + GROSOR + 1) : (320 - radius - GROSOR - 1);
+	double new_x = pl == this->game->players[0] ? (radius + GROSOR + 1) : (DEF_W - radius - GROSOR - 1);
 
 	this->set_parameters(new_x, y, -vx, vy, stat);
 
