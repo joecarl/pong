@@ -27,6 +27,8 @@ class Client {
 	bool busy = false;
 
 	bool dead = false;
+	
+	bool app_validated = false;
 
 	UdpChannelController* udp_channel;
 

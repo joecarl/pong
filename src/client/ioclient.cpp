@@ -1,6 +1,7 @@
 
 #include "ioclient.h"
 #include "../udpcontroller.h"
+#include "../appinfo.h"
 #include "../utils.h"
 
 #include <iostream>
@@ -8,6 +9,7 @@
 #include <thread>
 
 using namespace std;
+
 using boost::asio::ip::udp;
 using boost::asio::ip::tcp;
 namespace asio = boost::asio;
@@ -100,6 +102,8 @@ void IoClient::connect(const string& host, unsigned short port) {
 
 			this->qread();
 
+			this->send_app_info();
+
 			this->io_context.run();
 
 		} catch (std::exception &e) {
@@ -112,6 +116,25 @@ void IoClient::connect(const string& host, unsigned short port) {
 	});
 
 }
+
+
+void IoClient::send_app_info() {
+
+	boost::json::object pkg = {
+		{"type", "appInfo"},
+		{"appVersion", APP_VERSION},
+		{"appName", APP_NAME},
+		{"appPkgname", APP_PKGNAME},
+		//{"appCfg", this->engine->get_cfg()}
+	};
+	// this is the first tcp pkg which must be sent to the server, before 
+	// udp channel is set. (ping packages are accepted)
+	// the server will validate this package and will use it to determine 
+	// whether to continue accepting packages or drop the connection
+	this->qsend(boost::json::serialize(pkg));	
+
+}
+
 
 IoClient::~IoClient() {
 

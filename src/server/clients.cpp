@@ -2,6 +2,7 @@
 #include "clients.h"
 #include "server.h"
 #include "../utils.h"
+#include "../appinfo.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -17,13 +18,6 @@ Client::Client(boost::asio::ip::tcp::socket& _socket):
 {
 
 	this->id_client = count_instances++;
-
-	boost::json::object setup = {
-		{"type", "set_client_id"},
-		{"client_id", "C" + to_string(this->id_client)}
-	};
-
-	this->qsend(boost::json::serialize(setup));
 
 }
 
@@ -96,12 +90,44 @@ void Client::process_request(const string& request) {
 
 	auto evt_type = evt["type"].get_string();
 
-	if (evt_type == "ping") {
+	if (evt_type == "appInfo") {
+
+		auto app_version = evt["appVersion"].get_string();
+		auto app_name = evt["appName"].get_string();
+		auto app_pkgname = evt["appPkgname"].get_string();
+
+		if (
+			app_version != APP_VERSION ||
+			app_name != APP_NAME ||
+			app_pkgname != APP_PKGNAME
+		) {
+			//throw runtime_error("App info does not match");
+			cerr << "App info does not match: " << evt << endl;
+			this->dead = true;
+			return;
+		}
+
+		this->app_validated = true;
+
+		boost::json::object setup = {
+			{"type", "set_client_id"},
+			{"client_id", "C" + to_string(this->id_client)}
+		};
+
+		this->qsend(boost::json::serialize(setup));
+
+	} else if (evt_type == "ping") {
 
 		evt["type"] = "pong";
 		this->qsend(boost::json::serialize(evt));
 
 	} else {
+
+		if (!this->app_validated) {
+			//throw runtime_error("Cannot receive packages before validating app");
+			cerr << "Cannot receive packages before validating app" << endl;
+			return;
+		}
 
 		if (this->on_pkg_received != nullptr) {
 

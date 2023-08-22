@@ -74,6 +74,8 @@ class IoClient {
 
 	boost::json::object wait_for_binary_pt;
 
+	void send_app_info();
+
 	void setup_udp(std::string& local_id);
 
 	void start_ping_thread();
