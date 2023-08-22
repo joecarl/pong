@@ -41,17 +41,17 @@ public:
 
 	void make_new_pong_game(int_fast32_t seed);
 	
-	int get_control(int k_code, uint8_t player_id);
+	int get_control(int k_code, uint8_t player_idx);
 
 	/**
 	 * Sets the corresponding player name (online mode only)
 	 */
-	void set_player_name(uint8_t player_id, std::string name);
+	void set_player_name(uint8_t player_idx, std::string name);
 
 	/**
 	 * Retrieves the corresponding player name
 	 */
-	std::string get_player_name(uint8_t player_id);
+	std::string get_player_name(uint8_t player_idx);
 
 	void cleanup();
 

@@ -72,48 +72,48 @@ GameHandler::~GameHandler() {
 
 }
 
-void GameHandler::set_player_name(uint8_t player_id, string name) {
+void GameHandler::set_player_name(uint8_t player_idx, string name) {
 
-	if (player_id > 2) {
+	if (player_idx >= 2) {
 		return;
 	}
 
-	this->players_names[player_id] = name;
+	this->players_names[player_idx] = name;
 
 }
 
-string GameHandler::get_player_name(uint8_t player_id) {
+string GameHandler::get_player_name(uint8_t player_idx) {
 
-	if (player_id > 2) {
+	if (player_idx >= 2) {
 		return "";
 	}
 
 	if (this->play_mode == PLAYMODE_ONLINE) {
-		string pname = this->players_names[player_id];
-		return pname == "" ? "PLAYER " + to_string(player_id + 1) : pname;
+		string pname = this->players_names[player_idx];
+		return pname == "" ? "PLAYER " + to_string(player_idx + 1) : pname;
 	}
 
 	if (this->pong_game->control_mode == CONTROLMODE_TWO_PLAYERS) {
-		return "PLAYER " + to_string(player_id + 1);
+		return "PLAYER " + to_string(player_idx + 1);
 	} else {
-		return player_id == 0 ? "PLAYER" : "";
+		return player_idx == 0 ? "PLAYER" : "PC";
 	}
 
 }
 
 /**
- * Retrieves the game CONTROL_* based on control_mode, keycode and player_id
+ * Retrieves the game CONTROL_* based on control_mode, keycode and player_idx
  */
-int GameHandler::get_control(int k_code, uint8_t player_id) {
+int GameHandler::get_control(int k_code, uint8_t player_idx) {
 
 	if (this->pong_game->control_mode == CONTROLMODE_TWO_PLAYERS && this->play_mode == PLAYMODE_LOCAL) {
 
-		if (player_id == 1) {
+		if (player_idx == 1) {
 
 			if (k_code == ALLEGRO_KEY_UP || k_code == ALLEGRO_KEY_I) return CONTROL_MOVE_UP;
 			else if (k_code == ALLEGRO_KEY_DOWN || k_code == ALLEGRO_KEY_K) return CONTROL_MOVE_DOWN;
 
-		} else if (player_id == 0) {
+		} else if (player_idx == 0) {
 
 			if (k_code == ALLEGRO_KEY_W) return CONTROL_MOVE_UP;
 			else if (k_code == ALLEGRO_KEY_S) return CONTROL_MOVE_DOWN;
@@ -649,11 +649,11 @@ void GameStage::on_tick() {
 
 	if (game_handler.pong_game->finished) {
 
-		const uint8_t local_player_id = game_handler.play_mode == PLAYMODE_ONLINE ? game_handler.local_player_idx : 0; //TODO: onlinemode player detection
+		const uint8_t local_player_idx = game_handler.play_mode == PLAYMODE_ONLINE ? game_handler.local_player_idx : 0; //TODO: onlinemode player detection
 		
 		this->engine->set_stage(OVER);
 
-		const bool local_player_wins = local_player_id == game_handler.pong_game->get_winner_id();
+		const bool local_player_wins = local_player_idx == game_handler.pong_game->get_winner_idx();
 
 		if (local_player_wins) {
 			play_sound(Do, 150, 3);
@@ -930,7 +930,7 @@ void GameOverStage::on_event(ALLEGRO_EVENT event) {
 
 void GameOverStage::draw() {
 
-	int winner_id = game_handler.pong_game->get_winner_id();
+	int winner_id = game_handler.pong_game->get_winner_idx();
 	const string winner = game_handler.get_player_name(winner_id);
 
 	float scale = this->engine->get_scale();

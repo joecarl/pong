@@ -97,7 +97,7 @@ void PongGame::add_message(const std::string& evt_msg) {
 }
 
 
-int PongGame::get_winner_id() {
+int PongGame::get_winner_idx() {
 
 	if (!this->finished) {
 		return -1;

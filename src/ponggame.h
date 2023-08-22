@@ -90,7 +90,7 @@ public:
 	 * -1 : game not finished
 	 * -2 : draw 
 	 */
-	int get_winner_id();
+	int get_winner_idx();
 	
 };
 

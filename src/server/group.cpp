@@ -120,7 +120,7 @@ void Group::new_game() {
 
 void Group::add_client(Client* cl) {
 
-	int player_id;
+	int player_idx;
 
 	bool must_push = true;
 
@@ -128,32 +128,32 @@ void Group::add_client(Client* cl) {
 		if (this->clients[i] == nullptr) {
 			this->clients[i] = cl;
 			must_push = false;
-			player_id = i;
+			player_idx = i;
 			break;
 		}
 	}
 
 	if (must_push) {
-		player_id = this->clients.size();
+		player_idx = this->clients.size();
 		this->clients.push_back(cl);
 	}
 
-	cl->add_event_listener("onDrop", [this, player_id, cl] () {
+	cl->add_event_listener("onDrop", [this, player_idx, cl] () {
 
 		//cout << "onDrop event callback!!" << endl;
 
-		if (this->clients[player_id] == cl) {
-			this->clients[player_id] = nullptr;
-			cout << "Client #" << player_id << " dropped from group" << endl;
+		if (this->clients[player_idx] == cl) {
+			this->clients[player_idx] = nullptr;
+			cout << "Client with index #" << player_idx << " dropped from group" << endl;
 		}
 		
 	});
 
-	if (player_id < 2) {
+	if (player_idx < 2) {
 
 		uint64_t client_id = cl->get_id();
 		
-		cl->on_pkg_received = [this, player_id, client_id] (boost::json::object& pkg) {
+		cl->on_pkg_received = [this, player_idx, client_id] (boost::json::object& pkg) {
 
 			auto evt_type = pkg["type"].as_string();
 		
@@ -166,14 +166,14 @@ void Group::add_client(Client* cl) {
 
 				player_cfg["clientId"] = "C" + to_string(client_id);
 				
-				this->players_cfg[player_id] = player_cfg;
+				this->players_cfg[player_idx] = player_cfg;
 				//set
 
 			} else if (evt_type == "ready_to_play") {//if scope == group-event
 
 				cout << "Player ready!!" << endl;
 				
-				this->players_ready[player_id] = true;
+				this->players_ready[player_idx] = true;
 
 				if (this->players_ready[0] && this->players_ready[1]) {
 					this->start_game();
@@ -188,7 +188,7 @@ void Group::add_client(Client* cl) {
 
 				cerr << "!! RESYNC " << o << endl;
 
-				this->clients[player_id]->qsend_udp(boost::json::serialize(o));
+				this->clients[player_idx]->qsend_udp(boost::json::serialize(o));
 
 			} else {
 
@@ -204,7 +204,7 @@ void Group::add_client(Client* cl) {
 					cout << "Tick diff: " << tick_diff << endl;
 				}
 
-				pkg["player_key"] = player_id;
+				pkg["player_key"] = player_idx;
 				pkg["tick"] = this->game->tick + 0; //TODO: auto calc tick delay based on clients connection?
 
 				this->evt_queue.push(pkg);
@@ -229,9 +229,9 @@ void Group::process_event(boost::json::object &evt) {
 		
 		int control = evt["control"].as_int64();
 		bool new_state = evt["state"].as_bool();
-		int player_id = evt["player_key"].as_int64();
+		int player_idx = evt["player_key"].as_int64();
 		
-		this->game->players[player_id]->controls[control] = new_state;
+		this->game->players[player_idx]->controls[control] = new_state;
 
 	} else {
 		cerr << "Unknown event type: " << evt_type << endl;
