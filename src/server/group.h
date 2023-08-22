@@ -25,6 +25,8 @@ class Group {
 	boost::asio::steady_timer *t;
 
 	bool players_ready[2];
+	
+	boost::json::object players_cfg[2];
 
 	void game_main_loop();
 

@@ -649,7 +649,7 @@ void GameStage::on_tick() {
 
 	if (game_handler.pong_game->finished) {
 
-		const uint8_t local_player_id = 0; //TODO: onlinemode player detection
+		const uint8_t local_player_id = game_handler.play_mode == PLAYMODE_ONLINE ? game_handler.local_player_idx : 0; //TODO: onlinemode player detection
 		
 		this->engine->set_stage(OVER);
 

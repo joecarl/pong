@@ -150,12 +150,26 @@ void Group::add_client(Client* cl) {
 	});
 
 	if (player_id < 2) {
+
+		uint64_t client_id = cl->get_id();
 		
-		cl->on_pkg_received = [this, player_id] (boost::json::object& pkg) {
+		cl->on_pkg_received = [this, player_id, client_id] (boost::json::object& pkg) {
 
 			auto evt_type = pkg["type"].as_string();
 		
-			if (evt_type == "ready_to_play") {//if scope == group-event
+			if (evt_type == "clientConfig") {//if scope == group-event
+
+				cout << "Client config: " << pkg["data"] << endl;
+				// en este pkg data hay mucha info innecesaria, quiza se deberia 
+				// construir un objecto unevo con lo estrictamente necesario
+				auto player_cfg = pkg["data"].as_object();
+
+				player_cfg["clientId"] = "C" + to_string(client_id);
+				
+				this->players_cfg[player_id] = player_cfg;
+				//set
+
+			} else if (evt_type == "ready_to_play") {//if scope == group-event
 
 				cout << "Player ready!!" << endl;
 				
@@ -237,9 +251,15 @@ void Group::start_game() {
 
 	t->async_wait(boost::bind(&Group::game_main_loop, this));
 
+	boost::json::array players_cfg;
+	for (uint8_t i = 0; i < 2; i++) {
+		players_cfg.push_back(this->players_cfg[i]);
+	}
+
 	boost::json::object pkg = {
-		{"type", "game_start"},
-		{"seed", this->game->rnd.get_seed()}
+		{"type", "gameStart"},
+		{"seed", this->game->rnd.get_seed()},
+		{"playersCfg", players_cfg}
 	};
 
 	this->send_to_all(boost::json::serialize(pkg));

@@ -170,10 +170,21 @@ void IoClient::setup_udp(string& local_id) {
 }
 
 
-void IoClient::qsend_udp(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb) {
+const string& IoClient::get_local_id() {
+
+	if (this->udp_controller == nullptr) {
+		throw runtime_error("call to IoClient::get_local_id before connection is fully established");
+	}
+
+	return this->udp_controller->local_id;
+	
+}
+
+
+void IoClient::qsend_udp(const std::string& pkg, const callback_fn_type& _cb) {
 	
 	if (this->udp_channel == nullptr) {
-		cerr << "Cannot sent pkg, upd channel not established yet" << endl;
+		cerr << "Cannot send pkg, upd channel not established yet" << endl;
 		return;
 	}
 
@@ -188,7 +199,7 @@ void IoClient::qsend_udp(const std::string& pkg, const std::function<void(boost:
 }
 
 
-void IoClient::save_cb(const std::string& pkg, const std::function<void(boost::json::object& pt)>& _cb) {
+void IoClient::save_cb(const std::string& pkg, const callback_fn_type& _cb) {
 
 	boost::json::object obj = boost::json::parse(pkg).get_object();
 
@@ -204,7 +215,7 @@ void IoClient::save_cb(const std::string& pkg, const std::function<void(boost::j
 }
 	
 
-void IoClient::qsend(std::string pkg, const std::function<void(boost::json::object& pt)>& _cb) {
+void IoClient::qsend(std::string pkg, const callback_fn_type& _cb) {
 	
 	if (this->busy) {
 		this->pkg_queue.push({pkg, _cb});
@@ -267,7 +278,7 @@ void IoClient::handle_qsent_content(const boost::system::error_code& error, std:
 }
 
 
-void IoClient::set_process_actions_fn(const std::function<void(boost::json::object& pt)>& _fn) {
+void IoClient::set_process_actions_fn(const callback_fn_type& _fn) {
 	
 	this->process_actions_fn = _fn;
 

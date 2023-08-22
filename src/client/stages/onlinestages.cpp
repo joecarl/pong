@@ -252,7 +252,9 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 
 void ConnStage::on_tick() {
 
-	int conn_state = this->engine->get_io_client().get_state();
+	auto& connection = this->engine->get_io_client();
+
+	int conn_state = connection.get_state();
 
 	if (conn_state == CONNECTION_STATE_CONNECTED_FULL) {
 
@@ -305,6 +307,8 @@ void ConnStage::draw() {
 
 //-----------------------------------------------------------------------------
 //------------------------------- [ LobbyStage ] ------------------------------
+// Quiza deberia llamarse server stage, ya que la idea es que también gestione
+// el momento anterior a unirse a un grupo, configuracion de partida, etc... 
 
 
 LobbyStage::LobbyStage(HGameEngine* _engine): Stage(_engine) {
@@ -316,6 +320,21 @@ LobbyStage::LobbyStage(HGameEngine* _engine): Stage(_engine) {
 
 void LobbyStage::on_enter_stage() {
 
+	auto& connection = this->engine->get_io_client();
+	/*
+	boost::json::object pkg = {
+		{"type", "join_request"},
+		{"group_id", ""},
+
+	};
+	*/
+	boost::json::object pkg = {
+		{"type", "clientConfig"},
+		{"data", this->engine->get_cfg()},
+	};
+	connection.qsend(boost::json::serialize(pkg));
+
+
 	auto& touch_keys = this->engine->get_touch_keys();
 	
 	touch_keys.clear_buttons();
@@ -325,16 +344,26 @@ void LobbyStage::on_enter_stage() {
 
 	this->ready = false;
 
-	this->engine->get_io_client().set_process_actions_fn([&] (boost::json::object& evt) {
+	connection.set_process_actions_fn([&] (boost::json::object& evt) {
 
 		cout << "RECEIVED: " << evt << endl;
-		if (evt["type"] == "game_start") {
-			//en este evento podria venir el id del jugador local
+		if (evt["type"] == "gameStart") {
 
 			game_handler.make_new_pong_game((int_fast32_t) evt["seed"].as_int64());
 
 			controller.setup(game_handler.pong_game);
 
+
+			for (uint8_t i = 0; i < 2; i++) {
+				auto player_cfg = evt["playersCfg"].as_array()[i].as_object();
+				string client_id = player_cfg["clientId"].as_string().c_str();
+				if (client_id == connection.get_local_id()) {
+					game_handler.local_player_idx = i;
+				}
+				//cout << "curioso " << player_cfg << endl;
+				game_handler.set_player_name(i, player_cfg["playerName"].as_string().c_str());
+			}
+			
 			this->engine->set_stage(GAME);
 		
 		}

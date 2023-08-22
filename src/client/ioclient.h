@@ -105,8 +105,9 @@ public:
 	 * immediately and the state will change to `CONNECTION_STATE_CONNECTING`.
 	 * If the process is successful the state will eventually change to 
 	 * `CONNECTION_STATE_CONNECTED`. At this point TCP communication is 
-	 * available and calling `qsend` should work. After this, a UDP channel 
-	 * will be created and when it is fully stablished the state will change to
+	 * available and calling `qsend` should work. After this, a local id will
+	 * be received and stored, a UDP channel will be created and when it is 
+	 * fully established the state will change to 
 	 * `CONNECTION_STATE_CONNECTED_FULL`.
 	 */
 	void connect(const std::string& addr, unsigned short port);
@@ -125,6 +126,13 @@ public:
 	 * Sends data via UDP socket.
 	 */
 	void qsend_udp(const std::string& pkg, const callback_fn_type& _cb = nullptr);
+
+	/**
+	 * Retrieves the local id provided by the server. This function should not
+	 * be called before the connection state reaches 
+	 * `CONNECTION_STATE_CONNECTED_FULL`.
+	 */
+	const std::string& get_local_id();
 
 	/**
 	 * Sets the application level callback used to process custom packages.

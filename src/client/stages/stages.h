@@ -27,6 +27,11 @@ class GameHandler {
 public:
 
 	int play_mode = PLAYMODE_NONE;
+	
+	/**
+	 * Current game's local player index (online mode only)
+	 */
+	uint8_t local_player_idx = 0;
 
 	PongGame* pong_game = nullptr;
 
