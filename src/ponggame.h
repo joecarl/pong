@@ -36,6 +36,7 @@ enum Control {
 
 class PlayerP;
 class Element;
+class Wall;
 class Ball;
 class Bonus;
 
@@ -62,6 +63,8 @@ public:
 	uint16_t warmup = 0;
 
 	PlayerP *players[2];
+
+	Wall *walls[4];
 
 	Ball *ball;
 
@@ -128,6 +131,8 @@ public:
 	void set_pos(int px, int py) { x = px; y = py; }
 
 	double get_vx() { return vx; }
+
+	double get_vy() { return vy; }
 	
 	virtual void on_player_hit(PlayerP *pl) {}
 };
@@ -152,6 +157,20 @@ public:
 };
 
 
+class Wall: public Element {
+
+public:
+
+	const uint8_t owner_idx;
+
+	Wall(PongGame* game, double _x, double _y, uint8_t _owner_idx);
+	
+	void process_hit(Element* ball, float prev_x, float prev_y);
+
+};
+
+
+
 class Bonus: public Element {
 	
 	public:
@@ -173,6 +192,8 @@ class PlayerP {
 
 public:
 	
+	uint8_t idx;
+
 	int x, y, com_txt_y;
 	
 	std::string com_txt;
@@ -183,7 +204,7 @@ public:
 
 	bool controls[CONTROL_MAX];
 
-	PlayerP(PongGame *pong_game, int px, int py);
+	PlayerP(PongGame *pong_game, uint8_t _idx, int px, int py);
 
 	void set_com_txt(const std::string& txt);
 

@@ -138,6 +138,8 @@ public:
 
 	void draw_player(PlayerP *pl, int scale);
 
+	void draw_wall(Wall *w, float scale);
+
 };
 
 

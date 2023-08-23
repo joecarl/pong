@@ -326,8 +326,8 @@ void MainMenuStage::draw() {
 //------------------------------- [ GameStage ] -------------------------------
 
 
-GameStage::GameStage(HGameEngine* _engine):Stage(_engine) {
-   
+GameStage::GameStage(HGameEngine* _engine) : Stage(_engine) {
+
 	this->tracer = new Tracer(_engine);
 
 }
@@ -539,6 +539,7 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 		} else if (k_code == ALLEGRO_KEY_V) {
 			
 			//game_handler.pong_game->players[1]->give_bonus(BONUS_INVI);//debug
+			//game_handler.pong_game->players[0]->give_bonus(BONUS_WALL);//debug
 
 		}
 
@@ -720,6 +721,10 @@ void GameStage::draw() {
 
 			Tracer *tr = this->tracer;
 
+			for (auto& w: game_handler.pong_game->walls) {
+				tr->draw_wall(w, scale);
+			}
+
 			tr->draw_ball(game_handler.pong_game->ball, scale);
 			
 			for (uint8_t i = 0; i < BONUS_MAX; i++) {
@@ -807,6 +812,29 @@ void Tracer::draw_bonus(Bonus *b, float scale) {
 	}
 
 }
+
+void Tracer::draw_wall(Wall* w, float scale) {
+	
+	if (!w->stat) {
+		return;
+	}
+
+	const float x = w->get_x();
+	const float y0 = w->get_y() - w->radius;
+	const float y1 = w->get_y() + w->radius;
+
+	const float dir = w->owner_idx == 0 ? 1.0 : -1.0;
+
+	const bool active = w->owner_idx == 0 && w->game->ball->get_vx() < 0 || w->owner_idx == 1 && w->game->ball->get_vx() > 0;
+
+	const ALLEGRO_COLOR color = active ? WHITE : al_map_rgb(80, 90, 80);
+
+	al_draw_line(x + 1 * dir, y0 - 2, x, y0, color, 2.0);
+	al_draw_line(x, y0, x, y1, color, 2.0);
+	al_draw_line(x, y1, x + 1 * dir, y1 + 2, color, 2.0);
+
+}
+
 
 
 void Tracer::draw_player(PlayerP *pl, int scale) {

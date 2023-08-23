@@ -97,6 +97,12 @@ void sync_element(Element* e, boost::json::object& vars) {
 
 }
 
+void sync_wall(Wall* w, boost::json::object& vars) {
+	
+	sync_element((Element*) w, vars);
+	
+}
+
 void sync_ball(Ball* b, boost::json::object& vars) {
 	
 	sync_element((Element*) b, vars);
@@ -125,6 +131,11 @@ void Controller::sync_game(boost::json::object& vars) {
 	cout << "sync bonus ..." << endl;
 	for (uint8_t i = 0; i < BONUS_MAX; i++) {
 		sync_bonus(this->game->bonus[i], vars["bonus"].as_array()[i].as_object());
+	}
+
+	cout << "sync walls ..." << endl;
+	for (uint8_t i = 0; i < 4; i++) {
+		sync_wall(this->game->walls[i], vars["walls"].as_array()[i].as_object());
 	}
 
 	cout << "sync ball ..." << endl;

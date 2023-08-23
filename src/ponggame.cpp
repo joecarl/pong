@@ -16,12 +16,18 @@ PongGame::PongGame(uint_fast32_t _seed) :
 {
 
 	ball = new Ball(this);
-	players[0] = new PlayerP(this, 1, 50);
-	players[1] = new PlayerP(this, (DEF_W - GROSOR / 2), 50);
+	players[0] = new PlayerP(this, 0, 1, 50);
+	players[1] = new PlayerP(this, 1, (DEF_W - GROSOR / 2), 50);
 	bonus[0] = new Bonus(this, BONUS_LONG);
 	bonus[1] = new Bonus(this, BONUS_BALL);
 	bonus[2] = new Bonus(this, BONUS_INVI);
 	bonus[3] = new Bonus(this, BONUS_WALL);
+	
+	const float c = (DEF_W / 2);
+	walls[0] = new Wall(this, c - 50, 60, 0);
+	walls[1] = new Wall(this, c - 50, 140, 0);
+	walls[2] = new Wall(this, c + 50, 60, 1);
+	walls[3] = new Wall(this, c + 50, 140, 1);
 
 }
 
@@ -179,9 +185,21 @@ void PongGame::process_tick() {
 
 	} else {
 
+		const double prev_x = ball->get_x();
+		const double prev_y = ball->get_y();
+
 		ball->process();
 		
+		for (auto& w: this->walls) {
+			w->process_hit(ball, prev_x, prev_y);
+		}
+		
 	}
+	/*
+	for (auto& w: this->walls) {
+		// need processing?
+	}
+	*/
 
 	for (auto & pl: players) {
 
@@ -246,20 +264,20 @@ Element::Element(PongGame *game) {
 
 void Element::process() {
 
-	if (stat) {
+	if (!stat) {
+		return;
+	}
 
-		const float inct = 1.0;
-		x += vx * inct;
-		y += vy * inct;
+	const float inct = 1.0;
+	x += vx * inct;
+	y += vy * inct;
+
+	this->preprocess();
+
+	this->process_colliding();
 	
-		this->preprocess();
-
-		this->process_colliding();
-		
-		if (x < -80 || x > DEF_W + 50) {
-			stat = false;
-		}
-
+	if (x < -80 || x > DEF_W + 50) {
+		stat = false;
 	}
 
 }
@@ -317,10 +335,69 @@ void Element::process_colliding() {
 
 }
 
+
+//-----------------------------------------------------------------------------
+//--------------------------------- [ Wall ] ----------------------------------
+
+Wall::Wall(PongGame* game, double _x, double _y, uint8_t _owner_idx) : 
+	Element(game),
+	owner_idx(_owner_idx)
+{
+	x = _x;
+	y = _y;
+	radius = 15;
+}
+
+void Wall::process_hit(Element* ball, float prev_x, float prev_y) {
+
+	if (!this->stat) {
+		return;
+	}
+
+	if (
+		(this->owner_idx == 0 && ball->get_vx() > 0) ||
+		(this->owner_idx == 1 && ball->get_vx() < 0)
+	) {
+		return;
+	}
+
+	const float dir = this->owner_idx == 0 ? 1.0 : -1.0;
+	const float wx = this->x + ball->radius * dir; // una manera rapida de tener en cuenta el radio de la bola
+
+	if (
+		(prev_x < wx && ball->get_x() < wx) ||
+		(prev_x > wx && ball->get_x() > wx)
+	) {
+		return;
+	}
+
+	const float inc_x = ball->get_x() - prev_x;
+	const float inc_y = ball->get_y() - prev_y;
+
+	const float x_factor = (wx - prev_x) / inc_x;
+	const float inter_y = prev_y + inc_y * fabs(x_factor);
+	const float full_radius = this->radius + ball->radius;
+
+	if (inter_y < this->y - full_radius || inter_y > this->y + full_radius) {
+		return;
+	}
+
+	ball->set_parameters(
+		ball->get_x() - 2 * (ball->get_x() - wx), 
+		ball->get_y(),
+		-ball->get_vx(),
+		ball->get_vy()
+	);
+	
+	this->stat = false;
+	this->game->add_message("hit");
+
+}
+
 //-----------------------------------------------------------------------------
 //--------------------------------- [ Ball ] ----------------------------------
 
-Ball::Ball(PongGame *game): Element(game) {
+Ball::Ball(PongGame *game) : Element(game) {
 	
 	this->radius = INITIAL_RADIUS;
 
@@ -423,7 +500,9 @@ void Bonus::on_player_hit(PlayerP *pl) {
 //------------------------------------------------------------------------------
 //-------------------------------- [ PlayerP ] ---------------------------------
 
-PlayerP::PlayerP(PongGame *pong_game, int px, int py) {
+PlayerP::PlayerP(PongGame *pong_game, uint8_t _idx, int px, int py) : 
+	idx(_idx)
+{
 
 	this->game = pong_game;
 	this->x = px;
@@ -532,6 +611,12 @@ void PlayerP::give_bonus(BonusType bonus_type) {
 	else if (bonus_type == BONUS_WALL) {
 		// TODO: create walls
 		this->set_com_txt("DEFENSE WALLS");
+
+		const uint8_t offset =  this->idx * 2;
+
+		this->game->walls[0 + offset]->stat = true;
+		this->game->walls[1 + offset]->stat = true;
+		
 	}
 
 }

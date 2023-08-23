@@ -53,6 +53,13 @@ boost::json::object export_ball(Ball* b) {
 	
 }
 
+boost::json::object export_wall(Wall* w) {
+	
+	// no exporto owner_idx porque es invariable
+	return export_element((Element*) w);
+	
+}
+
 boost::json::object export_bonus(Bonus* b) {
 
 	boost::json::object o = export_element((Element*) b);
@@ -72,6 +79,11 @@ boost::json::object export_game(PongGame* g) {
 		bonus.push_back(export_bonus(g->bonus[i]));
 	}
 
+	boost::json::array walls;
+	for (uint8_t i = 0; i < 4; i++) {
+		walls.push_back(export_wall(g->walls[i]));
+	}
+
 	o = {
 		{"tick", g->tick},
 		{"warmup", g->warmup},
@@ -80,6 +92,7 @@ boost::json::object export_game(PongGame* g) {
 		{"p0vars", export_player(g->players[0])},
 		{"p1vars", export_player(g->players[1])},
 		{"bonus", bonus},
+		{"walls", walls},
 		{"ballvars", export_ball(g->ball)}
 	};
 
