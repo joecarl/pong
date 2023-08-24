@@ -9,6 +9,7 @@
 #include <string>
 #include <array>
 #include <fstream>
+#include <sstream>
 #include <algorithm> 
 #include <cctype>
 #include <locale>
