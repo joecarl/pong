@@ -1,5 +1,5 @@
 {
 	"windowed": false,
-	"defaultServer": "copinstar.com",
-	"defaultPort": 51009
+	"serverHostname": "copinstar.com",
+	"serverPort": 51009
 }

@@ -352,33 +352,39 @@ HGameEngine::HGameEngine() :
 {
 
 	string default_cfg_filepath = "resources/defaultCfg.json";
+
+	boost::json::object default_cfg;
 	
 	if (file_exists(custom_cfg_filepath)) {
 
 		boost::json::value cfg_v = boost::json::parse(file_get_contents(custom_cfg_filepath));
 
 		if (cfg_v.is_object()) {
-
 			this->cfg = cfg_v.get_object();
-
 		}
 
-	} else if (file_exists(default_cfg_filepath)) {
+	}
+	
+	if (file_exists(default_cfg_filepath)) {
 
 		boost::json::value cfg_v = boost::json::parse(file_get_contents(default_cfg_filepath));
 
 		if (cfg_v.is_object()) {
-
-			this->cfg = cfg_v.get_object();
-
+			default_cfg = cfg_v.get_object();
 		}
 
 	} else {
 
-		this->cfg["windowed"] = false;
-		this->cfg["defaultServer"] = "copinstar.com";
-		this->cfg["defaultPort"] = 51009;
+		default_cfg["windowed"] = false;
+		default_cfg["serverHostname"] = "copinstar.com";
+		default_cfg["serverPort"] = 51009;
 
+	}
+
+	for (auto& item: default_cfg) {
+		if (!this->cfg.contains(item.key())) {
+			this->cfg[item.key()] = item.value();
+		}
 	}
 
 	cout << "CFG: " << this->cfg << endl;
@@ -551,6 +557,8 @@ void HGameEngine::set_stage(unsigned int stage_id) {
 	
 	this->active_stage_id = stage_id;
 	this->must_run_on_enter_stage = true;
+	
+	this->set_active_input(nullptr);
 
 	std::cout << " > set_stage: " << this->active_stage_id << std::endl;
 

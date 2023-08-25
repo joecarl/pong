@@ -235,11 +235,11 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 
 			if (server.empty()) {
 
-				server = cfg["defaultServer"].as_string().c_str();
+				server = cfg["serverHostname"].as_string().c_str();
 
 			}
 
-			auto port = (unsigned short) cfg["defaultPort"].as_int64();
+			auto port = (unsigned short) cfg["serverPort"].as_int64();
 						
 			this->engine->get_io_client().connect(server, port);
 			
