@@ -245,6 +245,7 @@ void MainMenuStage::on_enter_stage() {
 	touch_keys.add_button(ALLEGRO_KEY_2, "2");
 	touch_keys.add_button(ALLEGRO_KEY_3, "3");
 	touch_keys.add_button(ALLEGRO_KEY_4, "4");
+	touch_keys.add_button(ALLEGRO_KEY_5, "5");
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "ESC");
 
 	touch_keys.fit_buttons(FIT_BOTTOM, 10);
@@ -281,6 +282,9 @@ void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 			game_handler.setup(PLAYMODE_ONLINE, CONTROLMODE_TWO_PLAYERS);
 		}
 		else if (keycode == ALLEGRO_KEY_5) {
+			this->engine->set_stage(CONF); 
+		}
+		else if (keycode == ALLEGRO_KEY_9) {
 			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_DEBUG);
 		}
 		
@@ -298,7 +302,7 @@ void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 			this->engine->finish = true;
 		}
 
-		else if (keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3 || keycode == ALLEGRO_KEY_5) {
+		else if (keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3 || keycode == ALLEGRO_KEY_9) {
 
 			game_handler.make_new_pong_game(time(nullptr)); 
 			this->engine->set_stage(GAME);
@@ -316,10 +320,11 @@ void MainMenuStage::draw() {
 
 	retro_logo.draw((sc * DEF_W - retro_logo.get_width()) / 2, sc * 40);
 	//al_draw_bitmap(this->logo, (sc - 1) * DEF_W / 2, (sc - 1) * 50, 0);
-	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
-	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 130, ALLEGRO_ALIGN_CENTER, "1:One Player  2:Two Players");
-	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 140, ALLEGRO_ALIGN_CENTER, "3:Training    4:Play online");
-	al_draw_text(font, WHITE, sc * DEF_W / 2, sc * 155, ALLEGRO_ALIGN_CENTER, "ESC: Quit");
+	const float center = sc * DEF_W / 2;
+	al_draw_text(font, WHITE, center, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
+	al_draw_text(font, WHITE, center, sc * 130, ALLEGRO_ALIGN_CENTER, "1: One Player  2: Two Players");
+	al_draw_text(font, WHITE, center, sc * 142, ALLEGRO_ALIGN_CENTER, "3: Training    4: Play online");
+	al_draw_text(font, WHITE, center, sc * 154, ALLEGRO_ALIGN_CENTER, "5: Config      ESC: Quit     ");
 
 }
 
@@ -827,7 +832,7 @@ void Tracer::draw_wall(Wall* w, float scale) {
 
 	const float dir = w->owner_idx == 0 ? 1.0 : -1.0;
 
-	const bool active = w->owner_idx == 0 && w->game->ball->get_vx() < 0 || w->owner_idx == 1 && w->game->ball->get_vx() > 0;
+	const bool active = (w->owner_idx == 0 && w->game->ball->get_vx() < 0) || (w->owner_idx == 1 && w->game->ball->get_vx() > 0);
 
 	const ALLEGRO_COLOR color = active ? WHITE : al_map_rgb(80, 90, 80);
 
