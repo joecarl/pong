@@ -1,6 +1,6 @@
 #include "textinput.h"
-#include "mediatools.h"
-#include "hengine.h"
+#include "../mediatools.h"
+#include "../hengine.h"
 
 #include <allegro5/allegro_primitives.h>
 

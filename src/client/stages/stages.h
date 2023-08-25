@@ -3,7 +3,6 @@
 
 #include "../hengine.h"
 #include "../mediatools.h"
-#include "../textinput.h"
 #include "../../ponggame.h"
 #include <allegro5/allegro.h>
 

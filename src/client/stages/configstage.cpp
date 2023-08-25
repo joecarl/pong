@@ -1,13 +1,26 @@
 #include "configstage.h"
 #include "../mediatools.h"
+#include "../ui/input.h"
 #include <string>
 
 using namespace std;
 
 
+
+typedef struct {
+	std::string key;
+	std::string label;
+	Input* input;
+} ConfigParam;
+
+
 ConfigStage::ConfigStage(HGameEngine* _engine) : Stage(_engine) {
 
 	this->input = this->engine->create_text_input();
+
+	ConfigParam params[] = {
+		//{ .key = "playerName", .label = "Nombre", .input = }
+	};
 
 }
 

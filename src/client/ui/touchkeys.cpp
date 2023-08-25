@@ -1,6 +1,6 @@
 
 #include "touchkeys.h"
-#include "hengine.h"
+#include "../hengine.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>

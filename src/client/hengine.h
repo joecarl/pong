@@ -2,8 +2,8 @@
 #define HENGINE_H
 
 #include "ioclient.h"
-#include "touchkeys.h"
-#include "textinput.h"
+#include "ui/touchkeys.h"
+#include "ui/textinput.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>

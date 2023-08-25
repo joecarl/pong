@@ -3,7 +3,7 @@
 
 
 #include "../hengine.h"
-#include "../textinput.h"
+#include "../ui/textinput.h"
 #include <allegro5/allegro.h>
 
 //-----------------------------------------------------------------------------
