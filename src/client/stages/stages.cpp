@@ -24,20 +24,22 @@ typedef struct {
 } bonus_def;
 
 bonus_def bonuses_defs[] = {
-	{ 
-		.bar_color = al_map_rgb(0, 0, 0),
+	{
+		.bar_color = { 0, 0, 0, 0 },
 		.sprite_path = RES_DIR"/long.bmp",
 	},
-	{ 
-		.bar_color = al_map_rgb(0, 200, 50),
+	{
+		//.bar_color = { 0, 200.0, 50, 0 },
+		.bar_color = { 0, 0.78, 0.2, 0 },
 		.sprite_path = RES_DIR"/ball.bmp",
 	},
-	{ 
-		.bar_color = al_map_rgb(50, 100, 200),
+	{
+		//.bar_color = { 50, 100, 200, 0 },
+		.bar_color = { 0.2, 0.39, 0.78, 0 },
 		.sprite_path = RES_DIR"/invi.bmp",
 	},
-	{ 
-		.bar_color = al_map_rgb(0, 0, 0),
+	{
+		.bar_color = { 0, 0, 0, 0 },
 		.sprite_path = RES_DIR"/wall.bmp",
 	},
 };
