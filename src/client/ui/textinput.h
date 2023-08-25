@@ -1,12 +1,14 @@
 #ifndef TEXTINPUT_H
 #define TEXTINPUT_H
 
+#include "input.h"
+
 #include <allegro5/allegro_font.h>
 #include <string>
 
 class HGameEngine;
 
-class TextInput {
+class TextInput : public Input {
 	
 	/**
 	 * The font used to draw the text
@@ -39,12 +41,6 @@ class TextInput {
 	
 public:
 
-	std::string label;
-
-	//double x;
-
-	//double y;
-
 	TextInput(HGameEngine* _engine);
 
 	void reset();
@@ -58,6 +54,10 @@ public:
 	void blur();
 
 	bool is_focused();
+	
+	void set_from_json_value(boost::json::value& val);
+
+	boost::json::value get_json_value();
 
 	std::string get_value();
 

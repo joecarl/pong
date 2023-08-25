@@ -8,7 +8,7 @@
 TextInput::TextInput(HGameEngine* _engine) :
 	engine(_engine)
 {
-	
+	this->type = INPUT_TYPE_TEXT;
 	//font = fuente;//al_load_ttf_font("font.ttf", 2*9, 0);
 	reset();
 
@@ -17,6 +17,7 @@ TextInput::TextInput(HGameEngine* _engine) :
 void TextInput::focus() {
 	
 	this->engine->set_active_input(this);
+	
 }
 
 
@@ -166,5 +167,21 @@ void TextInput::draw(float x, float y) {
 std::string TextInput::get_value() {
 
 	return edittext;
+
+}
+
+
+void TextInput::set_from_json_value(boost::json::value& val) {
+	
+	if (val.is_string()) {
+		this->edittext = val.get_string().c_str();
+	}
+
+}
+
+
+boost::json::value TextInput::get_json_value() {
+
+	return boost::json::value(this->get_value());
 
 }
