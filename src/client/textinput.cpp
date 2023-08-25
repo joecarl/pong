@@ -1,13 +1,37 @@
 #include "textinput.h"
 #include "mediatools.h"
+#include "hengine.h"
 
 #include <allegro5/allegro_primitives.h>
 
 
-TextInput::TextInput(ALLEGRO_FONT* fuente) {
+TextInput::TextInput(HGameEngine* _engine) :
+	engine(_engine)
+{
 	
-	font = fuente;//al_load_ttf_font("font.ttf", 2*9, 0);
+	//font = fuente;//al_load_ttf_font("font.ttf", 2*9, 0);
 	reset();
+
+}
+
+void TextInput::focus() {
+	
+	this->engine->set_active_input(this);
+}
+
+
+bool TextInput::is_focused() {
+
+	return this->engine->get_active_input() == this;
+
+}
+
+
+void TextInput::blur() {
+
+	if (this->is_focused()) {
+		this->engine->set_active_input(nullptr);
+	} 
 
 }
 
@@ -18,12 +42,12 @@ void TextInput::reset() {
 	caret = 0;
 	caret_time = 0;
 	insert = true;
-	active = false;
 
 }
 
-void  TextInput::process_key(wchar_t ASCII, int control_key) {
+void TextInput::process_key(wchar_t ASCII, int control_key) {
 
+	/*
 	if (ASCII >= 32 && ASCII <= 126) {
 		
 		// add the new char, inserting or replacing as need be
@@ -31,6 +55,38 @@ void  TextInput::process_key(wchar_t ASCII, int control_key) {
 			iter = edittext.insert(iter, ASCII);
 		else
 			edittext.replace(caret, 1, 1, ASCII);
+		
+		// increment both the caret and the iterator
+		caret++;
+		iter++;
+
+	}
+	*/
+	char ascii = 0;
+
+	switch (control_key) {
+		case ALLEGRO_KEY_FULLSTOP:
+			ascii = '.';
+			break;
+		case ALLEGRO_KEY_SPACE:
+			ascii = ' ';
+			break;
+	}
+	
+	if (control_key >= ALLEGRO_KEY_A && control_key <= ALLEGRO_KEY_Z) {
+		ascii = control_key - ALLEGRO_KEY_A + 'A';
+	}
+	if (control_key >= ALLEGRO_KEY_0 && control_key <= ALLEGRO_KEY_9) {
+		ascii = control_key - ALLEGRO_KEY_0 + '0';
+	}
+
+	if (ascii >= 32 && ascii <= 126) {
+		
+		// add the new char, inserting or replacing as need be
+		if (insert || iter == edittext.end())
+			iter = edittext.insert(iter, ascii);
+		else
+			edittext.replace(caret, 1, 1, ascii);
 		
 		// increment both the caret and the iterator
 		caret++;
@@ -72,9 +128,15 @@ void  TextInput::process_key(wchar_t ASCII, int control_key) {
 
 }
 
-void  TextInput::draw(int x, int y) {
+void TextInput::draw(float x, float y) {
+
+	ALLEGRO_FONT* font = this->engine->get_font();
 
 	al_draw_text(font, WHITE, x, y, ALLEGRO_ALIGN_LEFT, edittext.c_str());
+
+	if (!this->is_focused()) {
+		return;
+	}
 
 	if (caret_time < 30) {
 
@@ -100,18 +162,6 @@ void  TextInput::draw(int x, int y) {
 
 }
 
-void TextInput::start() {
-
-	reset();
-	active = true;
-
-}
-
-void  TextInput::finish() {
-
-	active = false;
-
-}
 
 std::string TextInput::get_value() {
 

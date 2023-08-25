@@ -4,17 +4,19 @@
 #include <allegro5/allegro_font.h>
 #include <string>
 
+class HGameEngine;
+
 class TextInput {
 	
 	/**
 	 * The font used to draw the text
 	 */
-	ALLEGRO_FONT* font;
+	HGameEngine* engine;
 
 	/**
 	 * An empty string for editting
 	 */
-	std::string  edittext;
+	std::string edittext;
 	/**
 	 * String iterator
 	 */
@@ -37,20 +39,26 @@ class TextInput {
 	
 public:
 
-	bool active;
+	std::string label;
 
-	TextInput(ALLEGRO_FONT* fuente);
+	//double x;
+
+	//double y;
+
+	TextInput(HGameEngine* _engine);
 
 	void reset();
 	
 	void process_key(wchar_t ASCII, int control_key);
 
-	void draw(int x, int y);
+	void draw(float x, float y);
 
-	void start();
-	
-	void finish();
-	
+	void focus();
+
+	void blur();
+
+	bool is_focused();
+
 	std::string get_value();
 
 };

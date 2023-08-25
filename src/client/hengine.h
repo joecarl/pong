@@ -3,6 +3,7 @@
 
 #include "ioclient.h"
 #include "touchkeys.h"
+#include "textinput.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
@@ -129,9 +130,17 @@ class HGameEngine {
 
 	TouchKeys kb_touch_keys;
 
+	TouchKeys* active_touch_keys;
+
+	std::vector<std::unique_ptr<TextInput>> text_inputs;
+
+	TextInput* active_input = nullptr;
+
 	IoClient connection;
 
 	ALLEGRO_FONT* font;
+
+	ALLEGRO_BITMAP* kb_icon;
 
 	boost::json::object cfg;
 
@@ -153,7 +162,11 @@ class HGameEngine {
 
 	void on_event(ALLEGRO_EVENT event);
 
+	bool process_touch_keys(ALLEGRO_EVENT& event);
+
 	void draw();
+
+	void set_active_touch_keys(TouchKeys& tkeys);
 
 public:
 
@@ -168,6 +181,12 @@ public:
 	void run();
 
 	void set_cfg_param(const std::string& key, const boost::json::value& val);
+
+	TextInput* create_text_input();
+	
+	void set_active_input(TextInput* input);
+
+	TextInput* get_active_input();
 
 	TouchKeys& get_touch_keys() { return this->touch_keys; }
 

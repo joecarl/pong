@@ -197,13 +197,13 @@ Controller controller;
 
 ConnStage::ConnStage(HGameEngine* _engine) : Stage(_engine) {
 
-	this->input = new TextInput(this->engine->get_font());
+	this->input = this->engine->create_text_input();
 
 }
 
 void ConnStage::on_enter_stage() {
 
-	input->start();
+	input->focus();
 
 	auto& touch_keys = this->engine->get_touch_keys();
 
@@ -216,19 +216,7 @@ void ConnStage::on_enter_stage() {
 
 void ConnStage::on_event(ALLEGRO_EVENT event) {
 
-	if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-
-		if (input->active) {
-			
-			if (event.keyboard.keycode != ALLEGRO_KEY_ENTER) {
-
-				input->process_key(event.keyboard.unichar, event.keyboard.keycode);
-
-			}
-
-		}
-
-	} else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
 		int keycode = event.keyboard.keycode;
 
@@ -237,12 +225,12 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 		if (keycode == ALLEGRO_KEY_ESCAPE) {//ESC (SALIR)
 
 			al_rest(0.2);
-			input->active = false;
+			input->blur();
 			this->engine->set_stage(MENU);
 
 		} else if (keycode == ALLEGRO_KEY_ENTER) {
 
-			input->finish();
+			input->blur();
 			server = input->get_value();
 
 			if (server.empty()) {
@@ -286,7 +274,7 @@ void ConnStage::draw() {
 	al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "ENTER SERVER IP ADDRESS or press ");
 	al_draw_text(font, WHITE, 20, 40, ALLEGRO_ALIGN_LEFT, "enter to connect to default server:");
 
-	if (input->active) {
+	if (input->is_focused()) {
 
 		input->draw(30, 60);
 
@@ -322,9 +310,7 @@ void ConnStage::draw() {
 // el momento anterior a unirse a un grupo, configuracion de partida, etc... 
 
 
-LobbyStage::LobbyStage(HGameEngine* _engine): Stage(_engine) {
-
-	this->input = new TextInput(this->engine->get_font());
+LobbyStage::LobbyStage(HGameEngine* _engine) : Stage(_engine) {
 
 }
 

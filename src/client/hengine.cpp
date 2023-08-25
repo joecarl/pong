@@ -274,7 +274,7 @@ void Stage::on_enter_stage() {
 
 }
 
-static void setup_kb(TouchKeys& tk) {
+static void setup_touch_kb(TouchKeys& tk) {
 
 	tk.add_button(ALLEGRO_KEY_1, "1");
 	tk.add_button(ALLEGRO_KEY_2, "2");
@@ -315,6 +315,12 @@ static void setup_kb(TouchKeys& tk) {
 	tk.add_button(ALLEGRO_KEY_B, "B");
 	tk.add_button(ALLEGRO_KEY_N, "N");
 	tk.add_button(ALLEGRO_KEY_M, "M");
+	tk.add_button(ALLEGRO_KEY_BACKSPACE, "<<");
+	
+	tk.add_button(ALLEGRO_KEY_LEFT, "<");
+	tk.add_button(ALLEGRO_KEY_SPACE, " ");
+	tk.add_button(ALLEGRO_KEY_RIGHT, ">");
+	tk.add_button(ALLEGRO_KEY_FULLSTOP, ".");
 	tk.add_button(ALLEGRO_KEY_ENTER, "Ok");
 
 	TouchKeysCell c = {
@@ -328,6 +334,7 @@ static void setup_kb(TouchKeys& tk) {
 		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c, c } },
 		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c } },
 		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c } },
+		{ .height = 25, .flex = false, .cells = { c, { .width = 3, .flex = true }, c, c, c } },
 	});
 
 }
@@ -339,7 +346,8 @@ HGameEngine::HGameEngine() :
 	custom_cfg_filepath(get_storage_dir() + "/cfg.json"),
 	allegro_hnd(this),
 	touch_keys(this),
-	kb_touch_keys(this)
+	kb_touch_keys(this),
+	active_touch_keys(&touch_keys)
 {
 
 	string default_cfg_filepath = "resources/defaultCfg.json";
@@ -388,7 +396,9 @@ HGameEngine::HGameEngine() :
 
 	font = al_load_ttf_font(FONT_DIR, scale * 10, ALLEGRO_TTF_MONOCHROME);
 
-	setup_kb(kb_touch_keys);
+	kb_icon = load_bitmap(RES_DIR"/keyboard.png");
+
+	setup_touch_kb(kb_touch_keys);
 
 	stages[MENU] = new MainMenuStage(this);
 	stages[GAME] = new GameStage(this);
@@ -409,6 +419,37 @@ void HGameEngine::set_cfg_param(const string& key, const boost::json::value& val
 }
 
 
+bool HGameEngine::process_touch_keys(ALLEGRO_EVENT& event) {
+
+	ALLEGRO_EVENT prev_event = event;
+	this->active_touch_keys->redefine_touch_event(event);
+
+	if (prev_event.type == ALLEGRO_EVENT_TOUCH_BEGIN && event.type == ALLEGRO_EVENT_KEY_DOWN) {
+
+		if (
+			this->active_touch_keys == &(this->kb_touch_keys) &&
+			event.keyboard.keycode == ALLEGRO_KEY_ENTER
+		) {
+			// if touch kb is present and enter key was touched
+			// capture this event to revert to previous touch keys
+			// and stop propagation
+			this->set_active_touch_keys(this->touch_keys);
+			return false;
+
+		} else {
+			// in any other situation also trigger as char event
+			ALLEGRO_EVENT char_event = event;
+			char_event.type = ALLEGRO_EVENT_KEY_CHAR;
+			this->on_event(char_event);
+		}
+
+	}
+
+	return true;
+
+}
+
+
 void HGameEngine::run() {
 
 	cout << "Main loop starts" << endl;
@@ -422,6 +463,7 @@ void HGameEngine::run() {
 		auto evt_queue = this->allegro_hnd.get_event_queue();
 
 		al_wait_for_event(evt_queue, &event);
+
 		if (
 			event.type == ALLEGRO_EVENT_KEY_CHAR || 
 			event.type == ALLEGRO_EVENT_KEY_DOWN ||
@@ -431,12 +473,20 @@ void HGameEngine::run() {
 			event.type == ALLEGRO_EVENT_TOUCH_MOVE
 		) {
 			
-			this->touch_keys.redefine_touch_event(event);
+			if (this->active_touch_keys != nullptr) {
+
+				const bool propagate = this->process_touch_keys(event);
+				if (!propagate) {
+					continue;
+				}
+
+			}
 
 			if (event.keyboard.keycode == ALLEGRO_KEY_BACK) {
 				//Bind back button to Escape key
 				event.keyboard.keycode = ALLEGRO_KEY_ESCAPE;
 			}
+
 			this->on_event(event);
 		}
 
@@ -457,7 +507,7 @@ void HGameEngine::run() {
 		else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
 			al_acknowledge_resize(event.display.source);
 			this->allegro_hnd.fit_display();
-			this->touch_keys.re_arrange();
+			this->active_touch_keys->re_arrange();
 		}
 
 		else if (event.type == ALLEGRO_EVENT_TIMER) {
@@ -545,7 +595,14 @@ void HGameEngine::draw() {
 	
 	#ifdef ALLEGRO_ANDROID
 	//this->kb_touch_keys.draw();
-	this->touch_keys.draw();
+	if (this->active_touch_keys != nullptr) {
+		this->active_touch_keys->draw();
+	}
+	
+	if (this->get_active_input()) {
+		al_draw_filled_rounded_rectangle(15, -10, 58, 24, 6, 6, al_map_rgb(150, 200, 150));
+		al_draw_bitmap(kb_icon, 20, 6, 0);
+	}
 	#endif
 	
 	this->allegro_hnd.draw_sec_surface();
@@ -554,6 +611,42 @@ void HGameEngine::draw() {
 
 	//std::cout << "done!" << std::endl;
 
+}
+
+
+void HGameEngine::set_active_touch_keys(TouchKeys& tkeys) {
+
+	this->active_touch_keys = &tkeys;
+	this->active_touch_keys->re_arrange();
+
+}
+
+
+TextInput* HGameEngine::create_text_input() {
+
+	auto inp = make_unique<TextInput>(this);
+	TextInput* inp_ptr = inp.get();
+
+	this->text_inputs.push_back(move(inp));
+	
+	return inp_ptr;
+	/*
+	// the code below causes segfaults because push_back may resize the vector 
+	// and addresses change	so returning the address was just returning a 
+	// temporary address which leaded to segfaults
+	this->text_inputs.push_back(TextInput(this));
+	TextInput& inp = this->text_inputs.back();
+	return &inp;
+	*/
+
+}
+
+void HGameEngine::set_active_input(TextInput* inp) {
+	this->active_input = inp;
+}
+
+TextInput* HGameEngine::get_active_input() {
+	return this->active_input;
 }
 
 
@@ -571,6 +664,34 @@ void HGameEngine::on_event(ALLEGRO_EVENT event) {
 		
 		keys[event.keyboard.keycode] = false;
 
+	}
+
+	else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+
+		if (this->active_input != nullptr) {
+			
+			if (event.keyboard.keycode != ALLEGRO_KEY_ENTER) {
+
+				this->active_input->process_key(event.keyboard.unichar, event.keyboard.keycode);
+
+			}
+
+		}
+
+	}
+
+	else if (
+		event.type == ALLEGRO_EVENT_TOUCH_BEGIN && 
+		this->get_active_input()
+	) {
+
+		float scaled = this->allegro_hnd.get_scaled();
+		float tx = event.touch.x / scaled;
+		float ty = event.touch.y / scaled;
+		
+		if (tx < 70 && ty < 30) {
+			this->set_active_touch_keys(this->kb_touch_keys);
+		}
 	}
 
 	active_stage->on_event(event);

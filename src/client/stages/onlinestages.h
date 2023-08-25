@@ -56,10 +56,7 @@ public:
 
 class LobbyStage: public Stage {
 
-	TextInput* input;
-
 	bool ready = false;
-
 
 public:
 
