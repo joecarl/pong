@@ -32,9 +32,6 @@ public:
 
 class ConnStage: public Stage {
 
-	TextInput* input;
-
-	std::string server;
 
 	bool start_connection = 0;
 

@@ -197,13 +197,10 @@ Controller controller;
 
 ConnStage::ConnStage(HGameEngine* _engine) : Stage(_engine) {
 
-	this->input = this->engine->create_text_input();
-
 }
 
 void ConnStage::on_enter_stage() {
 
-	input->focus();
 
 	auto& touch_keys = this->engine->get_touch_keys();
 
@@ -225,23 +222,17 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 		if (keycode == ALLEGRO_KEY_ESCAPE) {//ESC (SALIR)
 
 			al_rest(0.2);
-			input->blur();
 			this->engine->set_stage(MENU);
 
 		} else if (keycode == ALLEGRO_KEY_ENTER) {
-
-			input->blur();
-			server = input->get_value();
-
-			if (server.empty()) {
-
-				server = cfg["serverHostname"].as_string().c_str();
-
-			}
+			
+			string server = cfg["serverHostname"].as_string().c_str();
 
 			auto port = (unsigned short) cfg["serverPort"].as_int64();
 						
 			this->engine->get_io_client().connect(server, port);
+
+			start_connection = true;
 			
 		}
 
@@ -266,17 +257,22 @@ void ConnStage::on_tick() {
 void ConnStage::draw() {
 
 	ALLEGRO_FONT* font = this->engine->get_font();
-
+	auto& cfg = this->engine->get_cfg();
 	auto& connection = this->engine->get_io_client();
 
+	string server = cfg["serverHostname"].as_string().c_str();
 	string pts = get_wait_string();
-	
-	al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "ENTER SERVER IP ADDRESS or press ");
-	al_draw_text(font, WHITE, 20, 40, ALLEGRO_ALIGN_LEFT, "enter to connect to default server:");
 
-	if (input->is_focused()) {
+	const float x_offset = 30;
 
-		input->draw(30, 60);
+	al_draw_text(font, WHITE, x_offset, 30, ALLEGRO_ALIGN_LEFT, "Press enter to connect to server");
+
+	//al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "ENTER SERVER IP ADDRESS or press ");
+	//al_draw_text(font, WHITE, 20, 40, ALLEGRO_ALIGN_LEFT, "enter to connect to default server:");
+
+	if (!start_connection) {
+
+		al_draw_text(font, WHITE, x_offset, 45, ALLEGRO_ALIGN_LEFT, server.c_str());
 
 	} else {
 
@@ -284,17 +280,17 @@ void ConnStage::draw() {
 
 		if (conn_state == CONNECTION_STATE_CONNECTING) {
 
-			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
+			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
 				
 		} else if (conn_state == CONNECTION_STATE_DISCONNECTED) {
 			
-			//al_draw_text(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
-			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Error: could not connect to %s", server.c_str());
+			//al_draw_text(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
+			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Error: could not connect to %s", server.c_str());
 			
 		} else if (conn_state > CONNECTION_STATE_CONNECTED) {
 
-			al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
-			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Please wait %s", pts.c_str());
+			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
+			al_draw_textf(font, WHITE, x_offset, 75, ALLEGRO_ALIGN_LEFT, "Please wait %s", pts.c_str());
 		
 		}
 
