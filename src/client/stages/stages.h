@@ -191,24 +191,4 @@ public:
 };
 
 
-//-----------------------------------------------------------------------------
-
-class ConfigStage: public Stage {
-
-	TextInput* input;
-
-public:
-
-	ConfigStage(HGameEngine* _engine);
-
-	void on_enter_stage();
-
-	void on_event(ALLEGRO_EVENT event);
-
-	void draw();
-
-};
-
-
-
 #endif

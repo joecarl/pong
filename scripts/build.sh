@@ -26,6 +26,7 @@ SCRIPTS+=(ioclient)
 SCRIPTS+=(stages/stages)
 SCRIPTS+=(stages/onlinestages)
 SCRIPTS+=(stages/tutorialstage)
+SCRIPTS+=(stages/configstage)
 SCRIPTS+=(main)
 
 

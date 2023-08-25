@@ -2,6 +2,7 @@
 #include "stages/stages.h"
 #include "stages/onlinestages.h"
 #include "stages/tutorialstage.h"
+#include "stages/configstage.h"
 #include "../utils.h"
 
 #include <allegro5/allegro.h>
