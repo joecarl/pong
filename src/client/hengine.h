@@ -49,6 +49,7 @@ class AllegroHandler {
 	ALLEGRO_BITMAP *sec_buffer;
 
 	ALLEGRO_EVENT_QUEUE *event_queue;
+
 	/**
 	 * How much the buffer should be scaled
 	 */
@@ -144,6 +145,8 @@ class HGameEngine {
 
 	boost::json::object cfg;
 
+	boost::json::object default_cfg;
+
 	float fps = 0;
 
 	float scale = 1.0;
@@ -193,6 +196,8 @@ public:
 	IoClient& get_io_client() { return this->connection; }
 
 	boost::json::object& get_cfg() { return this->cfg; }
+
+	boost::json::object& get_default_cfg() { return this->default_cfg; }
 
 	AllegroHandler& get_allegro_hnd() { return this->allegro_hnd; }
 

@@ -351,9 +351,7 @@ HGameEngine::HGameEngine() :
 	active_touch_keys(&touch_keys)
 {
 
-	string default_cfg_filepath = "resources/defaultCfg.json";
-
-	boost::json::object default_cfg;
+	const string default_cfg_filepath = RES_DIR"/defaultCfg.json";
 	
 	if (file_exists(custom_cfg_filepath)) {
 
@@ -367,21 +365,21 @@ HGameEngine::HGameEngine() :
 	
 	if (file_exists(default_cfg_filepath)) {
 
-		boost::json::value cfg_v = boost::json::parse(file_get_contents(default_cfg_filepath));
+		const boost::json::value cfg_v = boost::json::parse(file_get_contents(default_cfg_filepath));
 
 		if (cfg_v.is_object()) {
-			default_cfg = cfg_v.get_object();
+			this->default_cfg = cfg_v.get_object();
 		}
 
 	} else {
 
-		default_cfg["windowed"] = false;
-		default_cfg["serverHostname"] = "copinstar.com";
-		default_cfg["serverPort"] = 51009;
+		this->default_cfg["windowed"] = false;
+		this->default_cfg["serverHostname"] = "copinstar.com";
+		this->default_cfg["serverPort"] = 51009;
 
 	}
 
-	for (auto& item: default_cfg) {
+	for (auto& item: this->default_cfg) {
 		if (!this->cfg.contains(item.key())) {
 			this->cfg[item.key()] = item.value();
 		}
