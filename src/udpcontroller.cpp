@@ -289,7 +289,7 @@ void UdpChannelController::_send(const string& data, uint64_t id, uint64_t count
 			throw std::runtime_error("ERROR: (_send handler) " + error.message());
 		}
 
-		t->expires_after(boost::asio::chrono::milliseconds(10 + count * 2));
+		t->expires_after(boost::asio::chrono::milliseconds(10 + count * count));
   		t->async_wait(check);
 		
 	};
