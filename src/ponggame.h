@@ -165,7 +165,7 @@ public:
 
 	Wall(PongGame* game, double _x, double _y, uint8_t _owner_idx);
 	
-	void process_hit(Element* ball, float prev_x, float prev_y);
+	void process_hit(Element* ball, float prev_x, float prev_y, float prev_r);
 
 };
 

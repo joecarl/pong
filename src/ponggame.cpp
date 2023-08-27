@@ -187,11 +187,12 @@ void PongGame::process_tick() {
 
 		const double prev_x = ball->get_x();
 		const double prev_y = ball->get_y();
+		const double prev_r = ball->radius;
 
 		ball->process();
 		
 		for (auto& w: this->walls) {
-			w->process_hit(ball, prev_x, prev_y);
+			w->process_hit(ball, prev_x, prev_y, prev_r);
 		}
 		
 	}
@@ -348,7 +349,7 @@ Wall::Wall(PongGame* game, double _x, double _y, uint8_t _owner_idx) :
 	radius = 15;
 }
 
-void Wall::process_hit(Element* ball, float prev_x, float prev_y) {
+void Wall::process_hit(Element* ball, float prev_x, float prev_y, float prev_r) {
 
 	if (!this->stat) {
 		return;
@@ -362,11 +363,12 @@ void Wall::process_hit(Element* ball, float prev_x, float prev_y) {
 	}
 
 	const float dir = this->owner_idx == 0 ? 1.0 : -1.0;
-	const float wx = this->x + ball->radius * dir; // una manera rapida de tener en cuenta el radio de la bola
+	const float wx0 = this->x + prev_r * dir; // una manera rapida de tener en cuenta el radio de la bola
+	const float wx1 = this->x + ball->radius * dir;
 
 	if (
-		(prev_x < wx && ball->get_x() < wx) ||
-		(prev_x > wx && ball->get_x() > wx)
+		(prev_x < wx0 && ball->get_x() < wx1) ||
+		(prev_x > wx0 && ball->get_x() > wx1)
 	) {
 		return;
 	}
@@ -374,7 +376,7 @@ void Wall::process_hit(Element* ball, float prev_x, float prev_y) {
 	const float inc_x = ball->get_x() - prev_x;
 	const float inc_y = ball->get_y() - prev_y;
 
-	const float x_factor = (wx - prev_x) / inc_x;
+	const float x_factor = (wx1 - prev_x) / inc_x;
 	const float inter_y = prev_y + inc_y * fabs(x_factor);
 	const float full_radius = this->radius + ball->radius;
 
@@ -383,7 +385,7 @@ void Wall::process_hit(Element* ball, float prev_x, float prev_y) {
 	}
 
 	ball->set_parameters(
-		ball->get_x() - 2 * (ball->get_x() - wx), 
+		ball->get_x() - 2 * (ball->get_x() - wx1), 
 		ball->get_y(),
 		-ball->get_vx(),
 		ball->get_vy()
