@@ -609,7 +609,11 @@ void HGameEngine::draw() {
 	}
 	
 	if (this->get_active_input()) {
-		al_draw_filled_rounded_rectangle(15, -10, 58, 24, 6, 6, al_map_rgb(150, 200, 150));
+		ALLEGRO_COLOR btn_bgcolor = al_map_rgb(150, 200, 150);
+		if (this->active_touch_keys != &(this->kb_touch_keys)) {
+			btn_bgcolor = al_map_rgb(120, 140, 120);
+		}
+		al_draw_filled_rounded_rectangle(15, -10, 58, 24, 6, 6, btn_bgcolor);
 		al_draw_bitmap(kb_icon, 20, 6, 0);
 	}
 	#endif
@@ -699,7 +703,11 @@ void HGameEngine::on_event(ALLEGRO_EVENT event) {
 		float ty = event.touch.y / scaled;
 		
 		if (tx < 70 && ty < 30) {
-			this->set_active_touch_keys(this->kb_touch_keys);
+			if (this->active_touch_keys != &(this->kb_touch_keys)) {
+				this->set_active_touch_keys(this->kb_touch_keys);
+			} else {
+				this->set_active_touch_keys(this->touch_keys);
+			}
 		}
 	}
 
