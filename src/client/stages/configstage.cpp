@@ -11,7 +11,12 @@ using namespace std;
 ConfigStage::ConfigStage(HGameEngine* _engine) : Stage(_engine) {
 
 	auto playername_input = this->engine->create_text_input();
+	playername_input->min_chars = 3;
+	playername_input->max_chars = 12;
+
 	auto serverhostname_input = this->engine->create_text_input();
+	serverhostname_input->min_chars = 3;
+	serverhostname_input->max_chars = 19;
 	// auto windowed_input = this->engine->create_checkbox_input();
 
 	config_params = {
@@ -40,6 +45,7 @@ void ConfigStage::on_enter_stage() {
 		touch_keys.add_button(ALLEGRO_KEY_DOWN, "__arrow_down");
 		touch_keys.add_button(ALLEGRO_KEY_LEFT, "__arrow_left");
 		touch_keys.add_button(ALLEGRO_KEY_RIGHT, "__arrow_right");
+		touch_keys.add_button(ALLEGRO_KEY_F1, "F1");
 	}
 	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Ok");
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
@@ -62,11 +68,17 @@ bool ConfigStage::saved_modified_inputs() {
 
 	for (auto& param: config_params) {
 
+		if (!param.input->is_valid()) {
+			return false;
+		}
+		
+	}
+
+	for (auto& param: config_params) {
+
 		// if (modified)
 		auto val = param.input->get_json_value();
 		this->engine->set_cfg_param(param.key, val);
-
-		//if (error de validacion) return false;
 
 	}
 
@@ -126,6 +138,16 @@ void ConfigStage::on_event(ALLEGRO_EVENT event) {
 				this->engine->set_stage(MENU);
 			}
 
+		} else if (keycode == ALLEGRO_KEY_F1) {
+
+			auto& def_cfg = this->engine->get_default_cfg();
+			auto& curr_param = this->config_params[inp_index];
+			const bool has_default = def_cfg.contains(curr_param.key);
+
+			if (has_default) {
+				curr_param.input->set_from_json_value(def_cfg[curr_param.key]);
+			}
+
 		}
 
 	}
@@ -152,6 +174,9 @@ void ConfigStage::draw_welcome_view() {
 
 		playername_input->draw(30, 60);
 
+		const string valid_msg = playername_input->get_validation_msg();
+		al_draw_text(font, RED, 30, 75, ALLEGRO_ALIGN_LEFT, valid_msg.c_str());
+
 	} else {
 		
 		auto& cfg = this->engine->get_cfg();
@@ -169,11 +194,19 @@ void ConfigStage::draw_welcome_view() {
 
 void ConfigStage::draw_config_view() {
 
-	// press F1 to rever to default ??
-
 	static float frame = 0;
-	
+
 	ALLEGRO_FONT* font = this->engine->get_font();
+
+	auto& def_cfg = this->engine->get_default_cfg();
+	auto& curr_param = this->config_params[inp_index];
+	const bool has_default = def_cfg.contains(curr_param.key);
+
+	if (has_default) {
+		al_draw_text(font, al_map_rgb(180, 180, 180), 30, 15, ALLEGRO_ALIGN_LEFT, "Press F1 to revert to default");
+	}
+	const string valid_msg = curr_param.input->get_validation_msg();
+	al_draw_text(font, RED, 30, 30, ALLEGRO_ALIGN_LEFT, valid_msg.c_str());
 
 	const int line_height = 20;
 
@@ -182,16 +215,20 @@ void ConfigStage::draw_config_view() {
 
 	const float x_shift = 3.0 * sin(frame / 6.0);
 
-	al_draw_filled_circle(20 + x_shift, marker_y, 3, RED);
-	al_draw_filled_circle(320 - 20 - x_shift, marker_y, 3, RED);
+	al_draw_filled_circle(16 + x_shift, marker_y, 3, RED);
+	al_draw_filled_circle(320 - 16 - x_shift, marker_y, 3, RED);
 
 	for (auto& param: config_params) {
 
-		al_draw_text(font, WHITE, 35, y, ALLEGRO_ALIGN_LEFT, param.label.c_str());
+		al_draw_text(font, WHITE, 30, y, ALLEGRO_ALIGN_LEFT, param.label.c_str());
 
 		if (param.input->type == INPUT_TYPE_TEXT) {
 			TextInput* inp = static_cast<TextInput*>(param.input);
-			inp->draw(160, y);
+			inp->draw(135, y);
+		}
+
+		if (!param.input->is_valid()) {
+			al_draw_text(font, RED, 126, y, ALLEGRO_ALIGN_LEFT, "!");
 		}
 		//param.input->draw(150, y);
 
