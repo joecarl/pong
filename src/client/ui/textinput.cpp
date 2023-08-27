@@ -81,6 +81,8 @@ void TextInput::process_key(wchar_t ASCII, int control_key) {
 		ascii = control_key - ALLEGRO_KEY_0 + '0';
 	}
 
+	bool processed = true;
+
 	if (ascii >= 32 && ascii <= 126) {
 		
 		// add the new char, inserting or replacing as need be
@@ -124,7 +126,12 @@ void TextInput::process_key(wchar_t ASCII, int control_key) {
 			break;
 			
 		default:
+			processed = false;
 			break;
+	}
+
+	if (processed) {
+		caret_time = 0;
 	}
 
 }
