@@ -7,7 +7,7 @@ SRC_DIR=./src/server
 BUILD_DIR=./build/server
 OBJ_DIR=./obj/server
 
-GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -include scripts/pch.hpp"
+GLOBAL_PARAMS="-std=c++17 -Wall -Wno-misleading-indentation -fexceptions -g -include scripts/pch.hpp"
 
 mkdir -p $BUILD_DIR > /dev/null 2>&1
 mkdir -p $OBJ_DIR > /dev/null 2>&1

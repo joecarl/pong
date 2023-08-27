@@ -7,7 +7,7 @@ SRC_DIR=./src/client/updater
 BUILD_DIR=./build/client
 OBJ_DIR=./obj/updater
 
-GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g"
+GLOBAL_PARAMS="-std=c++17 -Wall -Wno-misleading-indentation -fexceptions -g"
 
 mkdir -p $OBJ_DIR > /dev/null 2>&1
 mkdir -p $BUILD_DIR > /dev/null 2>&1

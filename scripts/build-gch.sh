@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GLOBAL_PARAMS="-Wall -fexceptions -g -x c++-header"
+GLOBAL_PARAMS="-std=c++17 -Wall -fexceptions -g -x c++-header"
 
 SRC_FILE=./scripts/pch.hpp
 
