@@ -302,8 +302,15 @@ void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 
 		else if (keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3 || keycode == ALLEGRO_KEY_9) {
 
-			game_handler.make_new_pong_game(time(nullptr)); 
-			this->engine->set_stage(GAME);
+			game_handler.make_new_pong_game(time(nullptr));
+			bool* tuto_completed_ptr = cfg["tutorialCompleted"].if_bool();
+			bool tuto_completed = tuto_completed_ptr == nullptr ? false : *tuto_completed_ptr;
+
+			if (keycode == ALLEGRO_KEY_1 && !tuto_completed) {
+				this->engine->set_stage(TUTO);
+			} else {
+				this->engine->set_stage(GAME);
+			}
 
 		}
 	}

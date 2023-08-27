@@ -13,6 +13,8 @@ class TutorialStage: public Stage {
 	ALLEGRO_BITMAP* thumb_release;
 	
 	void draw_mode_one();
+	
+	void draw_mode_two();
 
 public:
 

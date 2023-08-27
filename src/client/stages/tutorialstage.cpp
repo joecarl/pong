@@ -14,9 +14,27 @@ void TutorialStage::on_enter_stage() {
 	this->thumb_release = load_bitmap(THUMB_RELEASE);
 	this->engine->set_cfg_param("tutorialCompleted", true);
 
+	auto& touch_keys = this->engine->get_touch_keys();
+
+	touch_keys.clear_buttons();
+
+	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Ok");
+
+	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+
 }
 
 void TutorialStage::on_event(ALLEGRO_EVENT event) {
+
+	int keycode = event.keyboard.keycode;
+
+	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+	
+		if (keycode == ALLEGRO_KEY_ENTER) {
+			this->engine->set_stage(GAME);
+		}
+
+	}
 
 }
 
@@ -29,6 +47,7 @@ void TutorialStage::draw_mode_one() {
 	static bool pressed_left = false;
 	static bool pressed_right = false;
 	static string text = "";
+	static const int blink_mod = 40;
 
 	al_draw_rounded_rectangle(
 		scale * 50, 
@@ -51,8 +70,9 @@ void TutorialStage::draw_mode_one() {
 		50 + 75, 65 + y - 1, 
 		50 + 60, 65 + y - 1
 	};
-
-	al_draw_filled_polygon(vx, 7, red_color);
+	if (frame % blink_mod > blink_mod / 2) {
+		al_draw_filled_polygon(vx, 7, red_color);
+	}
 
 	al_draw_rectangle(
 		scale * (50 + 50), 
@@ -93,8 +113,6 @@ void TutorialStage::draw_mode_one() {
 	);
 
 
-
-
 	if (pressed_left) {
 		al_draw_bitmap(this->thumb_press, 25, 70, 0);
 		y += 0.8;
@@ -109,7 +127,7 @@ void TutorialStage::draw_mode_one() {
 		al_draw_bitmap(this->thumb_release, 225, 60, ALLEGRO_FLIP_HORIZONTAL);
 	}
 
-	
+
 	al_draw_text(
 		this->engine->get_font(), 
 		red_color,
@@ -153,5 +171,11 @@ void TutorialStage::draw() {
 
 	//if (this->target_stage == )
 	this->draw_mode_one();
+
+}
+
+
+void TutorialStage::draw_mode_two() {
+
 
 }
