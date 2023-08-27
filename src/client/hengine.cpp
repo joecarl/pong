@@ -319,8 +319,8 @@ static void setup_touch_kb(TouchKeys& tk) {
 	tk.add_button(ALLEGRO_KEY_BACKSPACE, "<<");
 	
 	tk.add_button(ALLEGRO_KEY_LEFT, "<");
-	tk.add_button(ALLEGRO_KEY_SPACE, " ");
 	tk.add_button(ALLEGRO_KEY_RIGHT, ">");
+	tk.add_button(ALLEGRO_KEY_SPACE, " ");
 	tk.add_button(ALLEGRO_KEY_FULLSTOP, ".");
 	tk.add_button(ALLEGRO_KEY_ENTER, "Ok");
 
@@ -330,12 +330,12 @@ static void setup_touch_kb(TouchKeys& tk) {
 	};
 
 	tk.layout_buttons({
-		{ .height = 1,  .flex = true,  .cells = {} },
-		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c, c } },
-		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c, c } },
-		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c, c } },
-		{ .height = 25, .flex = false, .cells = { c, c, c, c, c, c, c, c } },
-		{ .height = 25, .flex = false, .cells = { c, { .width = 3, .flex = true }, c, c, c } },
+		{ .height = 7,  .flex = true,  .cells = {} },
+		{ .height = 25, .min_flex_height = 1, .flex = false, .cells = { c, c, c, c, c, c, c, c, c, c } },
+		{ .height = 25, .min_flex_height = 1, .flex = false, .cells = { c, c, c, c, c, c, c, c, c, c } },
+		{ .height = 25, .min_flex_height = 1, .flex = false, .cells = { c, c, c, c, c, c, c, c, c } },
+		{ .height = 25, .min_flex_height = 1, .flex = false, .cells = { c, c, c, c, c, c, c, c } },
+		{ .height = 25, .min_flex_height = 1, .flex = false, .cells = { c, c, { .width = 3, .flex = true }, c, c } },
 	});
 
 }

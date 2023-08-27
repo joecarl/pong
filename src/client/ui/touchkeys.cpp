@@ -297,14 +297,51 @@ void TouchKeys::re_arrange() {
 	int window_w = allegro_hnd.get_window_width() / allegro_hnd.get_scaled();
 	int window_h = allegro_hnd.get_window_height() / allegro_hnd.get_scaled();
 
+	uint16_t flex_h_min_space = window_h;
+	uint16_t flex_h_max_space = window_h;
+	uint8_t flex_h_min_divisions = 0;
+	uint8_t flex_h_max_divisions = 0;
+
+	for (auto& row: this->layout) {
+
+		if (!row.flex) {
+			flex_h_min_divisions += row.min_flex_height;
+			flex_h_max_divisions += row.max_flex_height;
+			if (row.min_flex_height == 0) {
+				flex_h_min_space -= row.height;
+			}
+			if (row.max_flex_height == 0) {
+				flex_h_max_space -= row.height;
+			}
+		} else {
+			flex_h_min_divisions += row.height;
+			flex_h_max_divisions += row.height;
+		}
+
+	}
+
 	uint16_t flex_h = window_h;
 	uint8_t flex_h_divisions = 0;
 
 	for (auto& row: this->layout) {
 
 		if (!row.flex) {
-			flex_h -= row.height;
-		} else {
+
+			uint16_t min_height = (float)flex_h_min_space * (float)row.min_flex_height / (float)flex_h_min_divisions;
+			uint16_t max_height = (float)flex_h_max_space * (float)row.max_flex_height / (float)flex_h_max_divisions;
+
+			if (row.height < min_height) {
+				row.calculated_height = min_height;
+				flex_h_divisions += row.min_flex_height;
+			} else if (row.height > max_height) {
+				row.calculated_height = max_height;
+				flex_h_divisions += row.max_flex_height;
+			} else {
+				row.calculated_height = row.height;
+				flex_h -= row.height;
+			}
+
+		}  else {
 			flex_h_divisions += row.height;
 		}
 
@@ -315,7 +352,7 @@ void TouchKeys::re_arrange() {
 
 	for (auto& row: this->layout) {
 
-		uint16_t height = row.flex ? ((float)row.height / (float)flex_h_divisions) * flex_h : row.height;
+		uint16_t height = row.flex ? ((float)row.height / (float)flex_h_divisions) * flex_h : row.calculated_height;
 
 		this->arrange_row(row, y, height, window_w);
 

@@ -65,9 +65,39 @@ typedef struct {
 
 typedef struct {
 
+	/**
+	 * Determines the row height. If flex is true this value will be used to
+	 * calculate the relative size. If flex is false this value will be used as
+	 * an exact amount of pixels.
+	 */
 	uint16_t height;
+
+	/**
+	 * The minimum relative size (this value is only used when flex is false)
+	 * Set to 0 to disable
+	 */
+	uint16_t min_flex_height = 0;
+
+	/**
+	 * The maximum relative size (this value is only used when flex is false)
+	 * Set to 0 to disable
+	 */
+	uint16_t max_flex_height = 0;
+
+	/**
+	 * Wether to use flex sizing or not
+	 */
 	bool flex;
+
+	/**
+	 * Container for the cells in the wor
+	 */
 	std::vector<TouchKeysCell> cells;
+
+	/**
+	 * Used for internal calculations. Don't touch
+	 */
+	uint16_t calculated_height = 0;
 
 } TouchKeysRow;
 
