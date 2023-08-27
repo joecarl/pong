@@ -32,6 +32,8 @@ class Button {
 
 	TouchKeys* touch_keys;
 
+	void draw_special_symbol();
+
 public:
 
 	Button(TouchKeys* t_keys, unsigned int keycode, std::string txt);

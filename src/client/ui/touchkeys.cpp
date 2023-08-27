@@ -1,6 +1,7 @@
 
 #include "touchkeys.h"
 #include "../hengine.h"
+#include "../mediatools.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -70,6 +71,55 @@ bool Button::in_area(int px, int py) {
 
 }
 
+void Button::draw_special_symbol() {
+
+	const float x0 = x  + w / 2.0;
+	const float y0 = y + h / 2.0;
+
+	if (text == "__arrow_up") {
+
+		const float vtx[] = {
+			x0 - 5, y0 + 3,
+			x0 + 5, y0 + 3,
+			x0, y0 - 3,
+		};
+
+		al_draw_filled_polygon(vtx, 3, WHITE);
+		
+	} else if (text == "__arrow_down") {
+		
+		const float vtx[] = {
+			x0 - 5, y0 - 3,
+			x0, y0 + 3,
+			x0 + 5, y0 - 3,
+		};
+
+		al_draw_filled_polygon(vtx, 3, WHITE);
+		
+	} else if (text == "__arrow_left") {
+		
+		const float vtx[] = {
+			x0 - 3, y0,
+			x0 + 3, y0 + 5,
+			x0 + 3, y0 - 5,
+		};
+
+		al_draw_filled_polygon(vtx, 3, WHITE);
+		
+	} else if (text == "__arrow_right") {
+		
+		const float vtx[] = {
+			x0 + 3, y0,
+			x0 - 3, y0 - 5,
+			x0 - 3, y0 + 5,
+		};
+
+		al_draw_filled_polygon(vtx, 3, WHITE);
+		
+	}
+
+}
+
 void Button::draw() {
 
 	if (text.empty()) {
@@ -88,14 +138,22 @@ void Button::draw() {
 
 	al_draw_filled_rectangle(x + 1, y + 1, x + w - 1, y + h - 1, bgcolor);
 
-	al_draw_text(
-		this->touch_keys->get_engine()->get_font(), 
-		al_map_rgb(255, 255, 255), 
-		x + w / 2, 
-		y + h / 2 - 8, 
-		ALLEGRO_ALIGN_CENTER,
-		text.c_str()
-	);
+	if (text.substr(0, 2) == "__" && text.length() > 2) {
+		
+		this->draw_special_symbol();
+
+	} else {
+
+		al_draw_text(
+			this->touch_keys->get_engine()->get_font(), 
+			al_map_rgb(255, 255, 255), 
+			x + w / 2, 
+			y + h / 2 - 8, 
+			ALLEGRO_ALIGN_CENTER,
+			text.c_str()
+		);
+
+	}
 
 }
 
@@ -333,7 +391,7 @@ void TouchKeys::re_arrange() {
 			if (row.height < min_height) {
 				row.calculated_height = min_height;
 				flex_h_divisions += row.min_flex_height;
-			} else if (row.height > max_height) {
+			} else if (max_height > 0 && row.height > max_height) {
 				row.calculated_height = max_height;
 				flex_h_divisions += row.max_flex_height;
 			} else {
