@@ -46,9 +46,12 @@ void ConfigStage::on_enter_stage() {
 		touch_keys.add_button(ALLEGRO_KEY_LEFT, "__arrow_left");
 		touch_keys.add_button(ALLEGRO_KEY_RIGHT, "__arrow_right");
 		touch_keys.add_button(ALLEGRO_KEY_F1, "F1");
+		touch_keys.add_button(ALLEGRO_KEY_ENTER, "Ok");
+		touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
+	} else {
+		//touch_keys.add_button(ALLEGRO_KEY_F2, "__kb");
+		touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
 	}
-	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Ok");
-	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
 	touch_keys.fit_buttons(FIT_BOTTOM, 10);
 
 	auto& cfg = this->engine->get_cfg();
