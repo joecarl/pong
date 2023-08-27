@@ -74,7 +74,7 @@ GameHandler::~GameHandler() {
 
 }
 
-void GameHandler::set_player_name(uint8_t player_idx, string name) {
+void GameHandler::set_player_name(uint8_t player_idx, const string& name) {
 
 	if (player_idx >= 2) {
 		return;
@@ -90,16 +90,8 @@ string GameHandler::get_player_name(uint8_t player_idx) {
 		return "";
 	}
 
-	if (this->play_mode == PLAYMODE_ONLINE) {
-		string pname = this->players_names[player_idx];
-		return pname == "" ? "PLAYER " + to_string(player_idx + 1) : pname;
-	}
-
-	if (this->pong_game->control_mode == CONTROLMODE_TWO_PLAYERS) {
-		return "PLAYER " + to_string(player_idx + 1);
-	} else {
-		return player_idx == 0 ? "PLAYER" : "PC";
-	}
+	string pname = this->players_names[player_idx];
+	return pname == "" ? "PLAYER " + to_string(player_idx + 1) : pname;
 
 }
 
@@ -266,13 +258,19 @@ void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 
 	int keycode = event.keyboard.keycode;
 
+	auto& cfg = this->engine->get_cfg();
+
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 	
 		if (keycode == ALLEGRO_KEY_1) {
 			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_SINGLE_PLAYER);
+			game_handler.set_player_name(0, cfg["playerName"].as_string().c_str());
+			game_handler.set_player_name(1, "PC");
 		} 
 		else if (keycode == ALLEGRO_KEY_2) {
 			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_TWO_PLAYERS);
+			game_handler.set_player_name(0, "PLAYER 1");
+			game_handler.set_player_name(1, "PLAYER 2");
 		}
 		else if (keycode == ALLEGRO_KEY_3) {
 			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_TRAINING);

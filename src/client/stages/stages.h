@@ -28,7 +28,7 @@ public:
 	int play_mode = PLAYMODE_NONE;
 	
 	/**
-	 * Current game's local player index (online mode only)
+	 * Current game's local player index
 	 */
 	uint8_t local_player_idx = 0;
 
@@ -43,9 +43,9 @@ public:
 	int get_control(int k_code, uint8_t player_idx);
 
 	/**
-	 * Sets the corresponding player name (online mode only)
+	 * Sets the corresponding player name to show in UI
 	 */
-	void set_player_name(uint8_t player_idx, std::string name);
+	void set_player_name(uint8_t player_idx, const std::string& name);
 
 	/**
 	 * Retrieves the corresponding player name
