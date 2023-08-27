@@ -38,8 +38,18 @@ class TextInput : public Input {
 	 * Caret blinking control
 	 */
 	int caret_time;
-	
+
 public:
+
+	/**
+	 * Minimun number of characters
+	 */
+	size_t min_chars = 0;
+	
+	/**
+	 * Max number of characters (0: unlimited)
+	 */
+	size_t max_chars = 0;
 
 	TextInput(HGameEngine* _engine);
 
@@ -54,6 +64,10 @@ public:
 	void blur();
 
 	bool is_focused();
+
+	bool is_valid();
+
+	std::string get_validation_msg();
 	
 	void set_from_json_value(boost::json::value& val);
 

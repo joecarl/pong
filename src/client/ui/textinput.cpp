@@ -86,15 +86,18 @@ void TextInput::process_key(wchar_t ASCII, int control_key) {
 	if (ascii >= 32 && ascii <= 126) {
 		
 		// add the new char, inserting or replacing as need be
-		if (insert || iter == edittext.end())
-			iter = edittext.insert(iter, ascii);
-		else
+		if (insert || iter == edittext.end()) {
+			if (max_chars == 0 || edittext.length() < max_chars) {
+				iter = edittext.insert(iter, ascii);
+				caret++;
+				iter++;
+			}
+		} else {
 			edittext.replace(caret, 1, 1, ascii);
+			caret++;
+			iter++;
+		}
 		
-		// increment both the caret and the iterator
-		caret++;
-		iter++;
-
 	}
 
 	// some other, "special" key was pressed; handle it here
@@ -181,6 +184,7 @@ std::string TextInput::get_value() {
 void TextInput::set_from_json_value(boost::json::value& val) {
 	
 	if (val.is_string()) {
+		this->reset();
 		this->edittext = val.get_string().c_str();
 	}
 
@@ -191,4 +195,31 @@ boost::json::value TextInput::get_json_value() {
 
 	return boost::json::value(this->get_value());
 
+}
+
+
+bool TextInput::is_valid() {
+
+	size_t len = edittext.length();
+
+	const bool min_chars_valid = len >= this->min_chars;
+	const bool max_chars_valid = this->max_chars == 0 || len <= this->max_chars;
+	
+	return min_chars_valid && max_chars_valid;
+
+}
+
+
+std::string TextInput::get_validation_msg() {
+
+	size_t len = edittext.length();
+	if (len < this->min_chars) {
+		return "At least " + std::to_string(this->min_chars) + " characters"; 
+	}
+
+	if (len > this->max_chars) {
+		return "Max: " + std::to_string(this->max_chars) + " characters"; 
+	}
+
+	return "";
 }

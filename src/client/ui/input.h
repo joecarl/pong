@@ -29,7 +29,11 @@ public:
 	virtual void blur() = 0;
 
 	virtual bool is_focused() = 0;
+	
+	virtual bool is_valid() = 0;
 
+	virtual std::string get_validation_msg() = 0;
+	
 	virtual void set_from_json_value(boost::json::value& val) = 0;
 
 	virtual boost::json::value get_json_value() = 0;
