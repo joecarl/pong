@@ -1,17 +1,16 @@
 #include "tutorialstage.h"
-#include "../mediatools.h"
+#include "../pongclient.h"
+#include <dp/client/mediatools.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include <string>
 
-using namespace std;
-
 
 void TutorialStage::on_enter_stage() {
 
-	this->thumb_press = load_bitmap(THUMB_PRESS);
-	this->thumb_release = load_bitmap(THUMB_RELEASE);
+	this->thumb_press = dp::client::load_bitmap(THUMB_PRESS);
+	this->thumb_release = dp::client::load_bitmap(THUMB_RELEASE);
 	this->engine->set_cfg_param("tutorialCompleted", true);
 
 	auto& touch_keys = this->engine->get_touch_keys();
@@ -20,7 +19,7 @@ void TutorialStage::on_enter_stage() {
 
 	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Ok");
 
-	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
 }
 
@@ -46,7 +45,7 @@ void TutorialStage::draw_mode_one() {
 	static uint32_t frame = 0;
 	static bool pressed_left = false;
 	static bool pressed_right = false;
-	static string text = "";
+	static std::string text = "";
 	static const int blink_mod = 40;
 
 	al_draw_rounded_rectangle(

@@ -1,14 +1,16 @@
 #include "configstage.h"
-#include "../mediatools.h"
-#include "../ui/input.h"
+#include "../pongclient.h"
+#include <dp/client/mediatools.h>
+#include <dp/client/ui/input.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <string>
 
-using namespace std;
+using dp::client::BaseClient;
+using dp::client::ui::TextInput;
+using std::string;
 
-
-ConfigStage::ConfigStage(HGameEngine* _engine) : Stage(_engine) {
+ConfigStage::ConfigStage(BaseClient* _engine) : Stage(_engine) {
 
 	auto playername_input = this->engine->create_text_input();
 	playername_input->min_chars = 3;
@@ -52,7 +54,7 @@ void ConfigStage::on_enter_stage() {
 		//touch_keys.add_button(ALLEGRO_KEY_F2, "__kb");
 		touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
 	}
-	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
 	auto& cfg = this->engine->get_cfg();
 	for (auto& param: config_params) {
@@ -225,7 +227,7 @@ void ConfigStage::draw_config_view() {
 
 		al_draw_text(font, WHITE, 30, y, ALLEGRO_ALIGN_LEFT, param.label.c_str());
 
-		if (param.input->type == INPUT_TYPE_TEXT) {
+		if (param.input->type == dp::client::ui::INPUT_TYPE_TEXT) {
 			TextInput* inp = static_cast<TextInput*>(param.input);
 			inp->draw(135, y);
 		}

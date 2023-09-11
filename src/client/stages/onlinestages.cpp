@@ -1,11 +1,15 @@
 #include "onlinestages.h"
 #include "stages.h"
-#include "../mediatools.h"
-#include "../../utils.h"
+#include "../pongclient.h"
+#include <dp/client/mediatools.h>
+#include <dp/utils.h>
 
 #include <iostream>
 
-using namespace std;
+using std::string;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 void Controller::push_event(boost::json::object &evt) {
 
@@ -195,7 +199,7 @@ Controller controller;
 //------------------------------- [ ConnStage ] -------------------------------
 
 
-ConnStage::ConnStage(HGameEngine* _engine) : Stage(_engine) {
+ConnStage::ConnStage(dp::client::BaseClient* _engine) : Stage(_engine) {
 
 }
 
@@ -207,7 +211,7 @@ void ConnStage::on_enter_stage() {
 	touch_keys.clear_buttons();
 	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
-	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
 }
 
@@ -246,7 +250,7 @@ void ConnStage::on_tick() {
 
 	int conn_state = connection.get_state();
 
-	if (conn_state == CONNECTION_STATE_CONNECTED_FULL) {
+	if (conn_state == dp::client::CONNECTION_STATE_CONNECTED_FULL) {
 
 		this->engine->set_stage(LOBBY);
 		
@@ -261,7 +265,7 @@ void ConnStage::draw() {
 	auto& connection = this->engine->get_io_client();
 
 	string server = cfg["serverHostname"].as_string().c_str();
-	string pts = get_wait_string();
+	string pts = dp::get_wait_string();
 
 	const float x_offset = 30;
 
@@ -278,16 +282,16 @@ void ConnStage::draw() {
 
 		int conn_state = connection.get_state();
 
-		if (conn_state == CONNECTION_STATE_CONNECTING) {
+		if (conn_state == dp::client::CONNECTION_STATE_CONNECTING) {
 
 			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
 				
-		} else if (conn_state == CONNECTION_STATE_DISCONNECTED) {
+		} else if (conn_state == dp::client::CONNECTION_STATE_DISCONNECTED) {
 			
 			//al_draw_text(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
 			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Error: could not connect to %s", server.c_str());
 			
-		} else if (conn_state > CONNECTION_STATE_CONNECTED) {
+		} else if (conn_state > dp::client::CONNECTION_STATE_CONNECTED) {
 
 			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
 			al_draw_textf(font, WHITE, x_offset, 75, ALLEGRO_ALIGN_LEFT, "Please wait %s", pts.c_str());
@@ -306,7 +310,7 @@ void ConnStage::draw() {
 // el momento anterior a unirse a un grupo, configuracion de partida, etc... 
 
 
-LobbyStage::LobbyStage(HGameEngine* _engine) : Stage(_engine) {
+LobbyStage::LobbyStage(dp::client::BaseClient* _engine) : Stage(_engine) {
 
 }
 
@@ -333,7 +337,7 @@ void LobbyStage::on_enter_stage() {
 	touch_keys.clear_buttons();
 	touch_keys.add_button(ALLEGRO_KEY_ENTER, "Enter");
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
-	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
 	this->ready = false;
 
@@ -408,7 +412,7 @@ void LobbyStage::draw() {
 
 	int conn_state = io_client.get_state();
 
-	if (conn_state == CONNECTION_STATE_CONNECTED_FULL) {
+	if (conn_state == dp::client::CONNECTION_STATE_CONNECTED_FULL) {
 
 		al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", io_client.get_current_host().c_str());
 
@@ -416,7 +420,7 @@ void LobbyStage::draw() {
 	
 	if (this->ready) {
 
-		string pts = get_wait_string();
+		string pts = dp::get_wait_string();
 	
 		al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Ok. Wait please %s", pts.c_str());
 	

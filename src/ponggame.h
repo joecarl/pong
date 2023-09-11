@@ -2,7 +2,8 @@
 #define PONGGAME_H
 
 //#include <random>
-#include "randomgenerator.h"
+#include <dp/serendipia.h>
+#include <dp/randomgenerator.h>
 #include <queue>
 #include <ctime>
 #include <string>
@@ -50,15 +51,17 @@ enum {
 };
 
 
-class PongGame {
+class PongGame : public dp::BaseGame {
 
 public:
 
-	RandomGenerator rnd;
+	dp::RandomGenerator rnd;
 
 	unsigned int control_mode = CONTROLMODE_NONE;
 
-	bool paused = false, finished = false;
+	bool paused = false;
+
+	//bool finished = false;
 
 	uint16_t warmup = 0;
 
@@ -70,7 +73,7 @@ public:
 
 	Bonus *bonus[BONUS_MAX];
 
-	unsigned int tick = 0;
+	//unsigned int tick = 0;
 
 	std::queue<std::string> messages;
 	
@@ -94,6 +97,10 @@ public:
 	 * -2 : draw 
 	 */
 	int get_winner_idx();
+
+	void set_player_control_state(int player_idx, int control, bool new_state);
+	
+	uint_fast32_t get_rnd_seed() { return this->rnd.get_seed(); }
 	
 };
 

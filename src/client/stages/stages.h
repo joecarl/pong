@@ -1,9 +1,10 @@
 #ifndef STAGES_H
 #define STAGES_H
 
-#include "../hengine.h"
-#include "../mediatools.h"
 #include "../../ponggame.h"
+#include <dp/client/stage.h>
+#include <dp/client/ui/retrolines.h>
+#include <dp/client/mediatools.h>
 #include <allegro5/allegro.h>
 
 
@@ -60,51 +61,17 @@ extern GameHandler game_handler;
 
 //----------------------------------------------------------------------------
 
-typedef struct {
-	uint8_t x;
-	uint8_t width;
-} Dash;
-
-typedef std::vector<Dash> RetroLine;
-
-
-class RetroLines {
-
-	std::vector<RetroLine> lines;
-
-	uint8_t width = 0;
-
-	uint8_t mult_x = 6;
-
-	uint8_t mult_y = 4;
-
-	float time = 0;
-
-	void calc_width();
-
-public:
-
-	RetroLines(std::vector<RetroLine>&& _lines);
-
-	RetroLines(std::vector<std::string>&& str_lines);
-
-	void draw(float ox, float oy);
-
-	uint8_t get_width() { return this->width; }
-
-};
-
-class MainMenuStage: public Stage {
+class MainMenuStage: public dp::client::Stage {
 
 	int easteregg = 0;
 
 	ALLEGRO_BITMAP* logo;
 
-	RetroLines retro_logo;
+	dp::client::ui::RetroLines retro_logo;
 
 public:
 
-	MainMenuStage(HGameEngine* _engine);
+	MainMenuStage(dp::client::BaseClient* _engine);
 	
 	void on_enter_stage();
 
@@ -121,13 +88,13 @@ public:
 
 class Tracer {
 
-	HGameEngine* engine;
+	dp::client::BaseClient* engine;
 
 	ALLEGRO_BITMAP* bonus_sprites[BONUS_MAX];
 
 public:
 
-	Tracer(HGameEngine* _engine);
+	Tracer(dp::client::BaseClient* _engine);
 
 	ALLEGRO_BITMAP* get_sprite_for_bonus_type(BonusType bonus_type);
 
@@ -144,7 +111,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class GameStage: public Stage {
+class GameStage: public dp::client::Stage {
 
 	void draw_court();
 
@@ -158,7 +125,7 @@ public:
 
 	int delayer;
 
-	GameStage(HGameEngine* _engine);
+	GameStage(dp::client::BaseClient* _engine);
 
 	void on_enter_stage();
 
@@ -175,7 +142,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class GameOverStage: public Stage {
+class GameOverStage: public dp::client::Stage {
 
 public:
 

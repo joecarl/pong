@@ -1,20 +1,17 @@
 
+#include "pongclient.h"
+#include "../appinfo.h"
+#include <dp/utils.h>
 #include <iostream>
 #include <stdexcept>
 
-#include "hengine.h"
-#include "../utils.h"
-#include "../appinfo.h"
-
-
-using namespace std;
 
 int main(int argc, char **argv) {
 
 	try {
-
+		// TODO: incluir params processing en el cliente
 		if (argc == 2 && strcmp(argv[1], "--version") == 0) {
-			cout << APP_VERSION;
+			std::cout << APP_VERSION;
 			return 0;
 		}
 		/*
@@ -29,21 +26,21 @@ int main(int argc, char **argv) {
 			return 0;
 		}
 		*/
-		HGameEngine game_engine;
+		PongClient game_client;
 
-		auto& cfg = game_engine.get_cfg();
+		auto& cfg = game_client.get_cfg();
 
 		int stage = cfg.contains("playerName") ? MENU : CONF;
 
-		game_engine.set_stage(stage);
+		game_client.set_stage(stage);
 		
-		game_engine.run();
+		game_client.run();
 		
 		return 0;
 
 	} catch (std::exception &e) {
 
-		cerr << "Runtime exception: " << e.what() << endl;
+		std::cerr << "Runtime exception: " << e.what() << std::endl;
 		return -1;
 	
 	}

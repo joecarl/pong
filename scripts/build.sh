@@ -6,28 +6,32 @@
 SRC_DIR=./src/client
 BUILD_DIR=./build/client
 OBJ_DIR=./obj/client
+DP_DIR=./libs/serendipia-engine
 
 #GLOBAL_PARAMS="-Wall -Wno-misleading-indentation -fexceptions -g -IC:/msys64/ucrt64/include/freetype2"
-GLOBAL_PARAMS="-std=c++17 -Wall -Wno-misleading-indentation -fexceptions -g -include scripts/pch.hpp"
+GLOBAL_PARAMS="-std=c++17 -Wall -Wno-misleading-indentation -fexceptions -g -include scripts/pch.hpp -I$DP_DIR/include"
 
 mkdir -p $BUILD_DIR > /dev/null 2>&1
 mkdir -p $OBJ_DIR > /dev/null 2>&1
 
 SCRIPTS=()
+SCRIPTS+=(../../$DP_DIR/src/randomgenerator)
+SCRIPTS+=(../../$DP_DIR/src/udpcontroller)
+SCRIPTS+=(../../$DP_DIR/src/utils)
+SCRIPTS+=(../../$DP_DIR/src/client/allegrohandler)
+SCRIPTS+=(../../$DP_DIR/src/client/baseclient)
+SCRIPTS+=(../../$DP_DIR/src/client/netservice)
+SCRIPTS+=(../../$DP_DIR/src/client/mediatools)
+SCRIPTS+=(../../$DP_DIR/src/client/ui/input)
+SCRIPTS+=(../../$DP_DIR/src/client/ui/textinput)
+SCRIPTS+=(../../$DP_DIR/src/client/ui/touchkeys)
+SCRIPTS+=(../../$DP_DIR/src/client/ui/retrolines)
 SCRIPTS+=(../ponggame)
-SCRIPTS+=(../randomgenerator)
-SCRIPTS+=(../utils)
-SCRIPTS+=(../udpcontroller)
-SCRIPTS+=(hengine)
-SCRIPTS+=(mediatools)
-SCRIPTS+=(ioclient)
-SCRIPTS+=(ui/touchkeys)
-SCRIPTS+=(ui/input)
-SCRIPTS+=(ui/textinput)
 SCRIPTS+=(stages/stages)
 SCRIPTS+=(stages/onlinestages)
 SCRIPTS+=(stages/tutorialstage)
 SCRIPTS+=(stages/configstage)
+SCRIPTS+=(pongclient)
 SCRIPTS+=(main)
 
 

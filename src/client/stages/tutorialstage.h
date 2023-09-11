@@ -1,12 +1,12 @@
 #ifndef TUTORIALSTAGE_H
 #define TUTORIALSTAGE_H
 
-#include "../hengine.h"
+#include <dp/client/stage.h>
 
 #define THUMB_PRESS RES_DIR"/thumb_press.png"
 #define THUMB_RELEASE RES_DIR"/thumb_release.png"
 
-class TutorialStage: public Stage {
+class TutorialStage: public dp::client::Stage {
 
 	ALLEGRO_BITMAP* thumb_press;
 

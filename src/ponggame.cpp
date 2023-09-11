@@ -8,8 +8,8 @@
 #define INIX 160
 #define INIY 100
 
-using namespace std;
-
+using std::cout;
+using std::endl;
 
 PongGame::PongGame(uint_fast32_t _seed) :
 	rnd(_seed)
@@ -250,6 +250,10 @@ void PongGame::process_tick() {
 }
 
 
+void PongGame::set_player_control_state(int player_idx, int control, bool new_state) {
+	// TODO: control index bounds
+	this->players[player_idx]->controls[control] = new_state;
+}
 
 //-----------------------------------------------------------------------------
 //------------------------------- [ Element ] ---------------------------------
@@ -586,7 +590,7 @@ void PlayerP::control_move() {
 
 }
 
-void PlayerP::set_com_txt(const string& txt) {
+void PlayerP::set_com_txt(const std::string& txt) {
 
 	this->com_txt = txt;
 	this->com_txt_y = 150;
@@ -611,18 +615,13 @@ void PlayerP::give_bonus(BonusType bonus_type) {
 	}
 
 	else if (bonus_type == BONUS_WALL) {
-		// TODO: create walls
 		this->set_com_txt("DEFENSE WALLS");
-
 		const uint8_t offset =  this->idx * 2;
-
 		this->game->walls[0 + offset]->stat = true;
 		this->game->walls[1 + offset]->stat = true;
-		
 	}
 
 }
-
 
 /*
 // OLD rand implementation:

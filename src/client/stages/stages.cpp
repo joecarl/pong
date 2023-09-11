@@ -1,9 +1,10 @@
-#include "../../ponggame.h"
-#include "../../utils.h"
-#include "../mediatools.h"
-#include "../hengine.h"
 #include "stages.h"
 #include "onlinestages.h"
+#include "../pongclient.h"
+#include "../../ponggame.h"
+#include <dp/utils.h>
+#include <dp/client/mediatools.h>
+#include <dp/client/stage.h>
 
 #include <iostream>
 #include <allegro5/allegro.h>
@@ -14,9 +15,16 @@
 #include <allegro5/allegro_audio.h>
 #include <boost/json.hpp>
 #include <string>
-#include <cmath>
 
-using namespace std;
+using dp::client::BaseClient;
+using dp::client::ui::TouchKeysCell;
+using dp::client::ui::TouchKeysRow;
+using dp::client::play_sound;
+using dp::client::play_audio;
+using std::string;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 typedef struct {
 	ALLEGRO_COLOR bar_color;
@@ -91,7 +99,7 @@ string GameHandler::get_player_name(uint8_t player_idx) {
 	}
 
 	string pname = this->players_names[player_idx];
-	return pname == "" ? "PLAYER " + to_string(player_idx + 1) : pname;
+	return pname == "" ? "PLAYER " + std::to_string(player_idx + 1) : pname;
 
 }
 
@@ -132,83 +140,7 @@ GameHandler game_handler;
 //-----------------------------------------------------------------------------
 //------------------------------ MainMenuStage --------------------------------
 
-
-RetroLines::RetroLines(std::vector<RetroLine>&& _lines) :
-	lines(_lines)
-{
-	this->calc_width();
-}
-
-RetroLines::RetroLines(std::vector<std::string>&& str_lines) {
-
-	for (auto& str_line: str_lines) {
-
-		char prev_ch = ' ';
-		uint8_t x = 0;
-		uint8_t dash_width = 0;
-		RetroLine retro_line;
-
-		for (auto ch: str_line) {
-
-			if (ch == '-') {
-				dash_width++;
-			} else if (ch == ' ') {
-				if (prev_ch == '-') {
-					const uint8_t dash_x = x - dash_width;
-					retro_line.push_back({ .x = dash_x, .width = dash_width });
-				}
-				dash_width = 0;
-			}
-			prev_ch = ch;
-			x++;
-
-		}
-
-		this->lines.push_back(move(retro_line));
-
-	}
-
-	this->calc_width();
-
-}
-
-void RetroLines::calc_width() {
-
-	this->width = 0;
-
-	for (auto& line: this->lines) {
-		const auto& last_dash = line[line.size() - 1];
-		const uint8_t line_width = last_dash.x + last_dash.width;
-		if (line_width > this->width) {
-			this->width = line_width;
-		}
-	}
-
-	this->width *= this->mult_x;
-
-}
-
-void RetroLines::draw(float ox, float oy) {
-	
-	uint8_t line_num = 0;
-
-	for (auto& line: this->lines) {
-		for (auto& dash: line) {
-			const float x = ox + dash.x * mult_x;
-			const float y = oy + line_num * mult_y * 2 + sin(time + x);
-			const float x2 = x + dash.width * mult_x;
-			const float y2 = y + mult_y;
-			al_draw_filled_rectangle(x, y, x2, y2, al_map_rgb(180, 255, 180));
-		}
-		line_num++;
-	}
-
-	this->time += 0.1;
-
-}
-
-
-MainMenuStage::MainMenuStage(HGameEngine* _engine) :
+MainMenuStage::MainMenuStage(BaseClient* _engine) :
 	Stage(_engine),
 	retro_logo({
 		"------    -----    -----    -----  ",
@@ -240,7 +172,7 @@ void MainMenuStage::on_enter_stage() {
 	touch_keys.add_button(ALLEGRO_KEY_5, "5");
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "ESC");
 
-	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
 	//play_main_theme();
 
@@ -338,7 +270,7 @@ void MainMenuStage::draw() {
 //------------------------------- [ GameStage ] -------------------------------
 
 
-GameStage::GameStage(HGameEngine* _engine) : Stage(_engine) {
+GameStage::GameStage(BaseClient* _engine) : Stage(_engine) {
 
 	this->tracer = new Tracer(_engine);
 
@@ -495,7 +427,7 @@ void GameStage::on_enter_stage() {
 		touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
 		touch_keys.add_button(ALLEGRO_KEY_UP, "");
 
-		touch_keys.fit_buttons(FIT_HORIZONTAL);
+		touch_keys.fit_buttons(dp::client::ui::FIT_HORIZONTAL);
 
 	}
 
@@ -662,7 +594,7 @@ void GameStage::on_tick() {
 
 	if (game_handler.pong_game->finished) {
 
-		const uint8_t local_player_idx = game_handler.play_mode == PLAYMODE_ONLINE ? game_handler.local_player_idx : 0; //TODO: onlinemode player detection
+		const uint8_t local_player_idx = game_handler.play_mode == PLAYMODE_ONLINE ? game_handler.local_player_idx : 0;
 		
 		this->engine->set_stage(OVER);
 
@@ -770,12 +702,13 @@ void GameStage::draw() {
 //---------------------------------[ TRACER ]----------------------------------
 
 
-Tracer::Tracer(HGameEngine* _engine) :
+Tracer::Tracer(BaseClient* _engine) :
 	engine(_engine)
 {
 
 	for (uint8_t i = 0; i < BONUS_MAX; i++) {
-		this->bonus_sprites[i] = load_bitmap(bonuses_defs[i].sprite_path);
+		// TODO: quiza mejor seria engine->load_bitmap_resource
+		this->bonus_sprites[i] = dp::client::load_bitmap(bonuses_defs[i].sprite_path);
 	}
 
 }
@@ -940,7 +873,7 @@ void GameOverStage::on_enter_stage() {
 	touch_keys.add_button(ALLEGRO_KEY_Y, "Y");
 	touch_keys.add_button(ALLEGRO_KEY_N, "N");
 
-	touch_keys.fit_buttons(FIT_BOTTOM, 10);
+	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 	
 }
 

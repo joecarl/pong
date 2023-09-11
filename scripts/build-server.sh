@@ -6,20 +6,23 @@
 SRC_DIR=./src/server
 BUILD_DIR=./build/server
 OBJ_DIR=./obj/server
+DP_DIR=./libs/serendipia-engine
 
-GLOBAL_PARAMS="-std=c++17 -Wall -Wno-misleading-indentation -fexceptions -g -include scripts/pch.hpp"
+
+GLOBAL_PARAMS="-std=c++17 -Wall -Wno-misleading-indentation -fexceptions -g -include scripts/pch.hpp -I$DP_DIR/include"
 
 mkdir -p $BUILD_DIR > /dev/null 2>&1
 mkdir -p $OBJ_DIR > /dev/null 2>&1
 
 SCRIPTS=()
+SCRIPTS+=(../../$DP_DIR/src/randomgenerator)
+SCRIPTS+=(../../$DP_DIR/src/utils)
+SCRIPTS+=(../../$DP_DIR/src/udpcontroller)
+SCRIPTS+=(../../$DP_DIR/src/server/clients)
+SCRIPTS+=(../../$DP_DIR/src/server/group)
+SCRIPTS+=(../../$DP_DIR/src/server/baseserver)
 SCRIPTS+=(../ponggame)
-SCRIPTS+=(../randomgenerator)
-SCRIPTS+=(../utils)
-SCRIPTS+=(../udpcontroller)
-SCRIPTS+=(clients)
-SCRIPTS+=(group)
-SCRIPTS+=(server)
+SCRIPTS+=(pongserver)
 SCRIPTS+=(main)
 
 

@@ -1,30 +1,28 @@
+#include "pongserver.h"
 
 #include <iostream>
 #include <stdexcept>
 
-#include "server.h"
-
-using namespace std;
+using std::cerr;
+using std::endl;
 
 int main(int argc, char **argv) {
 
 	try {
 
-		string port = "51009";
+		std::string port = "51009";
 
 		for (int i = 0; i < argc; i++) {
 
-			string arg = argv[i];
+			std::string arg = argv[i];
 
 			if (arg == "-p" && i + 1 < argc) {
 				port = argv[++i];
 			}
 			
 		}
-
-		
-		Server server(stoi(port));
-
+	
+		PongServer server(stoi(port));
 		server.run();
 		
 		return 0;

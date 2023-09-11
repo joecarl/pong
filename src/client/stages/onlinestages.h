@@ -1,9 +1,9 @@
 #ifndef ONLINESTAGES_H
 #define ONLINESTAGES_H
 
-#include "../hengine.h"
-#include "../ui/textinput.h"
 #include "../../ponggame.h"
+#include <dp/client/stage.h>
+#include <dp/client/ui/textinput.h>
 #include <allegro5/allegro.h>
 #include <boost/json.hpp>
 
@@ -30,14 +30,14 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class ConnStage: public Stage {
+class ConnStage: public dp::client::Stage {
 
 
 	bool start_connection = 0;
 
 public:
 
-	ConnStage(HGameEngine* _engine);
+	ConnStage(dp::client::BaseClient* _engine);
 
 	void on_enter_stage();
 
@@ -51,13 +51,13 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class LobbyStage: public Stage {
+class LobbyStage: public dp::client::Stage {
 
 	bool ready = false;
 
 public:
 
-	LobbyStage(HGameEngine* _engine);
+	LobbyStage(dp::client::BaseClient* _engine);
 
 	void on_enter_stage();
 

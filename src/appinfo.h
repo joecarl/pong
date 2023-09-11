@@ -7,4 +7,6 @@
 
 #define APP_PKGNAME "com.copinstar.pong"
 
+#define APP_INFO { .version = APP_VERSION, .name = APP_NAME, .pkgname = APP_PKGNAME }
+
 #endif

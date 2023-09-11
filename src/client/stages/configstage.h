@@ -1,8 +1,8 @@
 #ifndef CONFIGSTAGE_H
 #define CONFIGSTAGE_H
 
-#include "../hengine.h"
-#include "../ui/textinput.h"
+#include <dp/client/stage.h>
+#include <dp/client/ui/textinput.h>
 
 #include <allegro5/allegro.h>
 #include <vector>
@@ -14,13 +14,13 @@ typedef struct {
 
 	std::string label;
 
-	Input* input;
+	dp::client::ui::Input* input;
 
 } ConfigParam;
 
 //-----------------------------------------------------------------------------
 
-class ConfigStage: public Stage {
+class ConfigStage: public dp::client::Stage {
 
 	std::vector<ConfigParam> config_params;
 
@@ -38,7 +38,7 @@ class ConfigStage: public Stage {
 
 public:
 
-	ConfigStage(HGameEngine* _engine);
+	ConfigStage(dp::client::BaseClient* _engine);
 
 	void on_enter_stage();
 

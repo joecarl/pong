@@ -1,11 +1,13 @@
 
+#include <dp/utils.h>
+#include <curl/curl.h>
 #include <iostream>
 #include <stdexcept>
 
-#include <curl/curl.h>
-#include "../../utils.h"
-
-using namespace std;
+using std::string;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 static size_t readToString(void *contents, size_t size, size_t nmemb, void *userp) {
 
@@ -45,7 +47,7 @@ CURLcode perform_request(const char* url, void *readBuffer, int readType = READ_
 		} else if (readType == READ_TO_FILE) {
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, readToFile);
 		} else {
-			throw runtime_error("readType no valido");
+			throw std::runtime_error("readType no valido");
 		}
 
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, readBuffer);
@@ -84,7 +86,7 @@ int main(int argc, char **argv) {
 
 	try {
 
-		string v = trim(exec("PONG --version"));
+		string v = dp::trim(dp::exec("PONG --version"));
 		string rv = get_remote_version_num();
 
 		if (v != rv) {
@@ -95,7 +97,7 @@ int main(int argc, char **argv) {
 
 		return 0;
 
-	} catch (exception &e) {
+	} catch (std::exception &e) {
 
 		cerr << "Runtime exception: " << e.what() << endl;
 		return 1;
