@@ -25,7 +25,16 @@ class PongClient : public dp::client::BaseClient {
 	
 public:
 
-	PongClient() : BaseClient(APP_INFO, RES_DIR) { };
+	PongClient() : BaseClient(APP_INFO, RES_DIR) {
+		
+		auto& cfg = this->get_cfg();
+		std::string hostname = cfg.contains("serverHostname") ? cfg["serverHostname"].as_string().c_str() : "-" ;
+		if (hostname == "copinstar.com") {
+			// this is somenthing temporal
+			this->set_cfg_param("serverHostname", "games.copinstar.com");
+		}
+		
+	};
 
 	dp::client::Stage* create_stage(uint16_t id);
 
