@@ -3,8 +3,8 @@
 
 #include <dp/client/stage.h>
 
-#define THUMB_PRESS RES_DIR"/thumb_press.png"
-#define THUMB_RELEASE RES_DIR"/thumb_release.png"
+#define THUMB_PRESS "thumb_press.png"
+#define THUMB_RELEASE "thumb_release.png"
 
 class TutorialStage: public dp::client::Stage {
 

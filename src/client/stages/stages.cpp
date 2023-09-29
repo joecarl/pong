@@ -34,21 +34,21 @@ typedef struct {
 bonus_def bonuses_defs[] = {
 	{
 		.bar_color = { 0, 0, 0, 0 },
-		.sprite_path = RES_DIR"/long.bmp",
+		.sprite_path = "long.bmp",
 	},
 	{
 		//.bar_color = { 0, 200.0, 50, 0 },
 		.bar_color = { 0, 0.78, 0.2, 0 },
-		.sprite_path = RES_DIR"/ball.bmp",
+		.sprite_path = "ball.bmp",
 	},
 	{
 		//.bar_color = { 50, 100, 200, 0 },
 		.bar_color = { 0.2, 0.39, 0.78, 0 },
-		.sprite_path = RES_DIR"/invi.bmp",
+		.sprite_path = "invi.bmp",
 	},
 	{
 		.bar_color = { 0, 0, 0, 0 },
-		.sprite_path = RES_DIR"/wall.bmp",
+		.sprite_path = "wall.bmp",
 	},
 };
 
@@ -708,7 +708,8 @@ Tracer::Tracer(BaseClient* _engine) :
 
 	for (uint8_t i = 0; i < BONUS_MAX; i++) {
 		// TODO: quiza mejor seria engine->load_bitmap_resource
-		this->bonus_sprites[i] = dp::client::load_bitmap(bonuses_defs[i].sprite_path);
+		//this->bonus_sprites[i] = dp::client::load_bitmap(bonuses_defs[i].sprite_path);
+		this->bonus_sprites[i] = engine->load_bitmap_resource(bonuses_defs[i].sprite_path);
 	}
 
 }

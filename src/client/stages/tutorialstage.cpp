@@ -9,8 +9,10 @@
 
 void TutorialStage::on_enter_stage() {
 
-	this->thumb_press = dp::client::load_bitmap(THUMB_PRESS);
-	this->thumb_release = dp::client::load_bitmap(THUMB_RELEASE);
+	//this->thumb_press = dp::client::load_bitmap(THUMB_PRESS);
+	//this->thumb_release = dp::client::load_bitmap(THUMB_RELEASE);
+	this->thumb_press = this->engine->load_bitmap_resource(THUMB_PRESS);
+	this->thumb_release = this->engine->load_bitmap_resource(THUMB_RELEASE);
 	this->engine->set_cfg_param("tutorialCompleted", true);
 
 	auto& touch_keys = this->engine->get_touch_keys();
