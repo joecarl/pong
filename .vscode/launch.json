@@ -22,7 +22,8 @@
 					"text": "-gdb-set disassembly-flavor intel",
 					"ignoreFailures": true
 				}
-			]
+			],
+			"preLaunchTask": "build-server"
 		},
         {
             "name": "(gdb) Launch client",
@@ -46,7 +47,8 @@
                     "text": "-gdb-set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+			"preLaunchTask": "build-client"
         }
     ],
     "version": "2.0.0"

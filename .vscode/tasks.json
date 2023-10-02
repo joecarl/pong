@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build-client",
+			"command": "make",
+			"args": [
+				"client",
+				"-j2"
+			]
+		},
+		{
+			"label": "build-server",
+			"command": "make",
+			"args": [
+				"server",
+				"-j2"
+			]
+		}
+	]
+}
