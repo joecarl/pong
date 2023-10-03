@@ -420,8 +420,7 @@ void LobbyStage::draw() {
 
 		auto& members = g->get_members();
 		uint8_t i = 0;
-		for(auto& m_iter: members) {
-			auto& m = m_iter.second;
+		for(auto& m: members) {
 			float y = 100 + 20 * i;
 			al_draw_text(font, CGA_PINK, 20, y, ALLEGRO_ALIGN_LEFT, m.name.c_str());
 			if (m.ready) {
