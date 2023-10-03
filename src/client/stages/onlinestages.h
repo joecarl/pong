@@ -53,8 +53,6 @@ public:
 
 class LobbyStage: public dp::client::Stage {
 
-	bool ready = false;
-
 public:
 
 	LobbyStage(dp::client::BaseClient* _engine);

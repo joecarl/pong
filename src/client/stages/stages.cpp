@@ -431,17 +431,6 @@ void GameStage::on_enter_stage() {
 
 	}
 
-
-	if (game_handler.play_mode == PLAYMODE_ONLINE) {
-
-		this->engine->get_io_client().set_process_actions_fn([&] (boost::json::object& evt) {
-
-			controller.push_event(evt);
-			
-		});
-
-	}
-
 	play_sound(Do, 400);
 	play_sound(Re, 200);
 	play_sound(La, 100);
@@ -500,15 +489,13 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 				
 			if (control_p1 != CONTROL_NONE) {
 
-				boost::json::value input_evt = {
+				auto& conn = this->engine->get_io_client();
+				conn.send_event("game/event", {
 					{"type", "set_control_state"},
 					{"state", new_st},
 					{"control", control_p1},
 					{"tick", game_handler.pong_game->tick}
-				};
-
-				cout << "Sending: " << input_evt << endl;
-				this->engine->get_io_client().qsend_udp(boost::json::serialize(input_evt));
+				});
 
 			}
 
@@ -544,9 +531,7 @@ void GameStage::process_message(string &msg) {
 
 void GameStage::trigger_desync() {
 	
-	boost::json::object pkg = {{"type", "desync"}}; //play_again
-	
-	this->engine->get_io_client().qsend(boost::json::serialize(pkg));
+	this->engine->get_io_client().send_event("game/desync");
 
 }
 
@@ -707,8 +692,6 @@ Tracer::Tracer(BaseClient* _engine) :
 {
 
 	for (uint8_t i = 0; i < BONUS_MAX; i++) {
-		// TODO: quiza mejor seria engine->load_bitmap_resource
-		//this->bonus_sprites[i] = dp::client::load_bitmap(bonuses_defs[i].sprite_path);
 		this->bonus_sprites[i] = engine->load_bitmap_resource(bonuses_defs[i].sprite_path);
 	}
 

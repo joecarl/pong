@@ -2,6 +2,7 @@
 #define PONGCLIENT_H
 
 #include "../appinfo.h"
+#include "pongnetgroupshandler.h"
 #include <dp/client/baseclient.h>
 
 #ifdef __APPLE__
@@ -22,10 +23,12 @@ enum {
 };
 
 class PongClient : public dp::client::BaseClient {
-	
+
+	PongNetGroupsHandler groups_handler;
+
 public:
 
-	PongClient() : BaseClient(APP_INFO, RES_DIR) {
+	PongClient() : BaseClient(APP_INFO, RES_DIR), groups_handler(this) {
 		
 		auto& cfg = this->get_cfg();
 		std::string hostname = cfg.contains("serverHostname") ? cfg["serverHostname"].as_string().c_str() : "-" ;
@@ -37,6 +40,8 @@ public:
 	};
 
 	dp::client::Stage* create_stage(uint16_t id);
+
+	PongNetGroupsHandler& get_groups_handler() { return this->groups_handler; }
 
 };
 

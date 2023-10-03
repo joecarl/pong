@@ -250,7 +250,7 @@ void ConnStage::on_tick() {
 
 	int conn_state = connection.get_state();
 
-	if (conn_state == dp::client::CONNECTION_STATE_CONNECTED_FULL) {
+	if (conn_state == dp::CONNECTION_STATE_CONNECTED_FULL) {
 
 		this->engine->set_stage(LOBBY);
 		
@@ -282,16 +282,16 @@ void ConnStage::draw() {
 
 		int conn_state = connection.get_state();
 
-		if (conn_state == dp::client::CONNECTION_STATE_CONNECTING) {
+		if (conn_state == dp::CONNECTION_STATE_CONNECTING) {
 
 			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Trying %s %s", server.c_str(), pts.c_str());
 				
-		} else if (conn_state == dp::client::CONNECTION_STATE_DISCONNECTED) {
+		} else if (conn_state == dp::CONNECTION_STATE_DISCONNECTED) {
 			
 			//al_draw_text(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Connection error.");
 			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Error: could not connect to %s", server.c_str());
 			
-		} else if (conn_state > dp::client::CONNECTION_STATE_CONNECTED) {
+		} else if (conn_state > dp::CONNECTION_STATE_CONNECTED) {
 
 			al_draw_textf(font, WHITE, x_offset, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", server.c_str());
 			al_draw_textf(font, WHITE, x_offset, 75, ALLEGRO_ALIGN_LEFT, "Please wait %s", pts.c_str());
@@ -310,7 +310,9 @@ void ConnStage::draw() {
 // el momento anterior a unirse a un grupo, configuracion de partida, etc... 
 
 
-LobbyStage::LobbyStage(dp::client::BaseClient* _engine) : Stage(_engine) {
+LobbyStage::LobbyStage(dp::client::BaseClient* _engine) : 
+	Stage(_engine)
+{
 
 }
 
@@ -339,52 +341,28 @@ void LobbyStage::on_enter_stage() {
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
 	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
-	this->ready = false;
-
-	connection.set_process_actions_fn([&] (boost::json::object& evt) {
-
-		cout << "RECEIVED: " << evt << endl;
-		if (evt["type"] == "gameStart") {
-
-			game_handler.make_new_pong_game((int_fast32_t) evt["seed"].as_int64());
-
-			controller.setup(game_handler.pong_game);
-
-
-			for (uint8_t i = 0; i < 2; i++) {
-				auto player_cfg = evt["playersCfg"].as_array()[i].as_object();
-				string client_id = player_cfg["clientId"].as_string().c_str();
-				if (client_id == connection.get_local_id()) {
-					game_handler.local_player_idx = i;
-				}
-				//cout << "curioso " << player_cfg << endl;
-				game_handler.set_player_name(i, player_cfg["playerName"].as_string().c_str());
-			}
-			
-			this->engine->set_stage(GAME);
-		
-		}
-
-	});
 
 }
 
 
 void LobbyStage::on_event(ALLEGRO_EVENT event) {
 
-	auto& io_client = this->engine->get_io_client();
+	//auto& io_client = this->engine->get_io_client();
 
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
 		int keycode = event.keyboard.keycode;
 
 		if (keycode == ALLEGRO_KEY_ENTER) {
-					
-			boost::json::object pkg = {{"type", "ready_to_play"}}; //play_again
-			
-			io_client.qsend(boost::json::serialize(pkg));
 
-			this->ready = true;
+			auto client = static_cast<PongClient*>(this->engine);
+
+			auto& gh = client->get_groups_handler();
+			auto g = gh.get_current_group();
+			if (g == nullptr) {
+				return;
+			}
+			g->send_ready_state(true);
 
 		} else if (keycode == ALLEGRO_KEY_ESCAPE) {
 			
@@ -405,29 +383,53 @@ void LobbyStage::on_tick() {
 void LobbyStage::draw() {
 
 	ALLEGRO_FONT* font = this->engine->get_font();
-
-	auto& io_client = this->engine->get_io_client();
+	auto& conn = this->engine->get_io_client();
 
 	al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "LOBBY");
 
-	int conn_state = io_client.get_state();
+	int conn_state = conn.get_state();
+	if (conn_state == dp::CONNECTION_STATE_CONNECTED_FULL) {
 
-	if (conn_state == dp::client::CONNECTION_STATE_CONNECTED_FULL) {
-
-		al_draw_textf(font, WHITE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", io_client.get_current_host().c_str());
+		al_draw_textf(font, CGA_BLUE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", conn.get_current_host().c_str());
 
 	}
-	
-	if (this->ready) {
 
+	auto client = static_cast<PongClient*>(this->engine);
+	auto& gh = client->get_groups_handler();
+	auto g = gh.get_current_group();
+	if (g == nullptr) {
+		
 		string pts = dp::get_wait_string();
-	
-		al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Ok. Wait please %s", pts.c_str());
-	
+		al_draw_textf(font, CGA_BLUE, 20, 75, ALLEGRO_ALIGN_LEFT, "Joining group %s", pts.c_str());
+
 	} else {
 
-		al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Press Enter when you are ready");
-	
+		string local_id = conn.get_local_id();
+		auto m = g->get_member_info(local_id);
+		bool ready = m != nullptr ? m->ready : false;
+		if (!ready) {
+
+			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Press Enter when you are ready");
+		
+		} else {
+
+			string pts = dp::get_wait_string();
+			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Ok. Please wait %s", pts.c_str());
+		
+		}
+
+		auto& members = g->get_members();
+		uint8_t i = 0;
+		for(auto& m_iter: members) {
+			auto& m = m_iter.second;
+			float y = 100 + 20 * i;
+			al_draw_text(font, CGA_PINK, 20, y, ALLEGRO_ALIGN_LEFT, m.name.c_str());
+			if (m.ready) {
+				al_draw_text(font, CGA_BLUE, 150, y, ALLEGRO_ALIGN_LEFT, "READY!");
+			}
+			i++;
+		}
+
 	}
 
 }
