@@ -29,9 +29,9 @@ using std::endl;
 typedef struct {
 	ALLEGRO_COLOR bar_color;
 	string sprite_path;
-} bonus_def;
+} BonusDef;
 
-bonus_def bonuses_defs[] = {
+BonusDef bonuses_defs[] = {
 	{
 		.bar_color = { 0, 0, 0, 0 },
 		.sprite_path = "long.bmp",
@@ -51,90 +51,6 @@ bonus_def bonuses_defs[] = {
 		.sprite_path = "wall.bmp",
 	},
 };
-
-
-void GameHandler::setup(int _play_mode, int _control_mode) {
-
-	this->play_mode = _play_mode;
-	this->control_mode = _control_mode;
-	
-}
-
-void GameHandler::make_new_pong_game(int_fast32_t seed) {
-
-	this->cleanup();
-
-	pong_game = new PongGame(seed);
-
-	pong_game->control_mode = this->control_mode;
-
-}
-
-void GameHandler::cleanup() {
-
-	delete pong_game;
-
-}
-
-GameHandler::~GameHandler() {
-
-	this->cleanup();
-
-}
-
-void GameHandler::set_player_name(uint8_t player_idx, const string& name) {
-
-	if (player_idx >= 2) {
-		return;
-	}
-
-	this->players_names[player_idx] = name;
-
-}
-
-string GameHandler::get_player_name(uint8_t player_idx) {
-
-	if (player_idx >= 2) {
-		return "";
-	}
-
-	string pname = this->players_names[player_idx];
-	return pname == "" ? "PLAYER " + std::to_string(player_idx + 1) : pname;
-
-}
-
-/**
- * Retrieves the game CONTROL_* based on control_mode, keycode and player_idx
- */
-int GameHandler::get_control(int k_code, uint8_t player_idx) {
-
-	if (this->pong_game->control_mode == CONTROLMODE_TWO_PLAYERS && this->play_mode == PLAYMODE_LOCAL) {
-
-		if (player_idx == 1) {
-
-			if (k_code == ALLEGRO_KEY_UP || k_code == ALLEGRO_KEY_I) return CONTROL_MOVE_UP;
-			else if (k_code == ALLEGRO_KEY_DOWN || k_code == ALLEGRO_KEY_K) return CONTROL_MOVE_DOWN;
-
-		} else if (player_idx == 0) {
-
-			if (k_code == ALLEGRO_KEY_W) return CONTROL_MOVE_UP;
-			else if (k_code == ALLEGRO_KEY_S) return CONTROL_MOVE_DOWN;
-
-		}
-
-	} else {
-
-		if (k_code == ALLEGRO_KEY_UP) return CONTROL_MOVE_UP;
-		else if (k_code == ALLEGRO_KEY_DOWN) return CONTROL_MOVE_DOWN;
-
-	}
-
-	return CONTROL_NONE;
-
-}
-
-
-GameHandler game_handler;
 
 
 //-----------------------------------------------------------------------------
@@ -189,8 +105,10 @@ void MainMenuStage::on_tick() {
 void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 
 	int keycode = event.keyboard.keycode;
-
 	auto& cfg = this->engine->get_cfg();
+
+	PongClient* cl = static_cast<PongClient*>(this->engine);
+	auto& game_handler = cl->get_game_handler();
 
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 	
@@ -277,7 +195,9 @@ GameStage::GameStage(BaseClient* _engine) : Stage(_engine) {
 }
 
 void GameStage::draw_court() {
-
+	
+	PongClient* cl = static_cast<PongClient*>(this->engine);
+	auto& game_handler = cl->get_game_handler();
 	float scale = this->engine->get_scale();
 
 	float min_court_y = scale * (LIMIT);
@@ -297,6 +217,8 @@ void GameStage::draw_court() {
 
 void GameStage::draw_scores() {
 	
+	PongClient* cl = static_cast<PongClient*>(this->engine);
+	auto& game_handler = cl->get_game_handler();
 	ALLEGRO_FONT* font = this->engine->get_font();
 	float scale = this->engine->get_scale();
 
@@ -399,6 +321,8 @@ void GameStage::draw_scores() {
 
 void GameStage::on_enter_stage() {
 	
+	PongClient* cl = static_cast<PongClient*>(this->engine);
+	auto& game_handler = cl->get_game_handler();
 	auto& touch_keys = this->engine->get_touch_keys();
 
 	touch_keys.clear_buttons();
@@ -446,6 +370,9 @@ void GameStage::on_enter_stage() {
 
 
 void GameStage::on_event(ALLEGRO_EVENT evt) {
+
+	PongClient* cl = static_cast<PongClient*>(this->engine);
+	auto& game_handler = cl->get_game_handler();
 
 	int k_code = evt.keyboard.keycode;
 	
@@ -541,7 +468,10 @@ void GameStage::on_tick() {
 	if (delayer > 0) {
 		delayer--;
 		return;
-	} 
+	}
+
+	PongClient* cl = static_cast<PongClient*>(this->engine);
+	auto& game_handler = cl->get_game_handler();
 
 	if (game_handler.pong_game->paused) {
 		return;
@@ -551,12 +481,13 @@ void GameStage::on_tick() {
 
 		try {
 
+			PongClient* cl = static_cast<PongClient*>(this->engine);
+			auto& controller = cl->get_groups_handler().get_online_game_controller();
 			controller.on_tick();
 
 		} catch (std::exception& e) {
 
 			cerr << "Error during game: " << e.what() << endl;
-			
 			this->trigger_desync();
 
 		}
@@ -607,9 +538,7 @@ void GameStage::on_tick() {
 void GameStage::draw() {
 
 	ALLEGRO_FONT* font = this->engine->get_font();
-
 	float scale = this->engine->get_scale();
-	
 	
 	if (delayer > 0) {
 
@@ -624,6 +553,9 @@ void GameStage::draw() {
 		);
 		
 	} else {
+		
+		PongClient* cl = static_cast<PongClient*>(this->engine);
+		auto& game_handler = cl->get_game_handler();
 
 		if (game_handler.pong_game->paused) {
 
@@ -865,6 +797,8 @@ void GameOverStage::on_event(ALLEGRO_EVENT event) {
 
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
+		PongClient* cl = static_cast<PongClient*>(this->engine);
+		auto& game_handler = cl->get_game_handler();
 		int keycode = event.keyboard.keycode;
 
 		if (keycode == ALLEGRO_KEY_Y) {
@@ -886,6 +820,9 @@ void GameOverStage::on_event(ALLEGRO_EVENT event) {
 }
 
 void GameOverStage::draw() {
+
+	PongClient* cl = static_cast<PongClient*>(this->engine);
+	auto& game_handler = cl->get_game_handler();
 
 	int winner_id = game_handler.pong_game->get_winner_idx();
 	const string winner = game_handler.get_player_name(winner_id);
