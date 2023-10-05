@@ -1,5 +1,7 @@
 {
 	"windowed": false,
 	"serverHostname": "games.copinstar.com",
-	"serverPort": 51009
+	"serverPort": 51009,
+	"showFPS": false,
+	"showPing": true
 }
