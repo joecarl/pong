@@ -17,6 +17,7 @@ GCH_OBJ_FILE := $(PCH_OBJ_FILE).gch
 ifndef TARGET_EXEC
 
 .PHONY: all client server
+.NOTPARALLEL: all
 
 CLIENT_SRC_DIRS = $(addsuffix /client,$(SRC_DIRS))
 SERVER_SRC_DIRS = $(addsuffix /server,$(SRC_DIRS))
