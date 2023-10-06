@@ -539,6 +539,9 @@ void GameStage::draw() {
 
 	ALLEGRO_FONT* font = this->engine->get_font();
 	float scale = this->engine->get_scale();
+	auto& cfg = this->engine->get_cfg();
+	const bool show_fps = dp::get_bool(cfg, "showFPS", false);
+	const bool show_ping = dp::get_bool(cfg, "showPing", true);
 	
 	if (delayer > 0) {
 
@@ -594,10 +597,11 @@ void GameStage::draw() {
 
 			this->draw_scores();
 
-			//al_draw_textf(font, RED, scale * 160, scale * 186, ALLEGRO_ALIGN_CENTER, "FPS: %d", (int) (this->engine->get_fps()));
-			al_draw_textf(font, RED, scale * 5, 0, ALLEGRO_ALIGN_LEFT, "FPS: %d", (int) (this->engine->get_fps()));
+			if (show_fps) {
+				al_draw_textf(font, RED, scale * 5, 0, ALLEGRO_ALIGN_LEFT, "FPS: %d", (int) (this->engine->get_fps()));
+			}
 
-			if (game_handler.play_mode == PLAYMODE_ONLINE) {
+			if (show_ping && game_handler.play_mode == PLAYMODE_ONLINE) {
 				int ping = (int) (this->engine->get_io_client().get_ping_ms());
 				al_draw_textf(font, RED, scale * (DEF_W - 5), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
 			}
