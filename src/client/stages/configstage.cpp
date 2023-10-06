@@ -10,6 +10,7 @@ using dp::client::BaseClient;
 using dp::client::ui::TextInput;
 using std::string;
 
+
 ConfigStage::ConfigStage(BaseClient* _engine) : Stage(_engine) {
 
 	auto playername_input = this->engine->create_text_input();
@@ -19,12 +20,19 @@ ConfigStage::ConfigStage(BaseClient* _engine) : Stage(_engine) {
 	auto serverhostname_input = this->engine->create_text_input();
 	serverhostname_input->min_chars = 3;
 	serverhostname_input->max_chars = 19;
-	// auto windowed_input = this->engine->create_checkbox_input();
+
+	auto showfps_input = this->engine->create_boolean_input();
+	auto showping_input = this->engine->create_boolean_input();
+	auto windowed_input = this->engine->create_boolean_input();
 
 	config_params = {
 		{ .key = "playerName", .label = "Player Name", .input = playername_input },
 		{ .key = "serverHostname", .label = "Server", .input = serverhostname_input },
-		//{ .key = "windowed", .label = "Run windowed", .input = windowed_input },
+		{ .key = "showFPS", .label = "Show FPS", .input = showfps_input },
+		{ .key = "showPing", .label = "Show Ping", .input = showping_input },
+		#ifndef __ANDROID__
+		{ .key = "windowed", .label = "Run windowed", .input = windowed_input },
+		#endif
 	};
 
 }
@@ -226,16 +234,10 @@ void ConfigStage::draw_config_view() {
 	for (auto& param: config_params) {
 
 		al_draw_text(font, WHITE, 30, y, ALLEGRO_ALIGN_LEFT, param.label.c_str());
-
-		if (param.input->type == dp::client::ui::INPUT_TYPE_TEXT) {
-			TextInput* inp = static_cast<TextInput*>(param.input);
-			inp->draw(135, y);
-		}
-
 		if (!param.input->is_valid()) {
 			al_draw_text(font, RED, 126, y, ALLEGRO_ALIGN_LEFT, "!");
 		}
-		//param.input->draw(150, y);
+		param.input->draw(135, y);
 
 		y += line_height;
 
