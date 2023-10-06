@@ -3,7 +3,7 @@
 #include "../pongclient.h"
 #include <dp/client/mediatools.h>
 #include <dp/utils.h>
-
+#include <allegro5/allegro_primitives.h>
 #include <iostream>
 
 using std::string;
@@ -37,7 +37,6 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
 		int keycode = event.keyboard.keycode;
-
 		auto& cfg = this->engine->get_cfg();
 
 		if (keycode == ALLEGRO_KEY_ESCAPE) {//ESC (SALIR)
@@ -48,11 +47,8 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 		} else if (keycode == ALLEGRO_KEY_ENTER) {
 			
 			string server = cfg["serverHostname"].as_string().c_str();
-
 			auto port = (unsigned short) cfg["serverPort"].as_int64();
-						
 			this->engine->get_io_client().connect(server, port);
-
 			start_connection = true;
 			
 		}
@@ -194,6 +190,13 @@ void LobbyStage::on_event(ALLEGRO_EVENT event) {
 
 void LobbyStage::on_tick() {
 
+	auto& conn = this->engine->get_io_client();
+	int conn_state = conn.get_state();
+	if (conn_state != dp::CONNECTION_STATE_CONNECTED_FULL) {
+		// Si perdemos la conexión retornamos a la pantalla de conexion
+		this->engine->set_stage(CONN);
+	}
+
 }
 
 
@@ -202,50 +205,49 @@ void LobbyStage::draw() {
 	ALLEGRO_FONT* font = this->engine->get_font();
 	auto& conn = this->engine->get_io_client();
 
-	al_draw_text(font, WHITE, 20, 30, ALLEGRO_ALIGN_LEFT, "LOBBY");
+	al_draw_text(font, WHITE, 300, 10, ALLEGRO_ALIGN_RIGHT, conn.get_current_host().c_str());
 
-	int conn_state = conn.get_state();
-	if (conn_state == dp::CONNECTION_STATE_CONNECTED_FULL) {
-
-		al_draw_textf(font, CGA_BLUE, 20, 60, ALLEGRO_ALIGN_LEFT, "Connected to %s", conn.get_current_host().c_str());
-
-	}
+	al_draw_rectangle(20, 32, 300, 160, CGA_BLUE, 0);
+	al_draw_filled_rectangle(30, 25, 80, 35, al_map_rgb(0, 0, 0));
+	al_draw_text(font, CGA_PINK, 35, 25, ALLEGRO_ALIGN_LEFT, "LOBBY");
 
 	auto client = static_cast<PongClient*>(this->engine);
 	auto& gh = client->get_groups_handler();
 	auto g = gh.get_current_group();
+	std::string msg = "";
+
 	if (g == nullptr) {
 		
-		string pts = dp::get_wait_string();
-		al_draw_textf(font, CGA_BLUE, 20, 75, ALLEGRO_ALIGN_LEFT, "Joining group %s", pts.c_str());
+		msg = "Joining group " + dp::get_wait_string();
 
 	} else {
 
 		string local_id = conn.get_local_id();
 		auto m = g->get_member_info(local_id);
 		bool ready = m != nullptr ? m->ready : false;
+
 		if (!ready) {
-
-			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Press Enter when you are ready");
-		
+			msg = "Press Enter when you are ready";
 		} else {
-
-			string pts = dp::get_wait_string();
-			al_draw_textf(font, WHITE, 20, 75, ALLEGRO_ALIGN_LEFT, "Ok. Please wait %s", pts.c_str());
-		
+			msg = "Ok. Please wait " + dp::get_wait_string();
 		}
 
 		auto& members = g->get_members();
 		uint8_t i = 0;
 		for(auto& m: members) {
-			float y = 100 + 20 * i;
-			al_draw_text(font, CGA_PINK, 20, y, ALLEGRO_ALIGN_LEFT, m.name.c_str());
+			float y = 100 + 25 * i;
+			std::string player_label = "PLAYER " + std::to_string(i + 1) + ": ";
+			
+			al_draw_text(font, WHITE, 35, y, ALLEGRO_ALIGN_LEFT, player_label.c_str());
+			al_draw_text(font, CGA_PINK, 120, y, ALLEGRO_ALIGN_LEFT, m.name.c_str());
 			if (m.ready) {
-				al_draw_text(font, CGA_BLUE, 150, y, ALLEGRO_ALIGN_LEFT, "READY!");
+				al_draw_text(font, CGA_BLUE, 210, y, ALLEGRO_ALIGN_LEFT, "READY!");
 			}
 			i++;
 		}
 
 	}
+
+	al_draw_text(font, WHITE, 35, 55, ALLEGRO_ALIGN_LEFT, msg.c_str());
 
 }
