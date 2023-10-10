@@ -46,8 +46,8 @@ void ConnStage::on_event(ALLEGRO_EVENT event) {
 
 		} else if (keycode == ALLEGRO_KEY_ENTER) {
 			
-			string server = cfg["serverHostname"].as_string().c_str();
-			auto port = (unsigned short) cfg["serverPort"].as_int64();
+			string server = cfg["serverHostname"];
+			unsigned short port = cfg["serverPort"];
 			this->engine->get_io_client().connect(server, port);
 			start_connection = true;
 			
@@ -77,7 +77,7 @@ void ConnStage::draw() {
 	auto& cfg = this->engine->get_cfg();
 	auto& connection = this->engine->get_io_client();
 
-	string server = cfg["serverHostname"].as_string().c_str();
+	string server = cfg["serverHostname"];
 	string pts = dp::get_wait_string();
 
 	const float x_offset = 30;
@@ -132,21 +132,6 @@ LobbyStage::LobbyStage(dp::client::BaseClient* _engine) :
 
 void LobbyStage::on_enter_stage() {
 
-	auto& connection = this->engine->get_io_client();
-	/*
-	boost::json::object pkg = {
-		{"type", "join_request"},
-		{"group_id", ""},
-
-	};
-	*/
-	boost::json::object pkg = {
-		{"type", "clientConfig"},
-		{"data", this->engine->get_cfg()},
-	};
-	connection.qsend(boost::json::serialize(pkg));
-
-
 	auto& touch_keys = this->engine->get_touch_keys();
 	
 	touch_keys.clear_buttons();
@@ -154,13 +139,10 @@ void LobbyStage::on_enter_stage() {
 	touch_keys.add_button(ALLEGRO_KEY_ESCAPE, "Esc");
 	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
-
 }
 
 
 void LobbyStage::on_event(ALLEGRO_EVENT event) {
-
-	//auto& io_client = this->engine->get_io_client();
 
 	if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 

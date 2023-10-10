@@ -1,39 +1,38 @@
 #include "pongserver.h"
 #include <dp/serendipia.h>
+#include <dp/object.h>
 #include <boost/json.hpp>
 
-boost::json::object export_player(PlayerP* p) {
+using dp::Object;
 
-	boost::json::object o;
-
-	o["x"] = p->x;
-	o["y"] = p->y;
-	o["com_txt_y"] = p->com_txt_y;
-	o["score"] = p->score;
-	o["medlen"] = p->medlen;
-	o["racha"] = p->racha;
+Object export_player(PlayerP* p) {
 
 	boost::json::array arr1;
 	for (auto &v: p->bonus_timers) {
 		arr1.push_back(v);
 	}
-	o["bonus_timers"] = arr1;
 
 	boost::json::array arr2;
 	for (auto &v: p->controls) {
 		arr2.push_back(v);
 	}
-	o["controls"] = arr2;
 	
-	return o;
+	return {
+		{"x", p->x},
+		{"y", p->y},
+		{"com_txt_y", p->com_txt_y}, 
+		{"score", p->score}, 
+		{"medlen", p->medlen}, 
+		{"racha", p->racha}, 
+		{"bonus_timers", arr1}, 
+		{"controls", arr2},
+	};
 
 }
 
-boost::json::object export_element(Element* e) {
+Object export_element(Element* e) {
 
-	boost::json::object o;
-
-	o = {
+	return {
 		{"stat", e->stat},
 		{"x", e->x},
 		{"y", e->y},
@@ -42,60 +41,54 @@ boost::json::object export_element(Element* e) {
 		{"vy", e->vy},
 	};
 
-	return o;
-
 }
 
-boost::json::object export_ball(Ball* b) {
+Object export_ball(Ball* b) {
 	
 	return export_element((Element*) b);
 	
 }
 
-boost::json::object export_wall(Wall* w) {
+Object export_wall(Wall* w) {
 	
 	// no exporto owner_idx porque es invariable
 	return export_element((Element*) w);
 	
 }
 
-boost::json::object export_bonus(Bonus* b) {
+Object export_bonus(Bonus* b) {
 
-	boost::json::object o = export_element((Element*) b);
-	o["cooldown"] = b->cooldown;
+	Object o = export_element((Element*) b);
+	o.set("cooldown", b->cooldown);
 	
 	return o;
 
 }
 
 
-boost::json::object _export_game(PongGame* g) {
-
-	boost::json::object o;
+Object _export_game(PongGame* g) {
 
 	boost::json::array bonus;
 	for (uint8_t i = 0; i < BONUS_MAX; i++) {
-		bonus.push_back(export_bonus(g->bonus[i]));
+		bonus.push_back(export_bonus(g->bonus[i]).json());
 	}
 
 	boost::json::array walls;
 	for (uint8_t i = 0; i < 4; i++) {
-		walls.push_back(export_wall(g->walls[i]));
+		walls.push_back(export_wall(g->walls[i]).json());
 	}
 
-	o = {
+	return {
 		{"tick", g->tick},
 		{"warmup", g->warmup},
 		{"paused", g->paused},
 		{"rnd_index", g->rnd.index},
-		{"p0vars", export_player(g->players[0])},
-		{"p1vars", export_player(g->players[1])},
+		{"p0vars", export_player(g->players[0]).json()},
+		{"p1vars", export_player(g->players[1]).json()},
 		{"bonus", bonus},
 		{"walls", walls},
-		{"ballvars", export_ball(g->ball)}
+		{"ballvars", export_ball(g->ball).json()}
 	};
-
-	return o;
 
 }
 
@@ -112,7 +105,7 @@ dp::BaseGame* PongServer::create_game() {
 }
 
 
-boost::json::object PongServer::export_game(dp::BaseGame* game) {
+Object PongServer::export_game(dp::BaseGame* game) {
 
 	return _export_game(static_cast<PongGame*>(game));
 	

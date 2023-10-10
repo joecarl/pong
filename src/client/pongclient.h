@@ -84,7 +84,7 @@ public:
 	PongClient() : BaseClient(APP_INFO, RES_DIR), groups_handler(this) {
 		
 		auto& cfg = this->get_cfg();
-		std::string hostname = cfg.contains("serverHostname") ? cfg["serverHostname"].as_string().c_str() : "-" ;
+		std::string hostname = cfg.sget<std::string>("serverHostname", "-");
 		if (hostname == "copinstar.com") {
 			// this is somenthing temporal
 			this->set_cfg_param("serverHostname", "games.copinstar.com");

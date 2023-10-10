@@ -3,6 +3,7 @@
 
 #include <dp/client/netgroupshandler.h>
 #include <dp/neteventslistenershandler.h>
+#include <dp/object.h>
 #include <queue>
 
 class PongClient;
@@ -12,15 +13,15 @@ class OnlineGameController { //GameTickSync (only for PLAYMODE_ONLINE)
 
 	PongGame *game;
 
-	void process_event(boost::json::object &evt);
+	void process_event(const dp::Object &evt);
 
-	void sync_game(boost::json::object& evt);
+	void sync_game(const dp::Object& evt);
 
 public:
 
-	void push_event(boost::json::object &evt);
+	void push_event(const dp::Object &evt);
 
-	std::queue<boost::json::object> evt_queue;
+	std::queue<dp::Object> evt_queue;
 
 	void setup(PongGame *game);
 

@@ -114,7 +114,7 @@ void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 	
 		if (keycode == ALLEGRO_KEY_1) {
 			game_handler.setup(PLAYMODE_LOCAL, CONTROLMODE_SINGLE_PLAYER);
-			game_handler.set_player_name(0, cfg["playerName"].as_string().c_str());
+			game_handler.set_player_name(0, cfg["playerName"]);
 			game_handler.set_player_name(1, "PC");
 		} 
 		else if (keycode == ALLEGRO_KEY_2) {
@@ -153,8 +153,7 @@ void MainMenuStage::on_event(ALLEGRO_EVENT event) {
 		else if (keycode == ALLEGRO_KEY_1 || keycode == ALLEGRO_KEY_2 || keycode == ALLEGRO_KEY_3 || keycode == ALLEGRO_KEY_9) {
 
 			game_handler.make_new_pong_game(time(nullptr));
-			bool* tuto_completed_ptr = cfg["tutorialCompleted"].if_bool();
-			bool tuto_completed = tuto_completed_ptr == nullptr ? false : *tuto_completed_ptr;
+			bool tuto_completed = cfg.sget<bool>("tutorialCompleted");
 
 			if (keycode == ALLEGRO_KEY_1 && !tuto_completed) {
 				this->engine->set_stage(TUTO);
@@ -540,8 +539,8 @@ void GameStage::draw() {
 	ALLEGRO_FONT* font = this->engine->get_font();
 	float scale = this->engine->get_scale();
 	auto& cfg = this->engine->get_cfg();
-	const bool show_fps = dp::get_bool(cfg, "showFPS", false);
-	const bool show_ping = dp::get_bool(cfg, "showPing", true);
+	const bool show_fps = cfg.sget<bool>("showFPS", false);
+	const bool show_ping = cfg.sget<bool>("showPing", true);
 	
 	if (delayer > 0) {
 

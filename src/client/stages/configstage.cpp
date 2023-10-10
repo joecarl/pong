@@ -39,7 +39,7 @@ ConfigStage::ConfigStage(BaseClient* _engine) : Stage(_engine) {
 
 void ConfigStage::on_enter_stage() {
 
-	this->welcome_view = !this->engine->get_cfg().contains("playerName");
+	this->welcome_view = !this->engine->get_cfg().json().contains("playerName");
 
 	auto& touch_keys = this->engine->get_touch_keys();
 	auto playername_input = this->config_params[0].input;
@@ -64,14 +64,14 @@ void ConfigStage::on_enter_stage() {
 	}
 	touch_keys.fit_buttons(dp::client::ui::FIT_BOTTOM, 10);
 
-	auto& cfg = this->engine->get_cfg();
+	auto& cfg = this->engine->get_cfg().json();
 	for (auto& param: config_params) {
 
 		if (!cfg.contains(param.key)) {
 			continue;
 		}
 
-		param.input->set_from_json_value(cfg[param.key]);
+		param.input->set_from_json_value(cfg.at(param.key));
 
 	} 
 
@@ -153,12 +153,12 @@ void ConfigStage::on_event(ALLEGRO_EVENT event) {
 
 		} else if (keycode == ALLEGRO_KEY_F1) {
 
-			auto& def_cfg = this->engine->get_default_cfg();
+			auto& def_cfg = this->engine->get_default_cfg().json();
 			auto& curr_param = this->config_params[inp_index];
 			const bool has_default = def_cfg.contains(curr_param.key);
 
 			if (has_default) {
-				curr_param.input->set_from_json_value(def_cfg[curr_param.key]);
+				curr_param.input->set_from_json_value(def_cfg.at(curr_param.key));
 			}
 
 		}
@@ -194,7 +194,7 @@ void ConfigStage::draw_welcome_view() {
 		
 		auto& cfg = this->engine->get_cfg();
 
-		string player_name = cfg.contains("playerName") ? cfg["playerName"].as_string().c_str() : "-" ;
+		string player_name = cfg.sget<string>("playerName", "-");
 		string msg = "Welcome " + player_name + "!";
 
 		al_draw_text(font, WHITE, 30, 30, ALLEGRO_ALIGN_LEFT, msg.c_str());
@@ -211,7 +211,7 @@ void ConfigStage::draw_config_view() {
 
 	ALLEGRO_FONT* font = this->engine->get_font();
 
-	auto& def_cfg = this->engine->get_default_cfg();
+	auto& def_cfg = this->engine->get_default_cfg().json();
 	auto& curr_param = this->config_params[inp_index];
 	const bool has_default = def_cfg.contains(curr_param.key);
 

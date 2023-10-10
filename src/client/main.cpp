@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 		*/
 		PongClient game_client;
 
-		auto& cfg = game_client.get_cfg();
+		auto& cfg = game_client.get_cfg().json();
 
 		int stage = cfg.contains("playerName") ? MENU : CONF;
 

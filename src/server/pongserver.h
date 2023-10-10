@@ -4,6 +4,7 @@
 #include "../ponggame.h"
 #include "../appinfo.h"
 #include <dp/serendipia.h>
+#include <dp/object.h>
 #include <dp/server/baseserver.h>
 #include <dp/server/group.h>
 
@@ -15,7 +16,7 @@ public:
 
 	dp::BaseGame* create_game();
 
-	boost::json::object export_game(dp::BaseGame* game);
+	dp::Object export_game(dp::BaseGame* game);
 
 };
 
