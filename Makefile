@@ -64,7 +64,7 @@ SRCS := $(filter-out $(EXCLUDE_SRCS),$(ALL_SRCS))
 
 # Do windows specific tasks such as finding windres files and appending .exe to the target exec file
 ifeq ($(OS), Windows_NT)
-WINDRES_SRCS := $(shell [[ -d '$(WINDRES_DIR)' ]] && find $(WINDRES_DIR) -name '*.rc')
+WINDRES_SRCS := $(shell if [ -d '$(WINDRES_DIR)' ]; then find $(WINDRES_DIR) -name '*.rc'; fi)
 TARGET_EXEC := $(TARGET_EXEC).exe
 endif
 
@@ -92,7 +92,7 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 	@if [ -d "$(RESOURCES_DIR)" ]; then cp -rv $(RESOURCES_DIR) $(BUILD_DIR); fi
-	@[[ '$(OS)' == 'Windows_NT' ]] && bash scripts/copy-dlls.sh $(BUILD_DIR)
+	@if [ '$(OS)' = 'Windows_NT' ]; then bash scripts/copy-dlls.sh $(BUILD_DIR); fi
 
 # Build step for C++ source
 $(OBJ_DIR)/%.cpp.o: %.cpp $(GCH_OBJ_FILE)
