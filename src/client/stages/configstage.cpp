@@ -1,6 +1,5 @@
 #include "configstage.h"
 #include "../pongclient.h"
-#include <dp/client/mediatools.h>
 #include <dp/client/ui/input.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>

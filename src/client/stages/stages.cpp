@@ -3,7 +3,6 @@
 #include "../pongclient.h"
 #include "../../ponggame.h"
 #include <dp/utils.h>
-#include <dp/client/mediatools.h>
 #include <dp/client/stage.h>
 
 #include <iostream>
@@ -19,8 +18,6 @@
 using dp::client::BaseClient;
 using dp::client::ui::TouchKeysCell;
 using dp::client::ui::TouchKeysRow;
-using dp::client::play_sound;
-using dp::client::play_audio;
 using std::string;
 using std::cout;
 using std::cerr;
@@ -51,7 +48,6 @@ BonusDef bonuses_defs[] = {
 		.sprite_path = "wall.bmp",
 	},
 };
-
 
 //-----------------------------------------------------------------------------
 //------------------------------ MainMenuStage --------------------------------
@@ -300,6 +296,7 @@ void GameStage::on_enter_stage() {
 	PongClient* cl = static_cast<PongClient*>(this->engine);
 	auto& game_handler = cl->get_game_handler();
 	auto& touch_keys = this->engine->get_touch_keys();
+	auto& audio = this->engine->get_audio_hnd();
 
 	touch_keys.clear_buttons();
 
@@ -331,11 +328,12 @@ void GameStage::on_enter_stage() {
 
 	}
 
-	play_sound(Do, 400);
-	play_sound(Re, 200);
-	play_sound(La, 100);
-	play_sound(Si, 100);
-	play_audio();
+	audio.create_and_play_sample({
+		{ Do, 400 },
+		{ Re, 200 },
+		{ La, 100 },
+		{ Si, 100 },
+	});
 
 	game_handler.pong_game->restart();
 	game_handler.pong_game->iniciar_punto(1);
@@ -415,17 +413,21 @@ void GameStage::on_event(ALLEGRO_EVENT evt) {
 
 
 void GameStage::process_message(string &msg) {
+	
+	auto& audio = this->engine->get_audio_hnd();
 
 	if (msg == "scored") {
-
-		play_sound(Re, 130);
-		play_sound(Do, 250);
-		play_audio();
+		
+		audio.create_and_play_sample({
+			{ Re, 130 },
+			{ Do, 250 },
+		});
 
 	} else if (msg == "hit") {
-
-		play_sound(Mi, 40, 4);
-		play_audio();
+		
+		audio.create_and_play_sample({
+			{ Mi, 40 },
+		});
 
 	}
 
@@ -486,25 +488,29 @@ void GameStage::on_tick() {
 
 	if (game_handler.pong_game->finished) {
 
-		const uint8_t local_player_idx = game_handler.play_mode == PLAYMODE_ONLINE ? game_handler.local_player_idx : 0;
-		
 		this->engine->set_stage(OVER);
 
+		const uint8_t local_player_idx = game_handler.play_mode == PLAYMODE_ONLINE ? game_handler.local_player_idx : 0;
 		const bool local_player_wins = local_player_idx == game_handler.pong_game->get_winner_idx();
+		auto& audio = this->engine->get_audio_hnd();
+
+		audio.prune(true);
 
 		if (local_player_wins) {
-			play_sound(Do, 150, 3);
-			play_sound(Mi, 150, 3);
-			play_sound(Sol, 200, 3);
-			play_sound(Do, 700, 4);
+			audio.create_and_play_sample({
+				{ Do, 150, 3 },
+				{ Mi, 150, 3 },
+				{ Sol, 200, 3 },
+				{ Do, 700, 4 },
+			});
 		} else {
-			play_sound(Re, 150, 3);
-			play_sound(Re, 150, 3);
-			play_sound(Re, 200, 3);
-			play_sound(LaSos, 500, 2);
+			audio.create_and_play_sample({
+				{ Re, 150, 3 },
+				{ Re, 150, 3 },
+				{ Re, 200, 3 },
+				{ LaSos, 500, 2 },
+			});
 		}
-		
-		play_audio();
 		
 	}
 	

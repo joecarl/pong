@@ -1,7 +1,6 @@
 #include "onlinestages.h"
 #include "stages.h"
 #include "../pongclient.h"
-#include <dp/client/mediatools.h>
 #include <dp/utils.h>
 #include <allegro5/allegro_primitives.h>
 #include <iostream>
