@@ -24,6 +24,7 @@ void GameHandler::make_new_pong_game(int_fast32_t seed) {
 void GameHandler::cleanup() {
 
 	delete pong_game;
+	pong_game = nullptr;
 
 }
 
