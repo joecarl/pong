@@ -213,7 +213,7 @@ void PongNetGroupsHandler::create_group(dp::client::Connection* net, std::string
 
 		game_handler.make_new_pong_game((int_fast32_t) data.get<int64_t>("seed"));
 		controller.setup(game_handler.pong_game);
-
+		/*
 		auto players_order = data.get<boost::json::array>("players_order"); //quiza podria omitirse y utilizar el mismo orden que haya en el grupo, pero no me fio de que se trafuque
 		uint8_t i = 0;
 		for (auto& ord: players_order) {
@@ -226,13 +226,23 @@ void PongNetGroupsHandler::create_group(dp::client::Connection* net, std::string
 			game_handler.set_player_name(i, info->name);
 			i++;
 		}
+		*/
+		uint8_t i = 0;
+		for (auto& info: this->group->get_members()) {
+
+			if (info.client_id == local_id) {
+				game_handler.local_player_idx = i;
+			}
+			//cout << "curioso " << player_cfg << endl;
+			game_handler.set_player_name(i, info.name);
+			i++;
+		}
 		
 		PongClient* client = static_cast<PongClient*>(this->get_client());
 		client->set_stage(GAME);
 	
 	});
 
-	// TODO: ver bien como gestionar esto: (quiza la clase controller puede ir a pronggroup y game_handler a pongclient)
 	group_nelh->add_event_listener("game/event", [this] (const dp::Object& data) {
 
 		controller.push_event(data);
