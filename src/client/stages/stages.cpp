@@ -175,7 +175,7 @@ void MainMenuStage::draw() {
 	retro_logo.draw((sc * DEF_W - retro_logo.get_width()) / 2, sc * 40);
 	//al_draw_bitmap(this->logo, (sc - 1) * DEF_W / 2, (sc - 1) * 50, 0);
 	const float center = sc * DEF_W / 2;
-	al_draw_text(font, WHITE, center, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
+	al_draw_text(font, al_map_rgb(140, 140, 140), center, sc * 105, ALLEGRO_ALIGN_CENTER, "Recreated by: Jose Carlos HR");
 	al_draw_text(font, WHITE, center, sc * 130, ALLEGRO_ALIGN_CENTER, "1: One Player  2: Two Players");
 	al_draw_text(font, WHITE, center, sc * 142, ALLEGRO_ALIGN_CENTER, "3: Training    4: Play online");
 	al_draw_text(font, WHITE, center, sc * 154, ALLEGRO_ALIGN_CENTER, "5: Config      ESC: Quit     ");
@@ -227,7 +227,7 @@ void GameStage::draw_scores() {
 		
 		al_draw_textf(
 			font,
-			RED,
+			CGA_BLUE,
 			scale * 25,
 			scale * y_coord,
 			ALLEGRO_ALIGN_LEFT,
@@ -239,34 +239,11 @@ void GameStage::draw_scores() {
 	
 	}
 
-	/*
-	al_draw_textf(
-		font,
-		RED,
-		scale * 25,
-		scale * y_coord,
-		ALLEGRO_ALIGN_LEFT,
-		"SCORE:%d",
-		game_handler.pong_game->players[0]->score
-	);
-
-	al_draw_textf(
-		font,
-		RED,
-		scale * 240,
-		scale * y_coord,
-		ALLEGRO_ALIGN_LEFT,
-		"SCORE:%d",
-		game_handler.pong_game->players[1]->score
-	);
-	*/
-
 	const float center = DEF_W / 2.0;
-	// string player_name = cfg.contains("playerName") ? cfg["playerName"].as_string().c_str() : "-" ;
 
 	al_draw_text(
 		font,
-		RED,
+		CGA_PINK,
 		scale * (5),
 		scale * y_coord,
 		ALLEGRO_ALIGN_LEFT,
@@ -275,7 +252,7 @@ void GameStage::draw_scores() {
 
 	al_draw_text(
 		font,
-		RED,
+		CGA_PINK,
 		scale * (DEF_W - 5),
 		scale * y_coord,
 		ALLEGRO_ALIGN_RIGHT,
@@ -284,7 +261,7 @@ void GameStage::draw_scores() {
 
 	al_draw_textf(
 		font,
-		RED,
+		CGA_PINK,
 		scale * (center - 12),
 		scale * y_coord,
 		ALLEGRO_ALIGN_RIGHT,
@@ -299,7 +276,7 @@ void GameStage::draw_scores() {
 			scale * (DEF_H - 10 + i * 2), 
 			scale * (center + 1), 
 			scale * (DEF_H - 10 + i * 2), 
-			RED,
+			CGA_BLUE,
 			0
 		);
 
@@ -307,7 +284,7 @@ void GameStage::draw_scores() {
 
 	al_draw_textf(
 		font,
-		RED,
+		CGA_PINK,
 		scale * (center + 12),
 		scale * y_coord,
 		ALLEGRO_ALIGN_LEFT,
@@ -546,7 +523,7 @@ void GameStage::draw() {
 
 		al_draw_textf(
 			font, 
-			RED, 
+			CGA_PINK, 
 			scale * this->engine->get_res_x() / 2, 
 			scale * this->engine->get_res_y() / 2, 
 			ALLEGRO_ALIGN_CENTER, 
@@ -563,11 +540,11 @@ void GameStage::draw() {
 
 			al_draw_text(
 				font, 
-				al_map_rgb(0, 200, 100), 
+				CGA_PINK, 
 				this->engine->get_res_x() * scale / 2, 
 				this->engine->get_res_y() * scale / 2 - 5, 
 				ALLEGRO_ALIGN_CENTER, 
-				"PAUSA"
+				"PAUSE"
 			);
 			
 		} else {
@@ -578,7 +555,7 @@ void GameStage::draw() {
 			int secs_d = (secs % 60) / 10;
 			int secs_u = secs % 10;
 			int min = secs / 60;
-			al_draw_textf(font, RED, scale * DEF_W / 2, 0, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
+			al_draw_textf(font, CGA_BLUE, scale * DEF_W / 2, 0, ALLEGRO_ALIGN_CENTER, "%d:%d%d", min, secs_d, secs_u);
 				
 			this->draw_court();
 
@@ -597,12 +574,12 @@ void GameStage::draw() {
 			this->draw_scores();
 
 			if (show_fps) {
-				al_draw_textf(font, RED, scale * 5, 0, ALLEGRO_ALIGN_LEFT, "FPS: %d", (int) (this->engine->get_fps()));
+				al_draw_textf(font, CGA_PINK, scale * 5, 0, ALLEGRO_ALIGN_LEFT, "FPS: %d", (int) (this->engine->get_fps()));
 			}
 
 			if (show_ping && game_handler.play_mode == PLAYMODE_ONLINE) {
 				int ping = (int) (this->engine->get_io_client().get_ping_ms());
-				al_draw_textf(font, RED, scale * (DEF_W - 5), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
+				al_draw_textf(font, CGA_PINK, scale * (DEF_W - 5), scale * 1, ALLEGRO_ALIGN_RIGHT, "PING: %d", ping);
 			}
 
 			tr->draw_player(game_handler.pong_game->players[0], scale);
@@ -833,7 +810,7 @@ void GameOverStage::draw() {
 	float scale = this->engine->get_scale();
 	ALLEGRO_FONT *font = this->engine->get_font();
 
-	al_draw_textf(font, RED, scale * DEF_W / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: %s", winner.c_str());
-	al_draw_text (font, RED, scale * DEF_W / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
+	al_draw_textf(font, CGA_PINK, scale * DEF_W / 2, scale * 54, ALLEGRO_ALIGN_CENTER, "WINNER: %s", winner.c_str());
+	al_draw_text (font, CGA_PINK, scale * DEF_W / 2, scale * 70, ALLEGRO_ALIGN_CENTER, "PLAY AGAIN? (Y/N)");
 
 }

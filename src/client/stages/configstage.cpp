@@ -219,7 +219,7 @@ void ConfigStage::draw_config_view() {
 		al_draw_text(font, al_map_rgb(180, 180, 180), 30, 15, ALLEGRO_ALIGN_LEFT, "Press F1 to revert to default");
 	}
 	const string valid_msg = curr_param.input->get_validation_msg();
-	al_draw_text(font, RED, 30, 30, ALLEGRO_ALIGN_LEFT, valid_msg.c_str());
+	al_draw_text(font, CGA_BLUE, 30, 30, ALLEGRO_ALIGN_LEFT, valid_msg.c_str());
 
 	const int line_height = 20;
 
@@ -228,8 +228,8 @@ void ConfigStage::draw_config_view() {
 
 	const float x_shift = 3.0 * sin(frame / 6.0);
 
-	al_draw_filled_circle(16 + x_shift, marker_y, 3, RED);
-	al_draw_filled_circle(320 - 16 - x_shift, marker_y, 3, RED);
+	al_draw_filled_circle(16 + x_shift, marker_y, 3, CGA_PINK);
+	al_draw_filled_circle(320 - 16 - x_shift, marker_y, 3, CGA_PINK);
 
 	for (auto& param: config_params) {
 
