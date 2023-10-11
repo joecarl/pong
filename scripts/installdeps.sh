@@ -2,6 +2,7 @@
 
 #global-deps
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-gcc
+pacman -S --noconfirm mingw64/mingw-w64-x86_64-make
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-boost
 
 #client-only-deps
@@ -20,4 +21,4 @@ pacman -S --noconfirm mingw64/mingw-w64-x86_64-libwebp
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-openal
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-opusfile
 pacman -S --noconfirm mingw64/mingw-w64-x86_64-physfs
-pacman -S --noconfirm mingw64/mingw-w64-x86_64-pkg-config
+pacman -S --noconfirm mingw64/mingw-w64-x86_64-pkgconf
