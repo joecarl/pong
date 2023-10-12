@@ -1,6 +1,7 @@
 
 #include "pongclient.h"
 #include "stages/stages.h"
+#include "stages/gamestage.h"
 #include "stages/onlinestages.h"
 #include "stages/tutorialstage.h"
 #include "stages/configstage.h"
