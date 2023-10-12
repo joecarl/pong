@@ -6,61 +6,6 @@
 using std::cout, std::cerr, std::endl;
 using dp::Object;
 
-
-void OnlineGameController::push_event(const Object &evt) {
-
-	auto evt_type = evt.sget<std::string>("type");
-
-	if (evt_type == "sync") {
-		
-		cerr << "!! SYNCING: " << evt << endl;
-
-		try {
-
-			this->sync_game(evt["gamevars"]);
-
-		} catch (std::invalid_argument& e) {
-			
-			cerr << "SYNC ERROR:  " <<  e.what() << endl;
-
-		}
-
-	} else {
-			
-		//cout << "QUEUED: " << evt << endl;
-
-		this->evt_queue.push(evt);
-
-	}
-	
-}
-
-void OnlineGameController::process_event(const Object &evt) {
-
-	//cout << "Processing evt" << evt << endl;
-
-	auto evt_type = evt.sget<std::string>("type");
-		
-	if (evt_type == "set_control_state") {
-		int control = evt["control"]; 
-		bool new_state = evt["state"];
-		int player_key = evt["player_key"];
-		this->game->players[player_key]->controls[control] = new_state;
-
-	} else if (evt_type == "set_paused_state") {
-
-		bool new_state = evt["state"];
-		this->game->paused = new_state;
-
-	} else {
-
-		cerr << "Unknown event type: " << evt_type << endl;
-
-	}
-
-}
-
-
 void sync_player(PlayerP* p, const Object& vars) {
 
 	p->x = vars["x"];
@@ -116,83 +61,42 @@ void sync_bonus(Bonus* b, const Object& vars) {
 	
 }
 
+void sync_game(PongGame* game, const Object& vars) {
 
-void OnlineGameController::sync_game(const Object& vars) {
+	game->tick = vars["tick"];
+	game->warmup = vars["warmup"];
+	game->paused = vars["paused"];
+	game->rnd.index = vars["rnd_index"];
 
-	this->game->tick = vars["tick"];
-	this->game->warmup = vars["warmup"];
-	this->game->paused = vars["paused"];
-	this->game->rnd.index = vars["rnd_index"];
-
-	cout << "sync players ..." << endl;
-	sync_player(this->game->players[0], vars["p0vars"]);
-	sync_player(this->game->players[1], vars["p1vars"]);
+	//cout << "sync players ..." << endl;
+	sync_player(game->players[0], vars["p0vars"]);
+	sync_player(game->players[1], vars["p1vars"]);
 	
-	cout << "sync bonus ..." << endl;
+	//cout << "sync bonus ..." << endl;
 	boost::json::array bonus = vars["bonus"];
 	for (uint8_t i = 0; i < BONUS_MAX; i++) {
-		sync_bonus(this->game->bonus[i], Object(bonus[i]));
+		sync_bonus(game->bonus[i], Object(bonus[i]));
 	}
 
-	cout << "sync walls ..." << endl;
+	//cout << "sync walls ..." << endl;
 	boost::json::array walls = vars["walls"];
 	for (uint8_t i = 0; i < 4; i++) {
-		sync_wall(this->game->walls[i], Object(walls[i]));
+		sync_wall(game->walls[i], Object(walls[i]));
 	}
 
-	cout << "sync ball ..." << endl;
-	sync_ball(this->game->ball, vars["ballvars"]);
+	//cout << "sync ball ..." << endl;
+	sync_ball(game->ball, vars["ballvars"]);
 
 }
-
-
-
-void OnlineGameController::setup(PongGame *game) {
-	
-	this->game = game;
-	
-	//vaciamos la cola de eventos
-	std::queue<dp::Object> empty;
-	std::swap(this->evt_queue, empty);
-
-}
-
-
-void OnlineGameController::on_tick() {
-
-	while (this->evt_queue.size() > 0) {
-
-		auto& evt = this->evt_queue.front();
-		uint64_t evt_tick = evt["tick"];
-
-		if (evt_tick == this->game->tick) {
-
-			this->process_event(evt);
-
-			this->evt_queue.pop();
-
-		} else if (evt_tick < this->game->tick) {
-
-			cerr << "DESYNC! evt_tick: " << evt_tick << " | game_tick: " << this->game->tick << endl;
-
-			this->evt_queue.pop();
-		
-			throw std::runtime_error("Evento perdido");
-
-		} else {
-			
-			break;
-
-		}
-
-	}
-}
-
 
 
 PongNetGroupsHandler::PongNetGroupsHandler(PongClient* client) : 
 	dp::client::NetGroupsHandler(client)
 {
+	this->controller.sync_game = [] (dp::BaseGame* g, const dp::Object& v) { 
+		sync_game(static_cast<PongGame*>(g), v); 
+	};
+
 	this->nelh->add_event_listener("net/set_client_id", [this] (const dp::Object& data) {
 		auto cl = this->get_client();
 		cl->get_io_client().send_event("client/login", { {"cfg", cl->get_cfg().json()} });
@@ -213,29 +117,16 @@ void PongNetGroupsHandler::create_group(dp::client::Connection* net, std::string
 
 		game_handler.make_new_pong_game((int_fast32_t) data.get<int64_t>("seed"));
 		controller.setup(game_handler.pong_game);
-		/*
-		auto players_order = data.get<boost::json::array>("players_order"); //quiza podria omitirse y utilizar el mismo orden que haya en el grupo, pero no me fio de que se trafuque
-		uint8_t i = 0;
-		for (auto& ord: players_order) {
-			std::string client_id = ord.as_string().c_str();
-			auto info = this->group->get_member_info(client_id);
-			if (client_id == local_id) {
-				game_handler.local_player_idx = i;
-			}
-			//cout << "curioso " << player_cfg << endl;
-			game_handler.set_player_name(i, info->name);
-			i++;
-		}
-		*/
+		
 		uint8_t i = 0;
 		for (auto& info: this->group->get_members()) {
 
 			if (info.client_id == local_id) {
 				game_handler.local_player_idx = i;
 			}
-			//cout << "curioso " << player_cfg << endl;
 			game_handler.set_player_name(i, info.name);
 			i++;
+
 		}
 		
 		PongClient* client = static_cast<PongClient*>(this->get_client());

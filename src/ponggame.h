@@ -59,10 +59,6 @@ public:
 
 	unsigned int control_mode = CONTROLMODE_NONE;
 
-	bool paused = false;
-
-	//bool finished = false;
-
 	uint16_t warmup = 0;
 
 	PlayerP *players[2];
@@ -72,8 +68,6 @@ public:
 	Ball *ball;
 
 	Bonus *bonus[BONUS_MAX];
-
-	//unsigned int tick = 0;
 
 	std::queue<std::string> messages;
 	
