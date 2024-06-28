@@ -1,0 +1,12 @@
+name: copinstar-pong
+
+services:
+
+  server:
+    build:
+      context: ..
+      dockerfile: ./docker/server.Dockerfile
+    ports:
+      - 51009:51009
+    restart: unless-stopped
+      
