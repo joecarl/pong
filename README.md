@@ -11,7 +11,7 @@ Este proyecto tiene dos dependencias principales:
 
 ## Entorno de desarrollo
 
-Actualmente la forma más sencilla es trabajar en este proyecto es utilizar un devcontainer de VSCode, pues esto configurará todo automaticamente para poder trabajar, compilar y depurar. Para ello será necesario lo siguiente:
+Actualmente la forma más sencilla de trabajar en este proyecto es utilizar un devcontainer de VSCode, pues esto configurará todo automaticamente para poder desarrollar, compilar y depurar.
 
 Requisistos:
 - Instalar WSL (sólo si se está trabajando en Windows).
@@ -24,7 +24,7 @@ Pasos para preparar entorno en VS Code:
 1. Abrir un terminal y clonar este repositorio donde se desee.
 1. Pulsar `Ctrl + K + O` y abrir directorio de la carpeta clonada.
 1. Pulsar el botón `Reopen in container` que aparecerá en una ventana abajo a la derecha. (Si no aparece siempre se puede hacer: F1 y buscar `Reopen in container`).
-1. Una vez se haya montado el devcontainer. Abrir un terminal y lanzar el script `bash scripts/installdeps-ubuntu.sh`.
+1. Una vez se haya montado el devcontainer. Abrir un terminal y lanzar el comando `bash scripts/installdeps-ubuntu.sh`.
 
 Y ya estaría todo listo. La próxima vez que queramos abrir el entorno podemos acceder directamente desde `Remote Explorer > Dev Containers`. 
 
