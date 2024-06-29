@@ -9,5 +9,5 @@
 		"--volume=/mnt/wslg/:/mnt/wslg/"
 	],
 	"forwardPorts": [51009]
-	//"postCreateCommand": "sudo bash scripts/installdeps-ubuntu.sh"
+	//"postCreateCommand": "sudo bash .devcontainer/startup.sh"
 }
