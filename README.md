@@ -24,9 +24,16 @@ Pasos para preparar entorno en VS Code:
 1. Abrir un terminal y clonar este repositorio donde se desee.
 1. Pulsar `Ctrl + K + O` y abrir directorio de la carpeta clonada.
 1. Pulsar el botón `Reopen in container` que aparecerá en una ventana abajo a la derecha. (Si no aparece siempre se puede hacer: F1 y buscar `Reopen in container`).
-1. Una vez se haya montado el devcontainer. Abrir un terminal y lanzar el comando `bash scripts/installdeps-ubuntu.sh`.
+1. Una vez se haya montado el devcontainer. Abrir un terminal y lanzar los comandos:
 
-Y ya estaría todo listo. La próxima vez que queramos abrir el entorno podemos acceder directamente desde `Remote Explorer > Dev Containers`. 
+    ```sh
+    git submodule update --init
+    sudo bash scripts/installdeps-ubuntu.sh
+    ```
+
+Y ya estaría todo listo, ya podemos incluso lanzar el depurador de VS Code donde tendremos tanto la opcion `Launch client` como `Launch server`.
+
+La próxima vez que queramos abrir el entorno podemos acceder directamente desde `Remote Explorer > Dev Containers`. 
 
 ## Distribuir la aplicación
 
