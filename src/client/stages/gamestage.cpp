@@ -11,6 +11,7 @@
 using dp::client::BaseClient;
 using dp::client::ui::TouchKeysCell;
 using dp::client::ui::TouchKeysRow;
+using dp::client::ui::Button;
 using std::string;
 using std::cout, std::cerr, std::endl;
 
@@ -152,21 +153,93 @@ void GameStage::draw_scores() {
 }
 
 
+void draw_up_shape(float x, float y, float size, ALLEGRO_COLOR c) {
+
+	float r = size / 2.0;
+	const float vtx[] = {				
+		x + r, y + r,
+		x + r, y - (r / 3.0f),
+		x + (r / 3.0f), y - r,
+		x - (r / 3.0f), y - r,
+		x - r, y - (r / 3.0f),
+		x - r, y + r,
+	};
+	al_draw_filled_polygon(vtx, sizeof(vtx) / (sizeof(float) * 2), c);
+}
+
+void draw_down_shape(float x, float y, float size, ALLEGRO_COLOR c) {
+
+	float r = size / 2.0;
+	const float vtx[] = {				
+		x - r, y - r,
+		x - r, y + (r / 3.0f),
+		x - (r / 3.0f), y + r,
+		x + (r / 3.0f), y + r,
+		x + r, y + (r / 3.0f),
+		x + r, y - r,
+	};
+	al_draw_filled_polygon(vtx, sizeof(vtx) / (sizeof(float) * 2), c);
+}
+
+void draw_down_btn(float x, float y, float size, bool pressed) {
+
+	int offset = pressed ? 1 : 2;
+	draw_down_shape(x, y, size, CGA_BLUE);
+	draw_down_shape(x - offset, y - offset, size, CGA_PINK);
+}
+
+void draw_up_btn(float x, float y, float size, bool pressed) {
+
+	int offset = pressed ? 1 : 2;
+	draw_up_shape(x, y, size, CGA_BLUE);
+	draw_up_shape(x - offset, y - offset, size, CGA_PINK);
+}
+
 void GameStage::on_enter_stage() {
 	
 	PongClient* cl = static_cast<PongClient*>(this->engine);
 	auto& game_handler = cl->get_game_handler();
 	auto& touch_keys = this->engine->get_touch_keys();
 	auto& audio = this->engine->get_audio_hnd();
+	auto& allegro_hnd = this->engine->get_allegro_hnd();
+	auto& cfg = this->engine->get_cfg();
+	const bool show_buttons = cfg.sget<bool>("showButtons", true);
 
 	touch_keys.clear_buttons();
 
 	if (game_handler.pong_game->control_mode == CONTROLMODE_TWO_PLAYERS && game_handler.play_mode == PLAYMODE_LOCAL) {
+		
+		auto p1_up_btn = touch_keys.add_button(ALLEGRO_KEY_W, "");
+		if (show_buttons) p1_up_btn->draw_fn = [](Button& btn) {
+			int x = btn.get_x() + 30;
+			int y = btn.get_y() + 40;
+			int size = 30;
+			draw_up_btn(x, y, size, btn.is_pressed());
+		};
 
-		touch_keys.add_button(ALLEGRO_KEY_W, "");
-		touch_keys.add_button(ALLEGRO_KEY_UP, "");
-		touch_keys.add_button(ALLEGRO_KEY_S, "");
-		touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
+		auto p2_up_btn = touch_keys.add_button(ALLEGRO_KEY_UP, "");
+		if (show_buttons) p2_up_btn->draw_fn = [&](Button& btn) {
+			int x = btn.get_x() + btn.get_w() - 30;
+			int y = btn.get_y() + 40;
+			int size = 30;
+			draw_up_btn(x, y, size, btn.is_pressed());
+		};
+
+		auto p1_down_btn = touch_keys.add_button(ALLEGRO_KEY_S, "");
+		if (show_buttons) p1_down_btn->draw_fn = [&](Button& btn) {
+			int x = btn.get_x() + 30;
+			int y = btn.get_y() + btn.get_h() - 40;
+			int size = 30;
+			draw_down_btn(x, y, size, btn.is_pressed());
+		};
+
+		auto p2_down_btn = touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
+		if (show_buttons) p2_down_btn->draw_fn = [&](Button& btn) {
+			int x = btn.get_x() + btn.get_w() - 30;
+			int y = btn.get_y() + btn.get_h() - 40;
+			int size = 30;
+			draw_down_btn(x, y, size, btn.is_pressed());
+		}; 
 
 		TouchKeysCell cell = {
 			.width = 1,
@@ -182,8 +255,33 @@ void GameStage::on_enter_stage() {
 
 	} else {
 
-		touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
-		touch_keys.add_button(ALLEGRO_KEY_UP, "");
+		auto down_btn = touch_keys.add_button(ALLEGRO_KEY_DOWN, "");
+		if (show_buttons) down_btn->draw_fn = [&allegro_hnd](Button& btn) {
+			float landscape_ratio = (float)allegro_hnd.get_window_height() / (float)allegro_hnd.get_window_width();
+			int x = btn.get_x() + 30;
+			int y = btn.get_y() + btn.get_h() / 2 + 40;
+			int size = 30;
+			if (landscape_ratio > 1) {
+				x = btn.get_x() + 60;
+				y = btn.get_y() + btn.get_h() - landscape_ratio * 50;
+				size = 50;
+			}
+			draw_down_btn(x, y, size, btn.is_pressed());
+		};
+
+		auto up_btn = touch_keys.add_button(ALLEGRO_KEY_UP, "");
+		if (show_buttons) up_btn->draw_fn = [&allegro_hnd](Button& btn) {
+			float landscape_ratio = (float)allegro_hnd.get_window_height() / (float)allegro_hnd.get_window_width();
+			int x = btn.get_x() + btn.get_w() - 30;
+			int y = btn.get_y() + btn.get_h() / 2 - 40;
+			int size = 30;
+			if (landscape_ratio > 1) {
+				x = btn.get_x() + btn.get_w() - 60;
+				y = btn.get_y() + btn.get_h() - landscape_ratio * 50;
+				size = 50;
+			}
+			draw_up_btn(x, y, size, btn.is_pressed());
+		};
 
 		touch_keys.fit_buttons(dp::client::ui::FIT_HORIZONTAL);
 

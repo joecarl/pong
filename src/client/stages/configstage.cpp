@@ -23,6 +23,7 @@ ConfigStage::ConfigStage(BaseClient* _engine) : Stage(_engine) {
 	auto showfps_input = this->engine->create_boolean_input();
 	auto showping_input = this->engine->create_boolean_input();
 	auto windowed_input = this->engine->create_boolean_input();
+	auto buttons_input = this->engine->create_boolean_input();
 
 	config_params = {
 		{ .key = "playerName", .label = "Player Name", .input = playername_input },
@@ -32,6 +33,9 @@ ConfigStage::ConfigStage(BaseClient* _engine) : Stage(_engine) {
 		#ifndef __ANDROID__
 		{ .key = "windowed", .label = "Run windowed", .input = windowed_input },
 		#endif
+		//#ifdef __ANDROID__
+		{ .key = "showButtons", .label = "Show buttons", .input = buttons_input },
+		//#endif
 	};
 
 }
