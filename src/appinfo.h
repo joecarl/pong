@@ -1,7 +1,7 @@
 #ifndef APPINFO_H
 #define APPINFO_H
 
-#define APP_VERSION "1.7.1"
+#define APP_VERSION "1.8.0"
 
 #define APP_NAME "Pong"
 
