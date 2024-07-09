@@ -33,9 +33,9 @@ ConfigStage::ConfigStage(BaseClient* _engine) : Stage(_engine) {
 		#ifndef __ANDROID__
 		{ .key = "windowed", .label = "Run windowed", .input = windowed_input },
 		#endif
-		//#ifdef __ANDROID__
+		#ifdef __ANDROID__
 		{ .key = "showButtons", .label = "Show buttons", .input = buttons_input },
-		//#endif
+		#endif
 	};
 
 }
