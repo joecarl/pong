@@ -8,6 +8,6 @@
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=/mnt/wslg/:/mnt/wslg/"
 	],
-	"forwardPorts": [51009]
-	//"postCreateCommand": "sudo bash .devcontainer/startup.sh"
+	"forwardPorts": [51009],
+	"postCreateCommand": "bash .devcontainer/startup.sh"
 }
