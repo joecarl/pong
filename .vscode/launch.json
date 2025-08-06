@@ -11,6 +11,7 @@
 			"environment": [],
 			"externalConsole": false,
 			"MIMode": "gdb",
+			"preLaunchTask": "build-server",
 			"setupCommands": [
 				{
 					"description": "Enable pretty-printing for gdb",
@@ -22,8 +23,7 @@
 					"text": "-gdb-set disassembly-flavor intel",
 					"ignoreFailures": true
 				}
-			],
-			"preLaunchTask": "build-server"
+			]
 		},
         {
             "name": "(gdb) Launch client",
@@ -36,6 +36,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
+			"preLaunchTask": "build-client",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -47,8 +48,7 @@
                     "text": "-gdb-set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
-            ],
-			"preLaunchTask": "build-client"
+            ]
         }
     ],
     "version": "2.0.0"

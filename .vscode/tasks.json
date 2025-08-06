@@ -2,19 +2,41 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build-client",
+			"label": "build-server",
+			"type": "shell",
 			"command": "make",
 			"args": [
-				"client",
-				"-j2"
+				"-j$(nproc)",
+				"server"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": [
+				"$gcc"
 			]
 		},
 		{
-			"label": "build-server",
+			"label": "build-client",
+			"type": "shell",
 			"command": "make",
 			"args": [
-				"server",
-				"-j2"
+				"-j$(nproc)",
+				"client"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": [
+				"$gcc"
 			]
 		}
 	]
